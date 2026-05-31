@@ -166,6 +166,7 @@ const turnstileSiteKey = '0x4AAAAAADT8tR-a6EWOLJdC';
 
     function open() {
       if (isOpen()) return;
+      if (window.track) window.track('wishlist_open');
       applyState();
       lastFocused = document.activeElement;
       modal.classList.remove('hidden');
@@ -260,6 +261,7 @@ const turnstileSiteKey = '0x4AAAAAADT8tR-a6EWOLJdC';
         const data = await res.json().catch(function () { return {}; });
         if (res.ok && data.ok) {
           try { localStorage.setItem(JOINED_KEY, '1'); } catch (_) {}
+          if (window.track) window.track('wishlist_signup');
           setBusy(false);
           setStatus('', '');
           applyState(); // swap the form out for the confirmation

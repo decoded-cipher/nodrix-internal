@@ -1,18 +1,8 @@
 ---
-// Join Wishlist modal — site-wide email capture + "in active development" notice.
-//
-// Open it from anywhere by adding `data-wishlist-open` to any clickable element.
-// Auto-opens once per browser session. The "active development" warning shows
-// every time. Before signing up it shows the email form; once a visitor has
-// joined (tracked in localStorage) every later open shows an "already on the
-// waitlist" confirmation instead. Posts to /api/wishlist (Cloudflare Pages
-// Function → D1). Behavior is in the inline script below and mirrors the
-// vanilla-JS pattern used for the header menu in Site.astro.
-//
-// Bot protection: a Cloudflare Turnstile widget guards the form; the Function
-// verifies the token server-side. The site key is public, so it's hard-coded
-// here and used everywhere. The matching TURNSTILE_SECRET_KEY must be set as a
-// Pages secret (production) and in .dev.vars (local dev).
+// Wishlist modal — opens on a [data-wishlist-open] click, plus once per session
+// after engagement (scroll/dwell, never on load — avoids the intrusive-
+// interstitial SEO hit). Posts to /api/wishlist; Turnstile guards the form,
+// verified server-side with TURNSTILE_SECRET_KEY (site key is public, hard-coded).
 const turnstileSiteKey = '0x4AAAAAADT8tR-a6EWOLJdC';
 ---
 
@@ -122,7 +112,6 @@ const turnstileSiteKey = '0x4AAAAAADT8tR-a6EWOLJdC';
 
 <script is:inline>
   (function () {
-    // Once-per-session auto-open; persistent "has joined" flag.
     const SESSION_KEY = 'nodrix:wishlist-session';
     const JOINED_KEY = 'nodrix:wishlist-joined';
 
@@ -287,11 +276,25 @@ const turnstileSiteKey = '0x4AAAAAADT8tR-a6EWOLJdC';
       }
     });
 
-    // Auto-open once per browser session — content depends on join state.
+    // Auto-open once per session after engagement (scroll/dwell), never on load —
+    // stays clear of the intrusive-interstitial SEO penalty. Skip if joined.
     try {
-      if (!sessionStorage.getItem(SESSION_KEY)) {
-        sessionStorage.setItem(SESSION_KEY, '1');
-        window.setTimeout(open, 1200);
+      if (!sessionStorage.getItem(SESSION_KEY) && !hasJoined()) {
+        let fired = false;
+        let dwellTimer = 0;
+        const trigger = function () {
+          if (fired) return;
+          fired = true;
+          try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (_) {}
+          window.removeEventListener('scroll', onScroll);
+          window.clearTimeout(dwellTimer);
+          open();
+        };
+        const onScroll = function () {
+          if (window.scrollY > window.innerHeight * 0.6) trigger();
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        dwellTimer = window.setTimeout(trigger, 25000);
       }
     } catch (_) {}
   })();

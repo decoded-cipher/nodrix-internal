@@ -47,6 +47,7 @@ const jsonLd = {
       name: siteName,
       url: site.href,
       logo: new URL('/icon-512.png', site).href,
+      email: 'hello@nodrix.live',
       sameAs: [repoUrl],
     },
     {
@@ -260,6 +261,7 @@ const jsonLd = {
                 <li><a href={repoUrl} class="hover:text-neutral-900">GitHub</a></li>
                 <li><a href={deployUrl} class="hover:text-neutral-900">Deploy</a></li>
                 <li><a href={`${repoUrl}/blob/master/README.md`} class="hover:text-neutral-900">README</a></li>
+                <li><a href="mailto:hello@nodrix.live" class="hover:text-neutral-900">Contact</a></li>
               </ul>
             </div>
           </div>

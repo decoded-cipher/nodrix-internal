@@ -1,6 +1,7 @@
 ---
 import Site from '../layouts/Site.astro';
 import DeployButton from '../components/DeployButton.astro';
+import Waves from '../components/Waves.astro';
 
 const repoUrl = 'https://github.com/decoded-cipher/nodrix';
 
@@ -86,7 +87,7 @@ const widgets = [
       <span class="a2"></span>
       <span class="a3"></span>
     </div>
-    <div class="bg-dotgrid absolute inset-0 opacity-70"></div>
+    <Waves />
     <div class="relative mx-auto w-full max-w-6xl px-5 py-16 text-center sm:px-6 sm:py-24">
       <a
         href={repoUrl}

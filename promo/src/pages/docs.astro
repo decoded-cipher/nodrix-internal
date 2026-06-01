@@ -1,6 +1,7 @@
 ---
 import Site from '../layouts/Site.astro';
 import DeployButton from '../components/DeployButton.astro';
+import Waves from '../components/Waves.astro';
 
 const toc = [
   { href: '#setup', label: 'Deploy & claim' },
@@ -44,7 +45,7 @@ const jsonLd = {
   </Fragment>
   <!-- Header -->
   <section class="hero-glow relative overflow-hidden border-b border-neutral-200/70">
-    <div class="bg-dotgrid absolute inset-0 opacity-70"></div>
+    <Waves />
     <div class="relative mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-20">
       <span class="text-sm font-semibold text-accent-600">Docs</span>
       <h1 class="mt-2 text-balance text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl">

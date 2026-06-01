@@ -11,6 +11,7 @@ Built-in, framework-agnostic Web Components that take data in and emit command i
 - **iot-value** — The latest reading of a single variable, large and legible. Attributes: \`data-title\`, \`data-unit\`.
 - **iot-gauge** — An arc gauge for a numeric variable with configurable min/max bounds. Attributes: \`data-title\`, \`data-min\`, \`data-max\`, \`data-unit\`.
 - **iot-chart** — A multi-series time-series chart (ApexCharts): line, area, bar, or stepline, with optional drag-to-zoom. Attributes: \`data-title\`, \`data-chart-type\`, \`data-zoom\`.
+- **iot-map** — Geographic markers from static coordinates or live lat/lng variables, on a configurable basemap. Attributes: \`data-title\`, \`data-basemap\`, \`data-zoom\`.
 
 ## Control
 - **iot-toggle** — On/off switch that writes a value and reflects last reported state. Attributes: \`data-title\`, \`data-variable\`, \`data-on-value\`, \`data-off-value\`.

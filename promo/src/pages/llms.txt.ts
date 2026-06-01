@@ -17,7 +17,7 @@ export const GET: APIRoute = ({ site }) => {
 - Devices send telemetry over plain HTTPS (POST /v1/telemetry); variables auto-create on first sight. No MQTT broker, no SDK.
 - Realtime dashboards built from drag-and-drop widgets over hibernating WebSockets.
 - Two-way control: toggles/sliders/buttons write values back to hardware.
-- Edge automations: trigger on variable thresholds, schedules, sunrise/sunset, or custom events; act via variables, webhooks, or Slack.
+- Edge automations: a visual flow builder — one or more triggers (variable thresholds, schedules, sunrise/sunset, custom events) branch through conditions into actions (set variables, call an integration over HTTP/email/chat like Slack/Telegram/Discord, or emit events).
 - Clean read API: edge-cached latest state, time-series, and variable listings behind one bearer token.
 - Optional MCP (Model Context Protocol) server — owner-gated, off by default. Lets Claude, Claude Code, and any MCP-aware client read projects and (with an explicit toggle) drive automations. Bearer transport at /v1/mcp; OAuth at /v1/mcp/oauth.
 

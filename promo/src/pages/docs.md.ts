@@ -27,6 +27,9 @@ Authorization: Bearer <project-token>
 → 204 No Content   # variables auto-created
 \`\`\`
 
+## Dashboards
+Compose dashboards in a full-page drag-and-drop editor: drop widgets onto a grid and bind each to a variable. Readings stream in live over a hibernating WebSocket, and control widgets (toggle/slider/push) write back as control writes your hardware picks up on its next poll. Seven framework-agnostic widgets ship in the box — value, gauge, chart, map, toggle, slider, push — with a separate mobile layout. Any dashboard can be published read-only at a secret share link: viewers need no account, live values arrive by polling, and nothing outside that dashboard's own widgets is exposed.
+
 ## Read API
 Read the latest state:
 
@@ -39,7 +42,12 @@ GET /v1/projects/:proj/state
 Edge-cached latest state, recent time-series, and variable listings sit behind one bearer token.
 
 ## Automations
-Fire on a variable threshold, a clock, sunrise/sunset, or a custom event. Then set variables, call webhooks, or ping Slack — all running at the edge.
+Built in a visual flow editor: each automation is a graph where one or more triggers flow into optional conditions and actions, all evaluated at the edge.
+- Triggers: variable condition (threshold/equality/change), schedule, sunrise/sunset, custom event, manual run.
+- Conditions: if-variable comparison (branches yes/no), time window (within hours, by weekday).
+- Actions: set a variable, call an integration (HTTP, email, or chat like Slack/Telegram/Discord), emit another event.
+
+The HTTP service integration can HMAC-sign its request body with a shared secret, so the receiver can verify it came from your instance.
 
 ## MCP (AI clients)
 Optional Model Context Protocol server. Off by default — the owner flips it on from Settings → MCP server.

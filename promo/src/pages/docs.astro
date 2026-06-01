@@ -7,6 +7,7 @@ const toc = [
   { href: '#setup', label: 'Deploy & claim' },
   { href: '#tokens', label: 'Tokens' },
   { href: '#protocol', label: 'Device protocol' },
+  { href: '#dashboards', label: 'Dashboards' },
   { href: '#read-api', label: 'Read API' },
   { href: '#automations', label: 'Automations' },
   { href: '#mcp', label: 'MCP (AI clients)' },
@@ -20,7 +21,7 @@ const jsonLd = {
       '@type': 'TechArticle',
       headline: 'nodrix documentation',
       description:
-        'Deploy, claim, and connect: the nodrix device protocol, read API, and automation model.',
+        'Deploy, claim, and connect: the nodrix device protocol, dashboards, read API, and automation model.',
       url: new URL('docs/', site).href,
       inLanguage: 'en',
       isPartOf: { '@id': new URL('#website', site).href },
@@ -38,7 +39,7 @@ const jsonLd = {
 
 <Site
   title="Docs — nodrix"
-  description="Deploy, claim, and connect: the nodrix device protocol, read API, and automation model."
+  description="Deploy, claim, and connect: the nodrix device protocol, dashboards, read API, and automation model."
 >
   <Fragment slot="head">
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
@@ -74,7 +75,7 @@ const jsonLd = {
     </aside>
 
     <!-- Content -->
-    <main class="min-w-0 max-w-2xl">
+    <main class="min-w-0 max-w-3xl">
       <!-- Setup -->
       <section id="setup" class="scroll-mt-24">
         <h2 class="text-2xl font-bold tracking-tight text-neutral-900">Deploy &amp; claim</h2>
@@ -167,6 +168,29 @@ const jsonLd = {
 <span class="text-emerald-400">→ 204 No Content</span></code></pre>
       </section>
 
+      <!-- Dashboards -->
+      <section id="dashboards" class="mt-16 scroll-mt-24">
+        <h2 class="text-2xl font-bold tracking-tight text-neutral-900">Dashboards</h2>
+        <p class="mt-4 text-sm leading-relaxed text-neutral-700">
+          Compose dashboards in a full-page, drag-and-drop editor: drop widgets onto a grid and bind
+          each to a variable. Readings stream in live over a hibernating WebSocket, and control widgets
+          write back — a toggle or slider becomes a control write your hardware picks up on its next
+          <a href="#protocol" class="font-medium text-accent-600 hover:text-accent-700">poll</a>. Seven
+          framework-agnostic widgets ship in the box — value, gauge, chart, map, toggle, slider, and
+          push, with a separate mobile layout
+          (<a href="/widgets" class="font-medium text-accent-600 hover:text-accent-700">browse them →</a>).
+        </p>
+        <div class="mt-4 flex items-start gap-2.5 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+          <svg class="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
+          </svg>
+          <p class="text-sm leading-relaxed text-neutral-600">
+            Publish any dashboard read-only at a secret share link — viewers need no account, live
+            values arrive by polling, and nothing outside that dashboard's own widgets is ever exposed.
+          </p>
+        </div>
+      </section>
+
       <!-- Read API -->
       <section id="read-api" class="mt-16 scroll-mt-24">
         <h2 class="text-2xl font-bold tracking-tight text-neutral-900">Read API</h2>
@@ -192,33 +216,104 @@ const jsonLd = {
       <section id="automations" class="mt-16 scroll-mt-24">
         <h2 class="text-2xl font-bold tracking-tight text-neutral-900">Automations</h2>
         <p class="mt-4 text-sm leading-relaxed text-neutral-700">
-          Built and run from the admin UI — no extra code path for your hardware. Each automation is a
-          trigger plus a list of actions, evaluated at the edge.
+          Built in a visual flow editor in the admin UI — no extra code path for your hardware. Each
+          automation is a graph: one or more <span class="font-medium text-neutral-900">triggers</span>
+          flow through optional <span class="font-medium text-neutral-900">conditions</span> into
+          <span class="font-medium text-neutral-900">actions</span>, all evaluated at the edge.
         </p>
-        <div class="mt-5 grid gap-4 sm:grid-cols-2">
-          <div class="rounded-xl border border-neutral-200 bg-white p-5">
-            <h3 class="text-sm font-semibold text-neutral-900">Triggers</h3>
-            <ul class="mt-2 space-y-1.5 text-sm text-neutral-600">
-              <li>• Variable condition (threshold, equality, or change)</li>
-              <li>• Schedule (time of day, by weekday)</li>
-              <li>• Sunrise / sunset, by location</li>
-              <li>• Custom event</li>
-              <li>• Manual run</li>
-            </ul>
+
+        <!-- Visual flow builder mock -->
+        <figure class="mt-5 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+          <div class="flex items-center gap-2 border-b border-neutral-200 px-4 py-2.5">
+            <span class="h-2.5 w-2.5 rounded-full bg-neutral-200"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-neutral-200"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-neutral-200"></span>
+            <span class="ml-2 text-xs font-medium text-neutral-500">Freezer guard — flow editor</span>
           </div>
-          <div class="rounded-xl border border-neutral-200 bg-white p-5">
-            <h3 class="text-sm font-semibold text-neutral-900">Actions</h3>
-            <ul class="mt-2 space-y-1.5 text-sm text-neutral-600">
-              <li>• Set a variable</li>
-              <li>• Call a connection — webhook, Slack, or HTTP service</li>
-              <li>• Emit another event</li>
-            </ul>
+          <div class="overflow-x-auto">
+            <div class="relative h-[360px] w-[700px]" style="background-image: radial-gradient(rgb(0 0 0 / 0.06) 1px, transparent 1px); background-size: 16px 16px;">
+              <!-- edges (behind nodes) -->
+              <svg class="absolute inset-0 h-full w-full" viewBox="0 0 700 360" fill="none" aria-hidden="true">
+                <path class="flow-edge" d="M256,78 C292,78 272,180 308,180" stroke="#fb923c" stroke-width="1.5" />
+                <path class="flow-edge" d="M256,286 C292,286 272,180 308,180" stroke="#fb923c" stroke-width="1.5" />
+                <path class="flow-edge" d="M488,168 C512,168 504,82 528,82" stroke="#10b981" stroke-width="1.5" />
+                <path class="flow-edge" d="M488,192 C512,192 504,286 528,286" stroke="#a3a3a3" stroke-width="1.5" />
+                <circle cx="256" cy="78" r="3" fill="#fff" stroke="#f97316" stroke-width="1.5" />
+                <circle cx="256" cy="286" r="3" fill="#fff" stroke="#f97316" stroke-width="1.5" />
+                <circle cx="308" cy="180" r="3" fill="#fff" stroke="#6366f1" stroke-width="1.5" />
+                <circle cx="488" cy="168" r="3" fill="#fff" stroke="#10b981" stroke-width="1.5" />
+                <circle cx="488" cy="192" r="3" fill="#fff" stroke="#a3a3a3" stroke-width="1.5" />
+                <circle cx="528" cy="82" r="3" fill="#fff" stroke="#10b981" stroke-width="1.5" />
+                <circle cx="528" cy="286" r="3" fill="#fff" stroke="#10b981" stroke-width="1.5" />
+              </svg>
+
+              <!-- palette rail -->
+              <div class="absolute inset-y-0 left-0 flex w-11 flex-col items-center gap-2 border-r border-neutral-200 bg-white/60 py-3">
+                <span class="grid h-7 w-7 place-items-center rounded-md bg-accent-50 text-accent-600"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z" /></svg></span>
+                <span class="grid h-7 w-7 place-items-center rounded-md bg-indigo-50 text-indigo-600"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8v6l-4 2v-8z" /></svg></span>
+                <span class="grid h-7 w-7 place-items-center rounded-md bg-emerald-50 text-emerald-600"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14l11-7z" /></svg></span>
+                <span class="mt-1 grid h-7 w-7 place-items-center rounded-md border border-dashed border-neutral-300 text-neutral-400"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14 M5 12h14" /></svg></span>
+              </div>
+
+              <!-- nodes -->
+              <div class="absolute flex items-center gap-2.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 shadow-sm" style="left:76px;top:49px;width:180px;">
+                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-accent-50 text-accent-600"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4 4 0 1 1-4 0Z" /></svg></span>
+                <span class="min-w-0"><span class="block text-[13px] font-semibold leading-tight text-neutral-900">Temperature</span><span class="block text-[11px] text-neutral-500">&gt; -15 °C</span></span>
+              </div>
+              <div class="absolute flex items-center gap-2.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 shadow-sm" style="left:76px;top:257px;width:180px;">
+                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-accent-50 text-accent-600"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7 2.5 7H3.5S6 15 6 9 M10 20a2 2 0 0 0 4 0" /></svg></span>
+                <span class="min-w-0"><span class="block text-[13px] font-semibold leading-tight text-neutral-900">Event</span><span class="block text-[11px] text-neutral-500">door_opened</span></span>
+              </div>
+              <div class="absolute flex items-center gap-2.5 rounded-lg border border-indigo-200 bg-indigo-50/40 px-3 py-2 shadow-sm" style="left:308px;top:151px;width:180px;">
+                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-indigo-100 text-indigo-600"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3 2 M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z" /></svg></span>
+                <span class="min-w-0"><span class="block text-[13px] font-semibold leading-tight text-neutral-900">Time window</span><span class="block text-[11px] text-neutral-500">09:00 – 17:00</span></span>
+              </div>
+              <div class="absolute flex items-center gap-2.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 shadow-sm" style="left:528px;top:53px;width:156px;">
+                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-emerald-50 text-emerald-600"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z M3.5 7l8.5 6 8.5-6" /></svg></span>
+                <span class="min-w-0"><span class="block text-[13px] font-semibold leading-tight text-neutral-900">Email ops</span><span class="block text-[11px] text-neutral-500">integration</span></span>
+              </div>
+              <div class="absolute flex items-center gap-2.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 shadow-sm" style="left:528px;top:257px;width:156px;">
+                <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-emerald-50 text-emerald-600"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10 M18 7h2 M4 12h2 M10 12h10 M4 17h7 M15 17h5 M14 5v4 M6 10v4 M11 15v4" /></svg></span>
+                <span class="min-w-0"><span class="block text-[13px] font-semibold leading-tight text-neutral-900">Set buzzer = on</span><span class="block text-[11px] text-neutral-500">set value</span></span>
+              </div>
+
+              <!-- branch labels -->
+              <span class="absolute rounded bg-emerald-100 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-700" style="left:498px;top:108px;">yes</span>
+              <span class="absolute rounded bg-neutral-200 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wide text-neutral-500" style="left:498px;top:228px;">no</span>
+            </div>
           </div>
+        </figure>
+
+        <dl class="mt-5 divide-y divide-neutral-100 overflow-hidden rounded-xl border border-neutral-200 bg-white text-sm">
+          <div class="flex flex-col gap-1 px-5 py-3 sm:flex-row sm:gap-4">
+            <dt class="flex w-32 shrink-0 items-center gap-2 font-semibold text-neutral-900">
+              <span class="h-2 w-2 rounded-full bg-accent-500" aria-hidden="true"></span>Triggers
+            </dt>
+            <dd class="text-neutral-600">Variable condition (threshold, equality, or change) · schedule · sunrise / sunset · custom event · manual run</dd>
+          </div>
+          <div class="flex flex-col gap-1 px-5 py-3 sm:flex-row sm:gap-4">
+            <dt class="flex w-32 shrink-0 items-center gap-2 font-semibold text-neutral-900">
+              <span class="h-2 w-2 rounded-full bg-indigo-500" aria-hidden="true"></span>Conditions
+            </dt>
+            <dd class="text-neutral-600">If-variable comparison (branches yes / no) · time window (within hours, by weekday)</dd>
+          </div>
+          <div class="flex flex-col gap-1 px-5 py-3 sm:flex-row sm:gap-4">
+            <dt class="flex w-32 shrink-0 items-center gap-2 font-semibold text-neutral-900">
+              <span class="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true"></span>Actions
+            </dt>
+            <dd class="text-neutral-600">Set a variable · call an integration (HTTP, email, or chat like Slack / Telegram / Discord) · emit an event</dd>
+          </div>
+        </dl>
+
+        <div class="mt-4 flex items-start gap-2.5 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+          <svg class="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
+          </svg>
+          <p class="text-sm leading-relaxed text-neutral-600">
+            The HTTP service integration can HMAC-sign its request body with a shared secret, so the
+            receiving end can verify the payload genuinely came from your instance.
+          </p>
         </div>
-        <p class="mt-4 text-sm leading-relaxed text-neutral-600">
-          Webhook deliveries can be HMAC-signed with a shared secret, so the receiving end can verify
-          the payload genuinely came from your instance.
-        </p>
       </section>
 
       <section id="mcp" class="mt-20 scroll-mt-24">
@@ -287,6 +382,13 @@ const jsonLd = {
       </div>
     </main>
   </div>
+
+  <style>
+    /* Animate the flow-builder mock edges, matching the real canvas editor. */
+    .flow-edge { stroke-dasharray: 5; animation: flowdash 0.6s linear infinite; }
+    @keyframes flowdash { to { stroke-dashoffset: -10; } }
+    @media (prefers-reduced-motion: reduce) { .flow-edge { animation: none; } }
+  </style>
 
   <script>
     // Scrollspy: highlight the "On this page" link for the section in view.

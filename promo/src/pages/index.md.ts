@@ -10,7 +10,7 @@ An open-source IoT backend that runs entirely in your own Cloudflare account —
 ## Features
 - **Telemetry over plain HTTPS** — devices POST JSON; variables auto-create on first sight. No MQTT broker, no SDK.
 - **Realtime dashboards, two-way** — bind widgets to variables; live updates over hibernating WebSockets, and toggles/sliders/buttons write back to hardware.
-- **Automations without a server** — trigger on thresholds, schedules, sunrise/sunset, or events; act via variables, webhooks, or Slack.
+- **Automations without a server** — build a visual flow: trigger on thresholds, schedules, sunrise/sunset, or events (one or many), branch on conditions, then set variables, call an integration (HTTP, email, or chat like Slack/Telegram/Discord), or emit an event.
 - **A clean read API** — edge-cached state, time-series, and listings behind one bearer token.
 - **Single-tenant by design** — every deploy lands in your own account.
 - **MCP for AI clients** — optional MCP server lets Claude, Claude Code, and any other MCP-aware client query projects and (with your explicit toggle) drive automations. Owner-gated, off by default, audit-logged.

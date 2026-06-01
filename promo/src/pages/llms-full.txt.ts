@@ -23,7 +23,7 @@ Source: ${repo}
 ## Features
 1. Telemetry over plain HTTPS — Hardware POSTs JSON to the project. Variables create themselves on first sight: no schema to declare, no MQTT broker to run, no SDK to install. Anything that can make an HTTPS request can talk to nodrix.
 2. Realtime dashboards, two-way — Drop widgets onto a grid, bind them to variables, watch values stream live over hibernating WebSockets that cost nothing while idle. Toggles, sliders, and buttons write back to hardware on the same channel; devices ack when applied.
-3. Automations without a server — Fire on a variable threshold, a clock, sunrise/sunset, or a custom event. Then set variables, call webhooks, or ping Slack — all running at the edge.
+3. Automations without a server — A visual flow builder. Each automation is a graph: one or more triggers (variable threshold, a clock, sunrise/sunset, custom event, or manual run) flow through optional conditions (if-variable comparison that branches yes/no, time window) into actions (set a variable, call an integration, emit an event). Integrations cover HTTP service (with optional HMAC request signing), email, and chat (Slack, Telegram, Discord). All evaluated at the edge.
 4. A clean read API — Edge-cached latest state, recent time-series, and variable listings behind one bearer token. Plug in Grafana, a React app, or a Raspberry Pi screen.
 5. Single-tenant by design — Every deploy lands in the user's own account. Email + password out of the box, with optional Google or GitHub sign-in.
 6. MCP server for AI clients — Optional, off by default, owner-gated. Two transports on the same worker: bearer-token at /v1/mcp (for CLI/IDE clients like Claude Code) and OAuth 2.1 at /v1/mcp/oauth (for browser-based clients like claude.ai connectors). Read tools (list/get projects, variables, dashboards, automations, integrations, state, series) are exposed when the server is on; management tools (create/update of projects, variables, dashboards, automations, integrations; run automations; set variable values) require an additional deployment-wide writes toggle AND an explicit mcp:manage scope at the consent step. No delete operations are ever exposed. Every write is recorded in the audit log when enabled, tagged with source=mcp so AI-initiated changes are distinguishable from web/API ones.
@@ -43,10 +43,11 @@ Display:
 - iot-value — The latest reading of a single variable, large and legible. Attributes: data-title, data-unit.
 - iot-gauge — An arc gauge for a numeric variable with configurable min/max bounds. Attributes: data-title, data-min, data-max, data-unit.
 - iot-chart — A multi-series time-series chart (ApexCharts): line, area, bar, or stepline, with optional drag-to-zoom. Attributes: data-title, data-chart-type, data-zoom.
+- iot-map — Geographic markers from static coordinates or live lat/lng variables, on a configurable basemap. Attributes: data-title, data-basemap, data-zoom.
 Control:
 - iot-toggle — On/off switch that writes a value to a variable and reflects last reported state. Attributes: data-title, data-variable, data-on-value, data-off-value.
 - iot-slider — Horizontal slider for a numeric write; commits on release. Attributes: data-title, data-variable, data-min, data-max, data-step.
-- iot-push — Momentary push button for one-shot commands. Attributes: data-title, data-variable, data-value, data-label.
+- iot-push — Momentary push button for one-shot commands (restart a node, fire a routine, kick off a script). Attributes: data-title, data-variable, data-value, data-label.
 
 ## Tech stack
 Cloudflare Workers, Durable Objects, D1, R2, and KV.

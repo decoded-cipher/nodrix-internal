@@ -9,18 +9,24 @@
     "preview": "astro preview",
     "deploy": "astro build && wrangler pages deploy dist --project-name nodrix",
     "typecheck": "astro check",
+    "og:gen": "bun scripts/gen-og.ts",
     "icons": "bun scripts/generate-icons.js",
     "db:schema": "wrangler d1 execute nodrix-wishlist --remote --file=./schema.sql",
     "db:schema:local": "wrangler d1 execute nodrix-wishlist --local --file=./schema.sql",
     "wishlist:list": "wrangler d1 execute nodrix-wishlist --remote --command \"SELECT email, created_at FROM wishlist ORDER BY created_at DESC\""
   },
   "dependencies": {
-    "@tailwindcss/typography": "^0.5.19",
     "astro": "6.3.3"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
+    "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
+    "@resvg/resvg-js": "^2.6.2",
+    "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "4.2.0",
+    "@types/node": "^25.9.1",
+    "gray-matter": "^4.0.3",
+    "satori": "^0.26.0",
     "tailwindcss": "4.2.0",
     "typescript": "^5.6.3",
     "wrangler": "^4.28.1"

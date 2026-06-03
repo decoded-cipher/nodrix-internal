@@ -17,7 +17,6 @@ const guides = defineCollection({
     related: z
       .array(z.object({ href: z.string(), label: z.string(), desc: z.string().optional() }))
       .default([]),
-    // Draft guides render behind noindex and stay out of the sitemap until published.
     draft: z.boolean().default(false),
   }),
 });

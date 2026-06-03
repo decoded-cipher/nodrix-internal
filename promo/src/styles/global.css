@@ -117,6 +117,41 @@
   width: 1rem;
 }
 
+/* Callout / aside — a Markdown blockquote in a guide, styled as a soft coral note box. */
+.prose blockquote {
+  margin: 1.75rem 0;
+  padding: 1.1rem 1.35rem;
+  border-left: 4px solid var(--color-accent-400);
+  border-radius: 0 0.75rem 0.75rem 0;
+  background-color: var(--color-accent-50);
+  color: var(--color-neutral-700);
+  font-style: normal;
+  font-weight: 400;
+}
+.prose blockquote p {
+  margin: 0;
+}
+.prose blockquote p + p {
+  margin-top: 0.5rem;
+}
+/* First line of a multi-paragraph callout = a small heading. */
+.prose blockquote p:first-child:not(:last-child) {
+  margin: 0 0 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-accent-700);
+}
+.prose blockquote p:first-child:not(:last-child) strong {
+  font-weight: 700;
+}
+/* Drop Tailwind Typography's auto quotation marks on blockquotes. */
+.prose blockquote p:first-of-type::before,
+.prose blockquote p:last-of-type::after {
+  content: none;
+}
+
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;

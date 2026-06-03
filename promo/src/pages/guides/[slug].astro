@@ -5,7 +5,7 @@ import Waves from '../../components/Waves.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Faq from '../../components/Faq.astro';
 import RelatedLinks from '../../components/RelatedLinks.astro';
-import { breadcrumb, faqPage, jsonLdGraph } from '../../lib/seo';
+import { breadcrumb, faqPage, jsonLdGraph, readingTime } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const guides = await getCollection('guides');
@@ -15,6 +15,7 @@ export async function getStaticPaths() {
 const { guide } = Astro.props;
 const fm = guide.data;
 const { Content } = await render(guide);
+const minutes = readingTime(guide.body ?? '');
 
 const CATEGORY_LABEL: Record<string, string> = {
   hardware: 'Hardware guide',
@@ -74,7 +75,7 @@ const fmtDate = (d: Date) =>
         <span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-600">{CATEGORY_LABEL[fm.category]}</span>
         {fm.board && <span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-600">{fm.board}</span>}
         <span class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold capitalize text-neutral-600">{fm.difficulty}</span>
-        {fm.readingTime && <span class="text-xs font-medium text-neutral-400">{fm.readingTime}</span>}
+        <span class="text-xs font-medium text-neutral-400">{minutes}</span>
         {fm.draft && <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Draft</span>}
       </div>
       <h1 class="mt-4 text-balance text-3xl font-extrabold tracking-tight text-neutral-900 sm:text-4xl">

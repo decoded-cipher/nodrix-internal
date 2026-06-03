@@ -4,7 +4,6 @@ description: "Push ESP32 sensor data to the cloud over HTTPS and receive command
 category: hardware
 board: ESP32
 difficulty: intermediate
-readingTime: "13 min read"
 datePublished: 2026-06-03
 draft: true
 faqs:

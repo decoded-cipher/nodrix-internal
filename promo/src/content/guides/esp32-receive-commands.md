@@ -4,7 +4,6 @@ description: "How to get data back to an ESP32 over HTTP: poll for control write
 category: hardware
 board: ESP32
 difficulty: intermediate
-readingTime: "9 min read"
 datePublished: 2026-06-03
 draft: true
 faqs:

@@ -11,7 +11,6 @@ const guides = defineCollection({
     category: z.enum(['hardware', 'project', 'comparison', 'concept']),
     board: z.string().optional(),
     difficulty: z.enum(['beginner', 'intermediate', 'advanced']).default('beginner'),
-    readingTime: z.string().optional(),
     datePublished: z.coerce.date(),
     dateUpdated: z.coerce.date().optional(),
     faqs: z.array(z.object({ q: z.string(), a: z.string() })).default([]),

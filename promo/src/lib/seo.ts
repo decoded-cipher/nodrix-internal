@@ -45,3 +45,9 @@ export function itemList(name: string, description: string, items: { name: strin
 export function jsonLdGraph(...nodes: object[]): string {
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': nodes });
 }
+
+// Estimate reading time from raw markdown body (~200 wpm). Computed, never hand-set.
+export function readingTime(body: string): string {
+  const words = body.trim().split(/\s+/).filter(Boolean).length;
+  return `${Math.max(1, Math.round(words / 200))} min read`;
+}

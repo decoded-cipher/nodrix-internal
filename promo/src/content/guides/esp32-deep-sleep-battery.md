@@ -4,7 +4,6 @@ description: "Make a battery-powered ESP32 sensor run for months while still rep
 category: hardware
 board: ESP32
 difficulty: intermediate
-readingTime: "10 min read"
 datePublished: 2026-06-03
 draft: true
 faqs:

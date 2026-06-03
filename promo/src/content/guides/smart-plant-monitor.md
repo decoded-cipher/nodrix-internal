@@ -4,7 +4,6 @@ description: "Read soil moisture, run a pump automatically when it gets dry, and
 category: project
 board: ESP32
 difficulty: beginner
-readingTime: "8 min read"
 datePublished: 2026-06-03
 faqs:
   - q: "Do I need to run a server or an MQTT broker?"

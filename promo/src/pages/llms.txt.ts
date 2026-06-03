@@ -25,6 +25,7 @@ export const GET: APIRoute = ({ site }) => {
 - [Home](${u()}): Product overview, features, and how it works.
 - [Documentation](${u('docs')}): Device protocol, read API, automation model, and MCP.
 - [Widgets](${u('widgets')}): Built-in, framework-agnostic Web Component widgets.
+- [Guides](${u('guides')}): Hands-on IoT guides — connect an ESP32 to the cloud over HTTPS (no MQTT broker), receive commands back, deep-sleep battery builds, and more.
 
 ## Markdown & full text (for machines)
 - [Full text](${u('llms-full.txt')}): The entire site in one document.

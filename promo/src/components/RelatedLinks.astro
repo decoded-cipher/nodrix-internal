@@ -1,0 +1,29 @@
+---
+// Internal cross-links — the link graph that helps every generated page get crawled
+// and rank. Keep 3+ relevant links per page.
+export interface Props {
+  title?: string;
+  links: { href: string; label: string; desc?: string }[];
+}
+const { title = 'Keep exploring', links } = Astro.props;
+---
+
+<section class="border-b border-neutral-200/70 bg-neutral-50">
+  <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+    <h2 class="text-2xl font-bold tracking-tight text-neutral-900">{title}</h2>
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {links.map((l) => (
+        <a
+          href={l.href}
+          class="group flex flex-col rounded-2xl border border-neutral-200 bg-white p-5 transition-shadow hover:shadow-md"
+        >
+          <span class="flex items-center gap-1.5 text-sm font-semibold text-neutral-900">
+            {l.label}
+            <span class="text-accent-500 transition-transform group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          </span>
+          {l.desc && <span class="mt-1.5 text-sm leading-relaxed text-neutral-500">{l.desc}</span>}
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

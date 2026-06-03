@@ -15,6 +15,7 @@
     "wishlist:list": "wrangler d1 execute nodrix-wishlist --remote --command \"SELECT email, created_at FROM wishlist ORDER BY created_at DESC\""
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "astro": "6.3.3"
   },
   "devDependencies": {

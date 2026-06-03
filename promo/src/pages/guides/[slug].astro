@@ -102,4 +102,47 @@ const fmtDate = (d: Date) =>
   {fm.faqs.length > 0 && <Faq items={fm.faqs} />}
   {fm.related.length > 0 && <RelatedLinks links={fm.related} />}
   <CtaBand />
+
+  <script>
+    // Add a copy-to-clipboard button to every code block in the article.
+    const COPY =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+    const DONE =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+    document.querySelectorAll('article pre').forEach((pre) => {
+      const code = pre.querySelector('code');
+      if (!code) return;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'code-wrap';
+      pre.parentNode?.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy-btn';
+      btn.setAttribute('aria-label', 'Copy code');
+      btn.innerHTML = COPY;
+
+      btn.addEventListener('click', async () => {
+        const text = (code.textContent ?? '').replace(/\n$/, '');
+        try {
+          await navigator.clipboard.writeText(text);
+          btn.innerHTML = DONE;
+          btn.classList.add('copied');
+          btn.setAttribute('aria-label', 'Copied');
+          setTimeout(() => {
+            btn.innerHTML = COPY;
+            btn.classList.remove('copied');
+            btn.setAttribute('aria-label', 'Copy code');
+          }, 1600);
+        } catch {
+          /* clipboard unavailable */
+        }
+      });
+
+      wrap.appendChild(btn);
+    });
+  </script>
 </Site>

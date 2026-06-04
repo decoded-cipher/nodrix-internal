@@ -11,7 +11,7 @@ faqs:
   - q: "Can I self-host a Blynk alternative?"
     a: "That's the idea behind nodrix — but rather than running a server, you one-click deploy it onto Cloudflare's serverless platform (Workers, Durable Objects, D1, R2). There's no broker, database, or VM to operate; you pay Cloudflare for what you use, and there's no per-device license."
   - q: "Does nodrix have a mobile app like Blynk?"
-    a: "Not a native one — this is a real difference. nodrix dashboards are responsive web, and the widgets are framework-agnostic Web Components you can embed anywhere, but there's no iOS/Android app today. If a first-class mobile app is central to your project, weigh that honestly."
+    a: "A native mobile app is on the roadmap. Today, nodrix dashboards are responsive web and the widgets are framework-agnostic Web Components you can embed anywhere — including in your own app shell. If a first-class native app is essential right now, factor that in; otherwise, stay connected, as it's planned."
   - q: "How do I move an ESP32 from Blynk to nodrix?"
     a: "Swap the Blynk virtual-pin writes for an HTTPS POST to /v1/telemetry (or a WebSocket frame), and read commands back by polling /v1/control or holding the control socket open. Then rebuild your widgets on a nodrix dashboard and recreate any Blynk automations as trigger-condition-action flows. See the ESP32-over-HTTPS guide for the device code."
 related:
@@ -63,8 +63,8 @@ they go looking for an alternative.
 | Widgets | App widget set | Framework-agnostic Web Components, embeddable anywhere |
 | Automations | Automations + events | Visual trigger → condition → action, run at the edge |
 | Data access | HTTPS API | Read API: latest state + time-series behind one token |
-| Native mobile app | Yes | No (responsive web only) |
-| Maturity | Mature, large community | Stable (v1.0), young project |
+| Native mobile app | Yes | Responsive web (native app planned) |
+| Maturity | Mature, large community | Stable (v1.0), actively developed |
 
 ## When Blynk is the better choice
 
@@ -101,10 +101,8 @@ control WebSocket open for instant writes — the full firmware is in
 [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/). From there you rebuild your widgets on a
 nodrix dashboard and recreate any Blynk automations as trigger-condition-action flows.
 
-## The honest caveat
+## The bottom line
 
-nodrix is **young** — it just reached its first stable release, with a smaller community than
-Blynk's. It's the right call if you value open source, data ownership, and a usage-based cost model
-over a polished, app-first product today. If you're evaluating now,
-the useful move is to deploy it to a spare Cloudflare account and point one device at it — and star
-the repo to follow along as it hardens.
+nodrix is the right call if you value open source, data ownership, and a usage-based cost model — with
+your dashboards on responsive web today and a native app on the roadmap. The useful move is to deploy
+it to a spare Cloudflare account, point one device at it, and star the repo to follow along.

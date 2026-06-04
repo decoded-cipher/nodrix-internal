@@ -11,7 +11,7 @@ faqs:
   - q: "Do I need MQTT for nodrix like I might with ThingsBoard?"
     a: "No. ThingsBoard speaks MQTT, CoAP, HTTP, and more. nodrix is intentionally narrower: devices talk plain HTTPS or a WebSocket, with no broker to run. For periodic telemetry and command-and-control that's simpler; if you specifically need MQTT/CoAP/LwM2M at scale, ThingsBoard is the better fit."
   - q: "Can nodrix do a ThingsBoard-style rule engine?"
-    a: "At a maker scale, yes — nodrix has a visual automation builder (triggers, conditions, actions over HTTP/email/chat) evaluated at the edge. It's deliberately simpler than ThingsBoard's rule chains; it's not aiming at ThingsBoard's enterprise rule-engine depth or multi-tenancy."
+    a: "Yes — nodrix has a visual automation builder (triggers, conditions, actions over HTTP/email/chat) evaluated at the edge, with deeper rule logic on the roadmap. It's single-tenant by design, where ThingsBoard targets enterprise multi-tenancy."
   - q: "When should I stay on ThingsBoard?"
     a: "When you need enterprise scale, multi-tenancy, a mature rule engine, many device protocols, or on-prem requirements. ThingsBoard is built for that. nodrix targets makers and small teams who want zero ops and a single-tenant deployment they fully own."
 related:
@@ -63,7 +63,7 @@ trying to avoid when they look for something lighter.
 | Rule engine | Deep rule chains | Visual trigger → condition → action at the edge |
 | Multi-tenancy | Yes | Single-tenant by design (one deploy = yours) |
 | Scale target | Enterprise / fleets | Makers and small teams |
-| Maturity | Mature, production-proven | Stable (v1.0), young project |
+| Maturity | Mature, production-proven | Stable (v1.0), actively developed |
 
 ## When ThingsBoard is the better choice
 
@@ -88,8 +88,8 @@ don't have to operate at all — the same "your data, your infra" ownership, min
 Pointing hardware at it is a plain HTTPS POST (see
 [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/)); there's no broker to provision.
 
-nodrix is **young** — it just reached its first stable release, so if you need years of production
-hardening today, ThingsBoard's maturity matters.
+If you need enterprise scale, multi-tenancy, or a deeper rule engine today, ThingsBoard's depth is
+the right call — and several of those are on the nodrix roadmap.
 If you're a maker or small team who wants ThingsBoard-style ownership without the ThingsBoard-style
 operations, deploy nodrix to a Cloudflare account, point a device at it, and star the repo to follow
 along.

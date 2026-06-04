@@ -13,7 +13,7 @@ faqs:
   - q: "Can I use nodrix with an Arduino board?"
     a: "Yes — an Arduino with Wi-Fi (e.g. UNO R4 WiFi, Nano 33 IoT, MKR WiFi) talks to nodrix over plain HTTPS using the standard WiFi/HTTPClient libraries, exactly like an ESP32. You just point it at your endpoint instead of Arduino Cloud."
   - q: "Does nodrix do over-the-air firmware updates like Arduino Cloud?"
-    a: "Not today — that's a genuine gap. nodrix handles telemetry, dashboards, automations, and control writes, but it doesn't ship device firmware OTA the way Arduino Cloud does. If OTA is core to your workflow, factor that in."
+    a: "Over-the-air firmware updates are on the roadmap. nodrix handles telemetry, dashboards, automations, and control writes today, with OTA planned. If OTA is essential to your workflow right now, factor that in; otherwise, stay connected as we add it."
 related:
   - href: "/guides/esp32-https-cloud/"
     label: "Connect an ESP32 over HTTPS"
@@ -58,10 +58,10 @@ lives on Arduino's cloud.
 | Device code | IDE-generated sync sketch | Plain HTTPS/WebSocket, any language |
 | Pricing | Free plan with limits; paid tiers | No license cost; pay Cloudflare for usage |
 | Open source | No (platform) | MIT, full stack |
-| OTA updates | Yes | No (not yet) |
+| OTA updates | Yes | On the roadmap |
 | Dashboards | Hosted web + mobile | Responsive web, embeddable widgets |
 | Automations | Triggers / scheduler | Visual trigger → condition → action at the edge |
-| Maturity | Mature | Stable (v1.0), young project |
+| Maturity | Mature | Stable (v1.0), actively developed |
 
 ## When Arduino Cloud is the better choice
 
@@ -93,9 +93,9 @@ Commands come back over `GET /v1/control` (poll + ack) or the control WebSocket 
 is in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/), and the same pattern works on any
 Wi-Fi-capable board.
 
-## The honest caveat
+## The bottom line
 
-nodrix is **young** — it just reached its first stable release — and it doesn't do OTA. If the Arduino toolchain integration and
-over-the-air updates are central to how you work, Arduino Cloud earns its place. If you want an
+nodrix doesn't do OTA today — it's on the roadmap. If the Arduino toolchain integration and
+over-the-air updates are central to how you work right now, Arduino Cloud earns its place. If you want an
 open-source, board-agnostic backend you own outright, deploy nodrix to a Cloudflare account, point a
 board at it, and star the repo to follow along.

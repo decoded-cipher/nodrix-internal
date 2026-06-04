@@ -73,6 +73,15 @@
   border: 1px solid var(--color-neutral-800);
 }
 
+/* Pin/terminal names in wiring tables — coral + mono so pin vs component reads at a glance. */
+.prose .pin {
+  color: var(--color-accent-700);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
 /* Copy-to-clipboard button injected into each code block (see guide layout script).
    The button lives on a non-scrolling wrapper so it stays pinned top-right even when
    the code scrolls horizontally. */

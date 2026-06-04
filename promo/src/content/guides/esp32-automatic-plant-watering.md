@@ -54,6 +54,29 @@ logic, and the alerts all live in nodrix, which runs on your own Cloudflare acco
 - The Arduino IDE with the ESP32 board package and the ArduinoJson library.
 - A nodrix instance with a project and a project token.
 
+## Wiring
+
+The sensor's analog output goes to **GPIO34** (an input-only ADC pin that doesn't clash with
+Wi-Fi). The pump draws far more current than a GPIO can supply, so the ESP32 only switches a
+relay or MOSFET on **GPIO26**, and the pump runs from its **own 5V supply** — never off a board
+pin.
+
+| From | To | Wire |
+|------|----|------|
+| Soil sensor <span class="pin">AOUT</span> | ESP32 <span class="pin">GPIO34</span> | Signal |
+| Soil sensor <span class="pin">VCC</span> | ESP32 <span class="pin">3V3</span> | Power |
+| Soil sensor <span class="pin">GND</span> | ESP32 <span class="pin">GND</span> | Ground |
+| ESP32 <span class="pin">GPIO26</span> | Relay <span class="pin">IN</span> | Signal |
+| Relay <span class="pin">VCC</span> | ESP32 <span class="pin">5V (VIN)</span> | Power |
+| Relay <span class="pin">GND</span> | ESP32 <span class="pin">GND</span> | Ground |
+| 5V supply <span class="pin">+</span> | Relay <span class="pin">COM</span> | Power (pump) |
+| Relay <span class="pin">NO</span> | Pump <span class="pin">+</span> | Power (switched) |
+| Pump <span class="pin">−</span> | 5V supply <span class="pin">−</span> | Ground |
+
+Add a flyback diode across the pump's terminals (cathode to **+**) to absorb the motor's
+switch-off spike. The sensor and relay share the ESP32's ground; the pump's separate supply
+only feeds the relay's load side.
+
 ## How the loop works
 
 1. The ESP32 reads moisture and sends `soil_moisture` to nodrix every few minutes.

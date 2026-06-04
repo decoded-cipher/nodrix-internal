@@ -11,7 +11,7 @@ export const GET: APIRoute = ({ site }) => {
 > nodrix is an open-source, single-tenant IoT cloud that deploys to your own Cloudflare account. Hardware speaks plain HTTPS or WebSocket, telemetry streams to realtime drag-and-drop dashboards, automations run at the edge, and a clean read API exposes the data — with no broker, no servers, and nothing leaving your account.
 
 ## What it is
-- Open-source (MIT), pre-alpha IoT backend for Cloudflare.
+- Open-source (MIT) IoT backend for Cloudflare; first stable release (v1.0).
 - Single-tenant: every deployment lives in the user's own Cloudflare account.
 - One-click "Deploy to Cloudflare" — provisions Workers, Durable Objects, D1, R2, and KV.
 - Devices send telemetry over plain HTTPS (POST /v1/telemetry) or a WebSocket (/v1/control/ws); variables auto-create on first sight. No MQTT broker, no SDK.

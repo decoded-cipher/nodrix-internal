@@ -63,7 +63,7 @@ trying to avoid when they look for something lighter.
 | Rule engine | Deep rule chains | Visual trigger → condition → action at the edge |
 | Multi-tenancy | Yes | Single-tenant by design (one deploy = yours) |
 | Scale target | Enterprise / fleets | Makers and small teams |
-| Maturity | Mature, production-proven | Pre-alpha |
+| Maturity | Mature, production-proven | Stable (v1.0), young project |
 
 ## When ThingsBoard is the better choice
 
@@ -88,7 +88,8 @@ don't have to operate at all — the same "your data, your infra" ownership, min
 Pointing hardware at it is a plain HTTPS POST (see
 [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/)); there's no broker to provision.
 
-nodrix is **pre-alpha**, so if you need production guarantees today, ThingsBoard's maturity matters.
+nodrix is **young** — it just reached its first stable release, so if you need years of production
+hardening today, ThingsBoard's maturity matters.
 If you're a maker or small team who wants ThingsBoard-style ownership without the ThingsBoard-style
 operations, deploy nodrix to a Cloudflare account, point a device at it, and star the repo to follow
 along.

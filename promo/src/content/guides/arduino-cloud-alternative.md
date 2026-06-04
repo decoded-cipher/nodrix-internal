@@ -13,7 +13,7 @@ faqs:
   - q: "Can I use nodrix with an Arduino board?"
     a: "Yes — an Arduino with Wi-Fi (e.g. UNO R4 WiFi, Nano 33 IoT, MKR WiFi) talks to nodrix over plain HTTPS using the standard WiFi/HTTPClient libraries, exactly like an ESP32. You just point it at your endpoint instead of Arduino Cloud."
   - q: "Does nodrix do over-the-air firmware updates like Arduino Cloud?"
-    a: "Not today — that's a genuine gap. nodrix handles telemetry, dashboards, automations, and control writes, but it doesn't ship device firmware OTA the way Arduino Cloud does. If OTA is core to your workflow, factor that in; nodrix is also pre-alpha."
+    a: "Not today — that's a genuine gap. nodrix handles telemetry, dashboards, automations, and control writes, but it doesn't ship device firmware OTA the way Arduino Cloud does. If OTA is core to your workflow, factor that in."
 related:
   - href: "/guides/esp32-https-cloud/"
     label: "Connect an ESP32 over HTTPS"
@@ -61,7 +61,7 @@ lives on Arduino's cloud.
 | OTA updates | Yes | No (not yet) |
 | Dashboards | Hosted web + mobile | Responsive web, embeddable widgets |
 | Automations | Triggers / scheduler | Visual trigger → condition → action at the edge |
-| Maturity | Mature | Pre-alpha |
+| Maturity | Mature | Stable (v1.0), young project |
 
 ## When Arduino Cloud is the better choice
 
@@ -95,7 +95,7 @@ Wi-Fi-capable board.
 
 ## The honest caveat
 
-nodrix is **pre-alpha**, and it doesn't do OTA. If the Arduino toolchain integration and
+nodrix is **young** — it just reached its first stable release — and it doesn't do OTA. If the Arduino toolchain integration and
 over-the-air updates are central to how you work, Arduino Cloud earns its place. If you want an
 open-source, board-agnostic backend you own outright, deploy nodrix to a Cloudflare account, point a
 board at it, and star the repo to follow along.

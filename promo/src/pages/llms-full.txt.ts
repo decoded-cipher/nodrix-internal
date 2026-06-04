@@ -7,7 +7,7 @@ export const GET: APIRoute = ({ site }) => {
 
   const body = `# nodrix — full reference
 
-> nodrix is an open-source, single-tenant IoT cloud that deploys to your own Cloudflare account. Hardware speaks plain HTTPS or WebSocket, telemetry streams to realtime drag-and-drop dashboards, automations run at the edge, and a clean read API exposes the data — with no broker, no servers, and nothing leaving your account. Status: pre-alpha. License: MIT.
+> nodrix is an open-source, single-tenant IoT cloud that deploys to your own Cloudflare account. Hardware speaks plain HTTPS or WebSocket, telemetry streams to realtime drag-and-drop dashboards, automations run at the edge, and a clean read API exposes the data — with no broker, no servers, and nothing leaving your account. Status: stable (v1.0). License: MIT.
 
 Home: ${u()}
 Docs: ${u('docs')}

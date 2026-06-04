@@ -27,8 +27,19 @@ Authorization: Bearer <project-token>
 → 204 No Content   # variables auto-created
 \`\`\`
 
+Or hold one WebSocket — it carries telemetry up, control writes down, events up, and acks on a single connection (HTTP stays available for devices that just wake, send, and sleep):
+
+\`\`\`
+WSS /v1/control/ws?token=<project-token>
+
+up   → { "type": "telemetry", "metrics": { "temperature": 23.4 } }
+up   → { "type": "event", "event": "door_opened" }
+down ← { "type": "control", "id": "ctl_x", "variable": "relay", "value": "on" }
+up   → { "type": "ack", "ids": ["ctl_x"] }
+\`\`\`
+
 ## Dashboards
-Compose dashboards in a full-page drag-and-drop editor: drop widgets onto a grid and bind each to a variable. Readings stream in live over a hibernating WebSocket, and control widgets (toggle/slider/push) write back as control writes your hardware picks up on its next poll. Seven framework-agnostic widgets ship in the box — value, gauge, chart, map, toggle, slider, push — with a separate mobile layout. Any dashboard can be published read-only at a secret share link: viewers need no account, live values arrive by polling, and nothing outside that dashboard's own widgets is exposed.
+Compose dashboards in a full-page drag-and-drop editor: drop widgets onto a grid and bind each to a variable. Readings stream in live over a hibernating WebSocket, and control widgets (toggle/slider/push) write back as control writes your hardware receives over its control socket (or its next poll). Seven framework-agnostic widgets ship in the box — value, gauge, chart, map, toggle, slider, push — with a separate mobile layout. Any dashboard can be published read-only at a secret share link: viewers need no account, live values arrive by polling, and nothing outside that dashboard's own widgets is exposed.
 
 ## Read API
 Read the latest state:

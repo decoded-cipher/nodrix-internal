@@ -133,7 +133,7 @@ const jsonLd = {
           <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">metric</code>/<code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">value</code> pair.
         </p>
         <pre class="mt-3 overflow-x-auto rounded-xl border border-neutral-800 bg-neutral-900 p-4 text-xs leading-relaxed text-neutral-100 sm:text-[13px]"><code><span class="text-accent-400">POST</span> /v1/telemetry
-{`{ "ts": 1715900000, "metrics": { "temperature": 23.4, "humidity": 61 } }`}
+{`{ "metrics": { "temperature": 23.4, "humidity": 61 } }`}
 <span class="text-emerald-400">→ 204 No Content</span></code></pre>
 
         <h3 class="mt-8 text-base font-semibold text-neutral-900">Poll for control writes</h3>
@@ -148,16 +148,23 @@ const jsonLd = {
 {`{ "ids": ["ctl_x"] }`}
 <span class="text-emerald-400">→</span> {`{ "acked": 1 }`}</code></pre>
 
-        <h3 class="mt-8 text-base font-semibold text-neutral-900">…or stream over WebSocket</h3>
+        <h3 class="mt-8 text-base font-semibold text-neutral-900">…or over a WebSocket</h3>
         <p class="mt-2 text-sm leading-relaxed text-neutral-700">
-          Skip polling: open a socket and receive control writes the instant a widget moves. Ack the
-          same way, inline.
+          The same operations run over a WebSocket — telemetry up, control writes down, events, and
+          acks on one connection. Invalid frames get an error back. Use whichever fits; the HTTP
+          endpoints above work just as well.
         </p>
         <pre class="mt-3 overflow-x-auto rounded-xl border border-neutral-800 bg-neutral-900 p-4 text-xs leading-relaxed text-neutral-100 sm:text-[13px]"><code><span class="text-accent-400">WSS</span> /v1/control/ws?token=&lt;project_token&gt;
-<span class="text-neutral-500">// incoming</span>
+<span class="text-neutral-500">// up · telemetry</span>
+{`{ "type": "telemetry", "metrics": { "temperature": 23.4 } }`}
+<span class="text-neutral-500">// up · event</span>
+{`{ "type": "event", "event": "door_opened" }`}
+<span class="text-neutral-500">// down · control write</span>
 {`{ "type": "control", "id": "ctl_x", "variable": "relay", "value": "on" }`}
-<span class="text-neutral-500">// reply</span>
-{`{ "type": "ack", "ids": ["ctl_x"] }`}</code></pre>
+<span class="text-neutral-500">// up · ack</span>
+{`{ "type": "ack", "ids": ["ctl_x"] }`}
+<span class="text-neutral-500">// down · rejected input</span>
+{`{ "type": "error", "code": "invalid_value", "key": "temperature" }`}</code></pre>
 
         <h3 class="mt-8 text-base font-semibold text-neutral-900">Emit an event</h3>
         <p class="mt-2 text-sm leading-relaxed text-neutral-700">
@@ -174,8 +181,9 @@ const jsonLd = {
         <p class="mt-4 text-sm leading-relaxed text-neutral-700">
           Compose dashboards in a full-page, drag-and-drop editor: drop widgets onto a grid and bind
           each to a variable. Readings stream in live over a hibernating WebSocket, and control widgets
-          write back — a toggle or slider becomes a control write your hardware picks up on its next
-          <a href="#protocol" class="font-medium text-accent-600 hover:text-accent-700">poll</a>. Seven
+          write back — a toggle or slider becomes a control write your hardware receives over its
+          control <a href="#protocol" class="font-medium text-accent-600 hover:text-accent-700">socket</a>
+          (or its next poll). Seven
           framework-agnostic widgets ship in the box — value, gauge, chart, map, toggle, slider, and
           push, with a separate mobile layout
           (<a href="/widgets" class="font-medium text-accent-600 hover:text-accent-700">browse them →</a>).

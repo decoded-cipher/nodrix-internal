@@ -15,8 +15,8 @@ const stack = [
 
 const features = [
   {
-    title: 'Telemetry over plain HTTPS',
-    body: 'Hardware POSTs JSON to your project. Variables create themselves on first sight — no schema to declare, no MQTT broker to run, no SDK to install.',
+    title: 'Telemetry over HTTPS or WebSocket',
+    body: 'Hardware POSTs JSON, or opens WebSocket. Variables create themselves on first sight — no schema, no MQTT broker, no SDK.',
     icon: 'm4 14 5-5 4 4 7-7 M21 14V6h-8',
   },
   {
@@ -78,7 +78,7 @@ const widgets = [
 
 <Site
   title="nodrix — your own IoT cloud, on Cloudflare"
-  description="Open-source, single-tenant IoT platform that deploys to your own Cloudflare account. Hardware over HTTPS, realtime dashboards, automations, and a clean read API."
+  description="Open-source, single-tenant IoT platform that deploys to your own Cloudflare account. Hardware over HTTPS or WebSocket, realtime dashboards, automations, and a clean read API."
 >
   <!-- Hero -->
   <section class="relative flex min-h-[calc(100svh-3.5rem)] items-center overflow-hidden border-b border-neutral-200/70">
@@ -119,9 +119,9 @@ const widgets = [
           no middleman.
         </span>
         <span class="hidden sm:inline">
-          An open-source IoT backend that lives in your Cloudflare account. Hardware speaks plain HTTPS,
-          data streams to drag-and-drop dashboards in realtime, and a clean read API hands it to anything
-          else you build — no broker, no servers, no third party in the middle.
+          An open-source IoT backend that lives in your Cloudflare account. Hardware speaks plain HTTPS
+          or WebSocket, data streams to drag-and-drop dashboards in realtime, and a clean read API hands
+          it to anything else you build — no broker, no servers, no third party in the middle.
         </span>
       </p>
 

@@ -12,4 +12,9 @@ database_id   = "05bb34fc-cec6-483f-8e3d-8091f15e074d"
 pattern        = "telemetry.nodrix.live"
 custom_domain  = true
 
-# STATS_TOKEN (gates /stats) is set as a secret: wrangler secret put STATS_TOKEN
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = true
+head_sampling_rate = 1

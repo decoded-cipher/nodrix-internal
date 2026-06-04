@@ -78,7 +78,7 @@ If those are you, Blynk is a fine answer, and the ownership trade isn't worth it
 ## When nodrix fits better
 
 - You want **open source and ownership** — the stack on your own Cloudflare, your telemetry in your
-  tenancy, nothing leaving your account.
+  tenancy, your data never leaving your account.
 - You're allergic to **per-device pricing** and want costs that track actual Cloudflare usage.
 - Your devices already speak **plain HTTPS/WebSocket** and you don't want to depend on a vendor SDK
   or a broker.

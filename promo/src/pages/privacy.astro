@@ -15,7 +15,7 @@ const jsonLd = jsonLdGraph(
 
 <Site
   title="Privacy Policy | nodrix"
-  description="How nodrix — the open-source software you deploy — handles data. nodrix is self-hosted and single-tenant; the project does not collect, store, or have access to your data."
+  description="How nodrix — the open-source software you deploy — handles data. nodrix is self-hosted and single-tenant: your data stays in your own Cloudflare account; the software sends only anonymous, aggregate usage statistics about the deployment itself."
 >
   <Fragment slot="head">
     <script is:inline type="application/ld+json" set:html={jsonLd} />
@@ -38,15 +38,27 @@ const jsonLd = jsonLdGraph(
       <p>
         This Privacy Policy explains how nodrix — the open-source software you deploy — handles data.
         nodrix is self-hosted and single-tenant: it runs entirely within your own Cloudflare account,
-        and the project does not operate any service that receives, stores, or has access to your data.
+        and all of your data stays there. The only information that ever leaves your deployment is
+        anonymous, aggregate usage statistics about the instance itself (described in section 1) —
+        never your data, and never anything that identifies you.
       </p>
 
-      <h2>1. No data collection by nodrix</h2>
+      <h2>1. Anonymous usage statistics</h2>
       <p>
-        The nodrix software — the web application and the worker — contains no analytics, telemetry,
-        usage tracking, or "phone-home" mechanisms. It does not transmit information about you or your
-        deployment to the project or to any third party. Because nodrix is open source under the MIT
-        License, this can be independently verified in the source code.
+        So the project can tell how many self-hosted deployments exist and stay active, the nodrix
+        worker sends a small anonymous usage ping to a project-operated collector
+        (<code>telemetry.nodrix.live</code>): once when the owner account is first created, and then
+        once a day.
+      </p>
+      <p>
+        Each ping contains only a random instance identifier (not derived from you, your account, or
+        your domain), the nodrix version, which integration types are configured, aggregate counts
+        (such as the number of projects), and which features are enabled. It never contains IP
+        addresses, your device telemetry or any variable values, the names of your projects,
+        variables, or dashboards, account identifiers, email addresses, or any other personal data —
+        and the collector does not log the request's IP. Because nodrix is open source, exactly what
+        is sent can be verified in the source code. The data is anonymous and is sent automatically;
+        there is no separate opt-out.
       </p>
 
       <h2>2. Where your data resides</h2>

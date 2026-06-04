@@ -89,6 +89,7 @@ const jsonLd = {
     <title>{title}</title>
     <meta name="description" content={desc} />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/rss+xml" title="nodrix guides" href={new URL('rss.xml', site).href} />
     <meta
       name="robots"
       content={noindex
@@ -242,7 +243,7 @@ const jsonLd = {
 
     <footer class="relative overflow-hidden border-t border-neutral-200 bg-neutral-50">
       <div class="mx-auto max-w-6xl px-5 sm:px-6">
-        <div class="grid gap-12 py-14 md:grid-cols-[1.1fr_2fr]">
+        <div class="flex flex-col gap-12 py-14 md:flex-row md:items-start md:justify-between">
           <div class="max-w-sm">
             <picture>
               <source srcset="/dark_logo.webp" type="image/webp" />
@@ -267,13 +268,14 @@ const jsonLd = {
             </a>
           </div>
 
-          <div class="grid grid-cols-2 gap-8 sm:grid-cols-3">
+          <div class="grid grid-cols-2 gap-8 sm:grid-cols-3 sm:gap-12 lg:gap-16">
             <div>
               <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Product</h3>
               <ul class="mt-4 space-y-2.5 text-sm text-neutral-600">
                 <li><a href="/#features" class="transition-colors hover:text-accent-600">Features</a></li>
-                <li><a href="/#how" class="transition-colors hover:text-accent-600">How it works</a></li>
                 <li><a href="/widgets" class="transition-colors hover:text-accent-600">Widgets</a></li>
+                <li><a href="/roadmap" class="transition-colors hover:text-accent-600">Roadmap</a></li>
+                <li><a href="/changelog" class="transition-colors hover:text-accent-600">Changelog</a></li>
               </ul>
             </div>
             <div>
@@ -305,7 +307,10 @@ const jsonLd = {
             <span class="text-neutral-300" aria-hidden="true">·</span>
             <a href={`${repoUrl}/releases`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">v1.0</a>
           </p>
-          <p>Built on Cloudflare Workers, Durable Objects, D1, R2, and KV.</p>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <a href="/privacy" class="transition-colors hover:text-accent-600">Privacy Policy</a>
+            <a href="/terms" class="transition-colors hover:text-accent-600">Terms of Use</a>
+          </div>
         </div>
       </div>
     </footer>

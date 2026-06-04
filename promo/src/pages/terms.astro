@@ -1,0 +1,104 @@
+---
+import Site from '../layouts/Site.astro';
+import Waves from '../components/Waves.astro';
+import { breadcrumb, jsonLdGraph } from '../lib/seo';
+
+const repoUrl = 'https://github.com/decoded-cipher/nodrix';
+const lastUpdated = 'June 5, 2026';
+const site = Astro.site!;
+const jsonLd = jsonLdGraph(
+  breadcrumb(site, [
+    { name: 'Home', path: '/' },
+    { name: 'Terms of Use', path: '/terms/' },
+  ]),
+);
+---
+
+<Site
+  title="Terms of Use | nodrix"
+  description="The terms governing use of the nodrix software, which is open source under the MIT License and deployed to your own Cloudflare account."
+>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json" set:html={jsonLd} />
+  </Fragment>
+
+  <section class="hero-glow relative overflow-hidden border-b border-neutral-200/70">
+    <Waves />
+    <div class="relative mx-auto max-w-3xl px-5 py-14 sm:px-6 sm:py-20">
+      <span class="text-sm font-semibold text-accent-600">Legal</span>
+      <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl">Terms of Use</h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed text-neutral-600">
+        The terms governing the nodrix software you deploy.
+      </p>
+      <p class="mt-3 text-sm text-neutral-500">Last updated: {lastUpdated}</p>
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="prose prose-neutral mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
+      <p>
+        These Terms of Use govern your use of the nodrix software. nodrix is open-source software that
+        you deploy and operate in your own Cloudflare account.
+      </p>
+
+      <h2>1. The software and its license</h2>
+      <p>
+        nodrix is released under the <a href={`${repoUrl}/blob/master/LICENSE`} target="_blank" rel="noopener noreferrer">MIT License</a>,
+        which is the authoritative grant of rights to use, copy, modify, and distribute the software.
+        The software is provided <strong>"as is", without warranty of any kind</strong>. To the
+        maximum extent permitted by law, the authors and contributors are not liable for any claim,
+        damages, or other liability arising from the software or its use.
+      </p>
+
+      <h2>2. Self-hosting and your responsibilities</h2>
+      <p>
+        nodrix runs in your own Cloudflare account. You are solely responsible for your deployment —
+        including its configuration and security, the devices and data you connect to it, any
+        Cloudflare usage costs it incurs, and your compliance with all laws and regulations that apply
+        to you. The project does not operate, monitor, or have access to your instance.
+      </p>
+
+      <h2>3. Acceptable use</h2>
+      <p>
+        You agree to use nodrix lawfully, and not to use it to harm others or to infringe the rights
+        of any third party. You are responsible for the content and conduct of the systems you build
+        with it.
+      </p>
+
+      <h2>4. Third-party services</h2>
+      <p>
+        nodrix runs on Cloudflare and can connect to third-party services you configure, such as email
+        or chat integrations. Your use of those services is governed by their own terms, and you are
+        responsible for complying with them.
+      </p>
+
+      <h2>5. Trademarks</h2>
+      <p>
+        "nodrix" and the nodrix logo are marks of the project. Other names referenced on this website
+        — such as Cloudflare, Blynk, ThingsBoard, Arduino, and Product Hunt — are the property of their
+        respective owners and are used only for identification and comparison; their use does not imply
+        affiliation or endorsement.
+      </p>
+
+      <h2>6. Changes to these terms</h2>
+      <p>
+        We may update these Terms of Use from time to time. Material changes will be reflected in the
+        "Last updated" date shown above.
+      </p>
+
+      <h2>7. Contact</h2>
+      <p>
+        Questions about these terms? Contact us at
+        <a href="mailto:hello@nodrix.live">hello@nodrix.live</a>.
+      </p>
+
+      <div class="not-prose mt-12 rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
+        <p class="text-sm font-semibold text-neutral-900">About this website</p>
+        <p class="mt-2 text-sm leading-relaxed text-neutral-600">
+          nodrix.live is our marketing website, provided for informational purposes and offered as is.
+          Its content, including product comparisons, may change at any time.
+        </p>
+      </div>
+    </div>
+  </section>
+</Site>

@@ -7,6 +7,10 @@ const staticRoutes: { path: string; priority: string }[] = [
   { path: 'docs/', priority: '0.8' },
   { path: 'widgets/', priority: '0.8' },
   { path: 'guides/', priority: '0.8' },
+  { path: 'roadmap/', priority: '0.6' },
+  { path: 'changelog/', priority: '0.6' },
+  { path: 'privacy/', priority: '0.3' },
+  { path: 'terms/', priority: '0.3' },
 ];
 
 export const GET: APIRoute = async ({ site }) => {

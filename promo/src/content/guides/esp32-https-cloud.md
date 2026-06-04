@@ -5,7 +5,6 @@ category: hardware
 board: ESP32
 difficulty: intermediate
 datePublished: 2026-06-03
-draft: true
 faqs:
   - q: "Can an ESP32 really talk to the cloud without MQTT?"
     a: "Yes. An HTTPS POST to a single endpoint sends a reading, and a GET fetches queued commands. No broker is required for periodic telemetry."

@@ -1,0 +1,15 @@
+# Central usage-stats collector — runs on our account, not the per-user deploy.
+name = "nodrix-collector"
+main = "src/index.ts"
+compatibility_date = "2025-05-01"
+
+[[d1_databases]]
+binding       = "DB"
+database_name = "nodrix-telemetry-stats"
+database_id   = "05bb34fc-cec6-483f-8e3d-8091f15e074d"
+
+[[routes]]
+pattern        = "telemetry.nodrix.live"
+custom_domain  = true
+
+# STATS_TOKEN (gates /stats) is set as a secret: wrangler secret put STATS_TOKEN

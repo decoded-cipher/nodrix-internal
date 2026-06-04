@@ -1,7 +1,7 @@
 // Dynamic OG image generator. Renders a branded, light-themed 1200x630 PNG using satori
 // (element tree -> SVG) and resvg (SVG -> PNG). The visual is driven by the page's own
-// data — a large board/category watermark, a category pill, and the title — so every image
-// is distinct rather than sharing one illustration. Reusable for any pSEO page.
+// data — a large category watermark, tag badges (board, difficulty, …), and the title —
+// so every image is distinct rather than sharing one illustration. Reusable for any pSEO page.
 //
 // Dev-only: runs locally via `bun run og:gen`; PNGs are committed under public/og/ so the
 // Cloudflare build never imports satori/resvg.
@@ -16,9 +16,10 @@ const semibold = readFileSync(new URL('600SemiBold/PlusJakartaSans_600SemiBold.t
 const logo = readFileSync(new URL('../../public/dark_logo.png', import.meta.url));
 const logoUri = 'data:image/png;base64,' + logo.toString('base64');
 
-// Aurora background — soft, blurred coral glows echoing the home-page hero. Built as a real
-// SVG (radial gradients + gaussian blur) and pre-rasterized with resvg, because satori's own
-// radial gradients render their transparent stop as a dark blob. Computed once, reused.
+// Aurora background — soft, blurred coral glows echoing the home-page hero. Kept to the top
+// half so the crisp coral strip along the bottom edge stays clean: no blurred glow bleeds into
+// or smudges it. Built as a real SVG (radial gradients + gaussian blur) and pre-rasterized with
+// resvg, because satori's own radial gradients render their transparent stop as a dark blob.
 const AURORA = (() => {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
     <defs>
@@ -32,8 +33,6 @@ const AURORA = (() => {
       <circle cx="120" cy="-20" r="340" fill="url(#g1)"/>
       <circle cx="1160" cy="40" r="300" fill="url(#g2)"/>
       <circle cx="640" cy="-120" r="260" fill="url(#g3)"/>
-      <circle cx="1080" cy="600" r="270" fill="url(#g3)"/>
-      <circle cx="40" cy="640" r="230" fill="url(#g2)"/>
     </g>
   </svg>`;
   return 'data:image/png;base64,' + Buffer.from(new Resvg(svg).render().asPng()).toString('base64');
@@ -43,39 +42,50 @@ type Style = Record<string, string | number>;
 type El = { type: string; props: Record<string, unknown> };
 const h = (type: string, style: Style, children?: unknown): El => ({ type, props: { style, children } });
 
-const pill = (text: string): El =>
+// A small rounded tag. The first/primary tag (the board) takes the coral accent; the rest
+// (difficulty, …) are neutral.
+const badge = (text: string, accent: boolean, marginLeft: number): El =>
   h(
     'div',
     {
       display: 'flex',
-      fontSize: 22,
+      fontSize: 20,
       fontWeight: 600,
-      letterSpacing: 2,
+      letterSpacing: 1.5,
       textTransform: 'uppercase',
-      color: '#c6381c',
-      backgroundColor: '#fff4f1',
+      color: accent ? '#c6381c' : '#525252',
+      backgroundColor: accent ? '#fff4f1' : '#f5f5f4',
       borderWidth: 1,
       borderStyle: 'solid',
-      borderColor: '#ffd2c4',
+      borderColor: accent ? '#ffd2c4' : '#e7e5e4',
       borderRadius: 9999,
-      paddingTop: 9,
-      paddingBottom: 9,
-      paddingLeft: 20,
-      paddingRight: 20,
+      paddingTop: 8,
+      paddingBottom: 8,
+      paddingLeft: 18,
+      paddingRight: 18,
+      marginLeft,
     },
     text,
   );
 
-export type OgInput = { title: string; category?: string; board?: string; tagline?: string };
+// Category → the big etched word behind the content.
+const WATERMARK: Record<string, string> = {
+  hardware: 'GUIDE',
+  project: 'PROJECT',
+  comparison: 'COMPARISON',
+  concept: 'CONCEPT',
+};
+
+export type OgInput = { title: string; category?: string; tags?: string[]; tagline?: string };
 
 export async function ogImagePng({
   title,
   category,
-  board,
+  tags = [],
   tagline = 'Your own IoT cloud, on Cloudflare',
 }: OgInput): Promise<Buffer> {
-  // Large faint watermark — the board only (category already shows in the pill).
-  const watermark = board ? board.toUpperCase() : '';
+  // Large faint watermark — the category word, etched bottom-right.
+  const watermark = category ? (WATERMARK[category.toLowerCase()] ?? category.toUpperCase()) : '';
   const wsize = watermark.length <= 6 ? 250 : watermark.length <= 9 ? 200 : 150;
 
   const tree = h(
@@ -102,8 +112,10 @@ export async function ogImagePng({
       // content
       h('div', { display: 'flex', flexDirection: 'column', flexGrow: 1, padding: 72 }, [
         h('div', { display: 'flex', alignItems: 'center', justifyContent: 'space-between' }, [
-          { type: 'img', props: { src: logoUri, width: 170, height: 50 } },
-          category ? pill(category) : h('div', { display: 'flex' }),
+          { type: 'img', props: { src: logoUri, width: 188, height: 55 } },
+          tags.length
+            ? h('div', { display: 'flex', alignItems: 'center' }, tags.map((t, i) => badge(t, i === 0, i === 0 ? 0 : 12)))
+            : h('div', { display: 'flex' }),
         ]),
         h('div', { display: 'flex', flexGrow: 1 }),
         h('div', { display: 'flex', width: 76, height: 7, borderRadius: 9999, backgroundColor: '#ff6a45' }),

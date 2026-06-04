@@ -17,10 +17,17 @@ const files = readdirSync(GUIDES_DIR).filter((f) => f.endsWith('.md'));
 for (const file of files) {
   const slug = basename(file, '.md');
   const { data } = matter(readFileSync(resolve(GUIDES_DIR, file), 'utf8'));
+  // Top-right badges: the board, then difficulty (only on build-style guides, so a
+  // comparison/concept page doesn't get a stray "Beginner" badge).
+  const tags: string[] = [];
+  if (data.board) tags.push(String(data.board));
+  if ((data.category === 'hardware' || data.category === 'project') && data.difficulty) {
+    tags.push(String(data.difficulty));
+  }
   const png = await ogImagePng({
     title: String(data.title),
     category: data.category ? String(data.category) : undefined,
-    board: data.board ? String(data.board) : undefined,
+    tags,
   });
   writeFileSync(resolve(OUT_DIR, `${slug}.png`), png);
   console.log(`og: ${slug}.png`);

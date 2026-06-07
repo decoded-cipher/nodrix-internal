@@ -21,6 +21,7 @@ Each page exercises both directions of the widget contract:
 | `toggle.html` | iot-toggle | on/off values; set reported state |
 | `value.html`  | iot-value  | unit; push a number/string (read-only widget) |
 | `gauge.html`  | iot-gauge  | min/max; push a number (read-only widget) |
+| `percent.html`| iot-percent| min/max/decimals/unit + colour thresholds (JSON); push a number to watch the ring recolour |
 | `push.html`   | iot-push   | payload value, label; press to fire |
 
 `iot-chart` / `iot-map` are intentionally omitted — they pull in apexcharts/leaflet and

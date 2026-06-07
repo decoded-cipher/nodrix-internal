@@ -11,6 +11,7 @@ import { IotToggleElement } from '../../../shared/widgets/iot-toggle/widget';
 import { IotValueElement } from '../../../shared/widgets/iot-value/widget';
 import { IotGaugeElement } from '../../../shared/widgets/iot-gauge/widget';
 import { IotPushElement } from '../../../shared/widgets/iot-push/widget';
+import { IotPercentElement } from '../../../shared/widgets/iot-percent/widget';
 
 // chart/map are intentionally omitted — they pull in apexcharts/leaflet and need
 // live series / map tiles, which don't fit this dependency-free offline lab.
@@ -21,6 +22,7 @@ const defs: Array<[string, CustomElementConstructor]> = [
   ['iot-value', IotValueElement],
   ['iot-gauge', IotGaugeElement],
   ['iot-push', IotPushElement],
+  ['iot-percent', IotPercentElement],
 ];
 for (const [tag, ctor] of defs) {
   if (!customElements.get(tag)) customElements.define(tag, ctor);

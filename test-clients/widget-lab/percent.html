@@ -20,7 +20,6 @@
       <div class="grid2">
         <label class="field">Min<input id="min" type="number" value="0" /></label>
         <label class="field">Max<input id="max" type="number" value="100" /></label>
-        <label class="field">Decimals<input id="decimals" type="number" value="0" /></label>
         <label class="field">Unit<input id="unit" type="text" value="%" /></label>
       </div>
     </fieldset>
@@ -66,11 +65,10 @@
         el.setAttribute('data-title', $('title').value);
         el.setAttribute('data-min', $('min').value);
         el.setAttribute('data-max', $('max').value);
-        el.setAttribute('data-decimals', $('decimals').value);
         el.setAttribute('data-unit', $('unit').value);
       }
     }
-    ['title', 'min', 'max', 'decimals', 'unit'].forEach((id) => $(id).addEventListener('input', applyConfig));
+    ['title', 'min', 'max', 'unit'].forEach((id) => $(id).addEventListener('input', applyConfig));
 
     function applyThresholds() {
       let arr;

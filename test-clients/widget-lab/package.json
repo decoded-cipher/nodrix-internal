@@ -1,0 +1,9 @@
+{
+  "name": "@nodrix/widget-lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun build ./entry.ts --outfile ./widget-bundle.js --format iife",
+    "dev": "bun build ./entry.ts --outfile ./widget-bundle.js --format iife --watch"
+  }
+}

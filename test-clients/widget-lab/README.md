@@ -1,28 +1,39 @@
 # Widget Lab
 
-A tiny standalone page for testing dashboard widgets locally — no worker, no auth,
-no server required. Renders `<iot-color>` with `<iot-slider>` and `<iot-toggle>`
-alongside it for side-by-side comparison, in both light and dark themes.
+A tiny standalone tool for testing dashboard widgets locally — no worker, no auth,
+no server. Open `index.html` and pick a widget; each gets its own page with controls
+matching *that* widget's config, rendered in both light and dark themes.
 
-It exercises both directions of the widget contract:
+Each page exercises both directions of the widget contract:
 
-- **Out:** every `iot-command` a widget dispatches is logged with its payload, so
-  you can see exactly what would be written to the variable (for `iot-color`, in
-  each output format).
-- **In:** push a "reported value" (hex string or JSON `{h,s,v}` / `{r,g,b}`) to
-  simulate device state arriving over the wire and watch the widget reflect it.
+- **Out:** every `iot-command` the widget dispatches is logged with its payload, so
+  you can see exactly what would be written to the variable.
+- **In:** push a "reported value" (or state) to simulate what the device reports back,
+  and watch the widget reflect it.
 
-You can also toggle every `iot-color` config option (format, brightness, hex
-input, presets) live.
+## Pages
+
+| Page | Widget | What you can drive |
+|------|--------|--------------------|
+| `index.html`  | —          | Landing / nav |
+| `color.html`  | iot-color  | format (hex/hsv/rgb), brightness, hex input, presets; push hex or JSON `{h,s,v}`/`{r,g,b}` |
+| `slider.html` | iot-slider | orientation, min/max/step, unit; push a number |
+| `toggle.html` | iot-toggle | on/off values; set reported state |
+| `value.html`  | iot-value  | unit; push a number/string (read-only widget) |
+| `gauge.html`  | iot-gauge  | min/max; push a number (read-only widget) |
+| `push.html`   | iot-push   | payload value, label; press to fire |
+
+`iot-chart` / `iot-map` are intentionally omitted — they pull in apexcharts/leaflet and
+need live series / map tiles, which don't fit a dependency-free offline page.
 
 ## Run
 
-The widgets are TypeScript, so build the bundle once, then open the page:
+The widgets are TypeScript, so build the bundle once, then open any page:
 
 ```sh
 cd internal/test-clients/widget-lab
-bun run build        # writes widget-bundle.js
-open index.html      # or just double-click it
+bun run build        # writes widget-bundle.js (defines every element)
+open index.html
 ```
 
 While iterating on a widget, keep a rebuild running and refresh the page:
@@ -37,8 +48,14 @@ bun run dev          # rebuilds widget-bundle.js on change
 
 `widget-bundle.js` is generated — it's gitignored.
 
-## Adding more widgets
+## Files & how to add a widget page
 
-Import and define the element in [entry.ts](entry.ts), then add a host element to
-[index.html](index.html). Importing classes individually (rather than the full
-registry) keeps the bundle lean and avoids pulling in chart/map dependencies.
+- `lab.css` — shared styles + theme tokens (mirrors `web/src/style.css`)
+- `lab.js` — shared helpers: `$`, `startLog(preEl)`, `parsePush(raw)`
+- `entry.ts` — imports + defines the widget classes into the bundle
+- `*.html` — one page per widget
+
+To add a widget: import + define its class in [entry.ts](entry.ts), copy an existing
+page (e.g. [value.html](value.html)) and swap in the element tag + its config fields,
+then link it from [index.html](index.html). Classes are imported individually (not the
+full registry) to keep the bundle lean and avoid pulling in chart/map dependencies.

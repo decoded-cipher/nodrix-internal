@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Widget Lab · iot-toggle</title>
+<link rel="stylesheet" href="./lab.css" />
+</head>
+<body class="lab">
+  <aside class="rail">
+    <div class="back"><a href="./index.html">← All widgets</a></div>
+    <div>
+      <h1>iot-toggle</h1>
+      <div class="sub">On/off command</div>
+    </div>
+
+    <fieldset>
+      <legend>Config</legend>
+      <label class="field">Title<input id="title" type="text" value="Power" /></label>
+      <div class="grid2">
+        <label class="field">On value<input id="onValue" type="text" value="on" /></label>
+        <label class="field">Off value<input id="offValue" type="text" value="off" /></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Push reported state (→ el.current)</legend>
+      <div class="quick">
+        <button class="btn" id="setOn">Set ON</button>
+        <button class="btn" id="setOff">Set OFF</button>
+      </div>
+    </fieldset>
+  </aside>
+
+  <main class="stage">
+    <div class="cards">
+      <section class="scene light"><h2>Light</h2><div class="cell short"><iot-toggle id="light" data-variable="demoPower"></iot-toggle></div></section>
+      <section class="scene dark"><h2>Dark</h2><div class="cell short"><iot-toggle id="dark" data-variable="demoPower"></iot-toggle></div></section>
+    </div>
+    <section class="log"><h2>iot-command events</h2><pre id="log">Flip a toggle…</pre></section>
+  </main>
+
+  <script src="./widget-bundle.js"></script>
+  <script src="./lab.js"></script>
+  <script>
+    const els = [$('light'), $('dark')];
+    function applyConfig() {
+      for (const el of els) {
+        el.setAttribute('data-title', $('title').value);
+        el.setAttribute('data-on-value', $('onValue').value);
+        el.setAttribute('data-off-value', $('offValue').value);
+      }
+    }
+    ['title', 'onValue', 'offValue'].forEach((id) => $(id).addEventListener('input', applyConfig));
+
+    function setState(v) { for (const el of els) el.current = v; }
+    $('setOn').addEventListener('click', () => setState($('onValue').value));
+    $('setOff').addEventListener('click', () => setState($('offValue').value));
+
+    startLog($('log'));
+    applyConfig();
+    setState($('onValue').value);
+  </script>
+</body>
+</html>

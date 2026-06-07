@@ -4,219 +4,36 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Nodrix · Widget Lab</title>
-<style>
-  /* Theme tokens mirrored from web/src/style.css so widgets render exactly as
-     they do in the app. Override --color-* on a wrapper to re-theme. */
-  :root {
-    --color-bg: #ffffff;
-    --color-bg-elevated: #ffffff;
-    --color-border: #e5e5e5;
-    --color-border-strong: #d4d4d4;
-    --color-text: #171717;
-    --color-text-muted: #525252;
-    --color-text-subtle: #737373;
-    --color-text-faint: #a3a3a3;
-    --accent-600: #ea580c;
-  }
-  .dark {
-    --color-bg: #181818;
-    --color-bg-elevated: #1f1f1f;
-    --color-border: #2a2a2a;
-    --color-border-strong: #3a3a3a;
-    --color-text: #e5e5e5;
-    --color-text-muted: #a3a3a3;
-    --color-text-subtle: #737373;
-    --color-text-faint: #525252;
-    color-scheme: dark;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: system-ui, sans-serif;
-    color: #171717;
-    background: #f4f4f5;
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    min-height: 100vh;
-  }
-
-  /* Controls rail */
-  .rail {
-    padding: 20px;
-    border-right: 1px solid #e4e4e7;
-    background: #fff;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-  .rail h1 { font-size: 14px; margin: 0; letter-spacing: .04em; }
-  .rail .sub { font-size: 12px; color: #71717a; margin-top: -10px; }
-  fieldset { border: 1px solid #e4e4e7; border-radius: 8px; padding: 12px; margin: 0; }
-  legend { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #71717a; padding: 0 4px; }
-  label.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; margin: 6px 0; }
-  input[type="text"], select {
-    width: 100%; padding: 6px 8px; font-size: 13px; border: 1px solid #d4d4d8; border-radius: 6px; background: #fff;
-  }
-  .field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #52525b; }
-  .btn {
-    appearance: none; border: 1px solid #d4d4d8; background: #fafafa; border-radius: 6px;
-    padding: 6px 10px; font-size: 12px; cursor: pointer;
-  }
-  .btn:hover { background: #f4f4f5; }
-  .quick { display: flex; flex-wrap: wrap; gap: 6px; }
-
-  /* Stage */
-  .stage { padding: 28px; display: flex; flex-direction: column; gap: 24px; }
-  .cards { display: flex; gap: 24px; flex-wrap: wrap; }
-  .scene { padding: 22px; border-radius: 14px; }
-  .scene.light { background: #fafafa; border: 1px solid #ececec; }
-  .scene.dark  { background: #121212; }
-  .scene h2 { margin: 0 0 12px; font: 600 11px system-ui; letter-spacing: .1em; text-transform: uppercase; color: #9ca3af; }
-  .row-cells { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
-  .cell { width: 240px; height: 320px; }
-  .cell.ctrl { height: 150px; }
-
-  /* Event log */
-  .log h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #71717a; margin: 0 0 8px; }
-  .log pre {
-    margin: 0; height: 180px; overflow: auto; background: #0b0b0c; color: #d4d4d8;
-    border-radius: 10px; padding: 12px; font: 12px/1.6 ui-monospace, monospace;
-  }
-  .log .out { color: #fbbf24; }
-</style>
+<link rel="stylesheet" href="./lab.css" />
 </head>
-<body>
-  <aside class="rail">
-    <div>
-      <h1>Widget Lab</h1>
-      <div class="sub">local widget tester</div>
-    </div>
-
-    <fieldset>
-      <legend>iot-color config</legend>
-      <div class="field">
-        Title
-        <input id="title" type="text" value="Bedroom Lamp" />
-      </div>
-      <div class="field" style="margin-top:8px">
-        Output format
-        <select id="format">
-          <option value="hex">hex</option>
-          <option value="hsv">hsv</option>
-          <option value="rgb">rgb</option>
-        </select>
-      </div>
-      <label class="row"><span>Brightness control</span><input id="brightness" type="checkbox" checked /></label>
-      <label class="row"><span>Hex input</span><input id="hexInput" type="checkbox" checked /></label>
-      <label class="row"><span>Preset swatches</span><input id="presets" type="checkbox" checked /></label>
-    </fieldset>
-
-    <fieldset>
-      <legend>Push colour value (→ el.value)</legend>
-      <div class="sub" style="margin:0 0 8px">Simulates state arriving from the device. Hex string or JSON.</div>
-      <input id="pushval" type="text" value="#34D399" />
-      <div style="margin-top:8px"><button class="btn" id="push">Push value</button></div>
-      <div class="quick" style="margin-top:10px">
-        <button class="btn q" data-v="#FF2D2D">#FF2D2D</button>
-        <button class="btn q" data-v="#2D6BFF">#2D6BFF</button>
-        <button class="btn q" data-v='{"h":280,"s":90,"v":70}'>hsv 280</button>
-        <button class="btn q" data-v='{"r":255,"g":180,"b":40}'>rgb amber</button>
-      </div>
-    </fieldset>
-  </aside>
-
-  <main class="stage">
-    <div class="cards">
-      <section class="scene light">
-        <h2>Light</h2>
-        <div class="row-cells">
-          <div class="cell"><iot-color id="light" data-variable="demoColor"></iot-color></div>
-          <div class="cell ctrl"><iot-slider class="slider" data-variable="demoLevel"></iot-slider></div>
-          <div class="cell ctrl"><iot-toggle class="toggle" data-variable="demoPower"></iot-toggle></div>
-        </div>
-      </section>
-      <section class="scene dark">
-        <h2>Dark</h2>
-        <div class="row-cells">
-          <div class="cell"><iot-color id="dark" data-variable="demoColor"></iot-color></div>
-          <div class="cell ctrl"><iot-slider class="slider" data-variable="demoLevel"></iot-slider></div>
-          <div class="cell ctrl"><iot-toggle class="toggle" data-variable="demoPower"></iot-toggle></div>
-        </div>
-      </section>
-    </div>
-
-    <section class="log">
-      <h2>iot-command events (what gets sent back)</h2>
-      <pre id="log">Drag the wheel, move a slider, flip a toggle, click a preset, or type a hex…</pre>
-    </section>
-  </main>
-
-  <script src="./widget-bundle.js"></script>
-  <script>
-    const colorEls = [document.getElementById('light'), document.getElementById('dark')];
-    const $ = (id) => document.getElementById(id);
-
-    function applyConfig() {
-      for (const el of colorEls) {
-        el.setAttribute('data-title', $('title').value);
-        el.setAttribute('data-format', $('format').value);
-        el.setAttribute('data-brightness', String($('brightness').checked));
-        el.setAttribute('data-hex-input', String($('hexInput').checked));
-        el.setAttribute('data-presets', String($('presets').checked));
-      }
-    }
-    ['title', 'format', 'brightness', 'hexInput', 'presets'].forEach((id) =>
-      $(id).addEventListener('input', applyConfig)
-    );
-
-    function pushValue(raw) {
-      raw = (raw || '').trim();
-      if (!raw) return;
-      let v = raw;
-      if (raw.startsWith('{')) {
-        try { v = JSON.parse(raw); } catch { logLine('— invalid JSON', 'out'); return; }
-      }
-      for (const el of colorEls) el.value = v;
-    }
-    $('push').addEventListener('click', () => pushValue($('pushval').value));
-    document.querySelectorAll('.q').forEach((b) =>
-      b.addEventListener('click', () => { $('pushval').value = b.dataset.v; pushValue(b.dataset.v); })
-    );
-
-    // Comparison widgets — set their config + a starting reported state.
-    document.querySelectorAll('.slider').forEach((el) => {
-      el.setAttribute('data-title', 'Brightness');
-      el.setAttribute('data-min', '0');
-      el.setAttribute('data-max', '100');
-      el.setAttribute('data-step', '1');
-      el.setAttribute('data-unit', '%');
-      el.value = 50;
-    });
-    document.querySelectorAll('.toggle').forEach((el) => {
-      el.setAttribute('data-title', 'Power');
-      el.setAttribute('data-on-value', 'on');
-      el.setAttribute('data-off-value', 'off');
-      el.current = 'on';
-    });
-
-    const logEl = $('log');
-    let cleared = false;
-    function logLine(text, cls) {
-      if (!cleared) { logEl.textContent = ''; cleared = true; }
-      const span = document.createElement('div');
-      if (cls) span.className = cls;
-      span.textContent = text;
-      logEl.prepend(span);
-    }
-    // iot-command bubbles + is composed, so it reaches document from any widget.
-    document.addEventListener('iot-command', (e) => {
-      const d = e.detail || {};
-      const t = new Date().toLocaleTimeString();
-      logLine(`${t}  →  ${JSON.stringify(d.value)}   (variable: ${d.variable || '—'})`, 'out');
-    });
-
-    applyConfig();
-    pushValue('#FF7A2B');
-  </script>
+<body class="home">
+  <h1>Widget Lab</h1>
+  <p class="sub">Test dashboard widgets locally — no worker, no auth, no server. Pick a widget.</p>
+  <div class="tiles">
+    <a class="tile" href="./color.html">
+      <div class="name">&lt;iot-color&gt;</div>
+      <div class="desc">HSV colour wheel — pick a colour, send hex / hsv / rgb.</div>
+    </a>
+    <a class="tile" href="./slider.html">
+      <div class="name">&lt;iot-slider&gt;</div>
+      <div class="desc">Numeric value within a range; horizontal or vertical.</div>
+    </a>
+    <a class="tile" href="./toggle.html">
+      <div class="name">&lt;iot-toggle&gt;</div>
+      <div class="desc">On/off command; reflects reported state.</div>
+    </a>
+    <a class="tile" href="./value.html">
+      <div class="name">&lt;iot-value&gt;</div>
+      <div class="desc">Read-only numeric/text readout with unit.</div>
+    </a>
+    <a class="tile" href="./gauge.html">
+      <div class="name">&lt;iot-gauge&gt;</div>
+      <div class="desc">Radial gauge over a min/max range.</div>
+    </a>
+    <a class="tile" href="./push.html">
+      <div class="name">&lt;iot-push&gt;</div>
+      <div class="desc">One-shot momentary command button.</div>
+    </a>
+  </div>
 </body>
 </html>

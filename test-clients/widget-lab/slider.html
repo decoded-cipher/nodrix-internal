@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Widget Lab · iot-slider</title>
+<link rel="stylesheet" href="./lab.css" />
+</head>
+<body class="lab">
+  <aside class="rail">
+    <div class="back"><a href="./index.html">← All widgets</a></div>
+    <div>
+      <h1>iot-slider</h1>
+      <div class="sub">Numeric value within a range</div>
+    </div>
+
+    <fieldset>
+      <legend>Config</legend>
+      <label class="field">Title<input id="title" type="text" value="Brightness" /></label>
+      <label class="field">Orientation
+        <select id="orientation">
+          <option value="horizontal">horizontal</option>
+          <option value="vertical">vertical</option>
+        </select>
+      </label>
+      <div class="grid2">
+        <label class="field">Min<input id="min" type="number" value="0" /></label>
+        <label class="field">Max<input id="max" type="number" value="100" /></label>
+        <label class="field">Step<input id="step" type="number" value="1" /></label>
+        <label class="field">Unit<input id="unit" type="text" value="%" /></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Push reported value (→ el.value)</legend>
+      <input id="pushval" type="text" value="50" />
+      <div class="quick">
+        <button class="btn" id="push">Push value</button>
+        <button class="btn q" data-v="0">0</button>
+        <button class="btn q" data-v="50">50</button>
+        <button class="btn q" data-v="100">100</button>
+      </div>
+    </fieldset>
+  </aside>
+
+  <main class="stage">
+    <div class="cards">
+      <section class="scene light"><h2>Light</h2><div class="cell short" id="cellLight"><iot-slider id="light" data-variable="demoLevel"></iot-slider></div></section>
+      <section class="scene dark"><h2>Dark</h2><div class="cell short" id="cellDark"><iot-slider id="dark" data-variable="demoLevel"></iot-slider></div></section>
+    </div>
+    <section class="log"><h2>iot-command events</h2><pre id="log">Drag a slider and release…</pre></section>
+  </main>
+
+  <script src="./widget-bundle.js"></script>
+  <script src="./lab.js"></script>
+  <script>
+    const els = [$('light'), $('dark')];
+    const cells = [$('cellLight'), $('cellDark')];
+    function applyConfig() {
+      const vertical = $('orientation').value === 'vertical';
+      for (const el of els) {
+        el.setAttribute('data-title', $('title').value);
+        el.setAttribute('data-orientation', $('orientation').value);
+        el.setAttribute('data-min', $('min').value);
+        el.setAttribute('data-max', $('max').value);
+        el.setAttribute('data-step', $('step').value);
+        el.setAttribute('data-unit', $('unit').value);
+      }
+      for (const c of cells) { c.classList.toggle('vert', vertical); c.classList.toggle('short', !vertical); }
+    }
+    ['title', 'orientation', 'min', 'max', 'step', 'unit'].forEach((id) => $(id).addEventListener('input', applyConfig));
+
+    function push(raw) { const v = parsePush(raw); if (v !== undefined) for (const el of els) el.value = v; }
+    $('push').addEventListener('click', () => push($('pushval').value));
+    document.querySelectorAll('.q').forEach((b) => b.addEventListener('click', () => { $('pushval').value = b.dataset.v; push(b.dataset.v); }));
+
+    startLog($('log'));
+    applyConfig();
+    push('50');
+  </script>
+</body>
+</html>

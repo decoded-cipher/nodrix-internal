@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Widget Lab · iot-value</title>
+<link rel="stylesheet" href="./lab.css" />
+</head>
+<body class="lab">
+  <aside class="rail">
+    <div class="back"><a href="./index.html">← All widgets</a></div>
+    <div>
+      <h1>iot-value</h1>
+      <div class="sub">Read-only readout</div>
+    </div>
+
+    <fieldset>
+      <legend>Config</legend>
+      <label class="field">Title<input id="title" type="text" value="Temperature" /></label>
+      <label class="field">Unit<input id="unit" type="text" value="°C" /></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Push reported value (→ el.value)</legend>
+      <input id="pushval" type="text" value="21.4" />
+      <div class="quick">
+        <button class="btn" id="push">Push value</button>
+        <button class="btn q" data-v="-3.2">-3.2</button>
+        <button class="btn q" data-v="21.4">21.4</button>
+        <button class="btn q" data-v="98.6">98.6</button>
+        <button class="btn q" data-v="OK">"OK"</button>
+      </div>
+    </fieldset>
+  </aside>
+
+  <main class="stage">
+    <div class="cards">
+      <section class="scene light"><h2>Light</h2><div class="cell short"><iot-value id="light" data-variable="demoTemp"></iot-value></div></section>
+      <section class="scene dark"><h2>Dark</h2><div class="cell short"><iot-value id="dark" data-variable="demoTemp"></iot-value></div></section>
+    </div>
+    <section class="log"><h2>iot-command events</h2><pre id="log">iot-value is read-only — it emits nothing. Push values to see it update.</pre></section>
+  </main>
+
+  <script src="./widget-bundle.js"></script>
+  <script src="./lab.js"></script>
+  <script>
+    const els = [$('light'), $('dark')];
+    function applyConfig() {
+      for (const el of els) {
+        el.setAttribute('data-title', $('title').value);
+        el.setAttribute('data-unit', $('unit').value);
+      }
+    }
+    ['title', 'unit'].forEach((id) => $(id).addEventListener('input', applyConfig));
+
+    function push(raw) { const v = parsePush(raw); if (v !== undefined) for (const el of els) el.value = v; }
+    $('push').addEventListener('click', () => push($('pushval').value));
+    document.querySelectorAll('.q').forEach((b) => b.addEventListener('click', () => { $('pushval').value = b.dataset.v; push(b.dataset.v); }));
+
+    startLog($('log'));
+    applyConfig();
+    push('21.4');
+  </script>
+</body>
+</html>

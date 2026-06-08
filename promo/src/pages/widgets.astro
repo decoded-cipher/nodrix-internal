@@ -14,6 +14,11 @@ const display = [
     attrs: 'data-title, data-min, data-max, data-unit',
   },
   {
+    name: 'iot-percent',
+    desc: 'A circular percentage ring that maps a value through its min / max to 0–100%, with optional color thresholds that recolor the ring by value — battery, capacity, progress, or utilization.',
+    attrs: 'data-title, data-min, data-max, data-unit',
+  },
+  {
     name: 'iot-chart',
     desc: 'A multi-series time-series chart powered by ApexCharts. Line, area, bar, or stepline, with optional drag-to-zoom.',
     attrs: 'data-title, data-chart-type, data-zoom',
@@ -40,6 +45,11 @@ const control = [
     name: 'iot-push',
     desc: 'A momentary push button for one-shot commands — restart a node, fire a routine, kick off a script. No toggle state.',
     attrs: 'data-title, data-variable, data-value, data-label',
+  },
+  {
+    name: 'iot-color',
+    desc: 'A color wheel for writing a color to a variable — drag for hue and saturation, set brightness, or tap a preset. Commits on release with hex / hsv / rgb output, and reflects the last reported color.',
+    attrs: 'data-title, data-variable, data-format, data-brightness, data-hex-input, data-presets',
   },
 ];
 

@@ -6,8 +6,6 @@ datePublished: 2026-06-08
 faqs:
   - q: "Is there a free, open-source alternative to ThingSpeak?"
     a: "Yes. nodrix is open-source (MIT) and you deploy it to your own Cloudflare account, so there's no license cost and no annual message quota — you pay Cloudflare for usage, which for a handful of sensors is effectively free. ThingSpeak is a hosted MathWorks service; the free tier is non-commercial and rate-limited."
-  - q: "Why look for a ThingSpeak alternative?"
-    a: "Usually the update-rate floor (you can't post faster than a fixed interval on the free tier), the yearly message cap, the non-commercial restriction, or wanting realtime control and richer dashboards rather than mostly data logging and static plots."
   - q: "Can nodrix send commands back to a device like ThingSpeak's TalkBack?"
     a: "Yes, and it's first-class. A dashboard control or an automation queues a control write; the device fetches it from /v1/control and acks, or holds the control WebSocket open for instant writes. ThingSpeak can do downlink via TalkBack/React, but nodrix treats control as a core part of the protocol."
   - q: "Does nodrix do analytics like ThingSpeak's MATLAB integration?"

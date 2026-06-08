@@ -6,12 +6,8 @@ datePublished: 2026-06-08
 faqs:
   - q: "Is there an open-source alternative to Datacake?"
     a: "Yes. nodrix is open-source (MIT) and you deploy it to your own Cloudflare account instead of paying per device on a hosted plan. Datacake is a low-code SaaS billed by device; nodrix has no per-device license and your data stays in your own tenancy."
-  - q: "Why look for a Datacake alternative?"
-    a: "Usually per-device pricing as a fleet grows, or wanting an open-source stack with telemetry on infrastructure you control. Datacake is excellent for LoRaWAN and low-code dashboards, so the alternative search is typically about cost model and ownership rather than capability."
   - q: "Does nodrix support LoRaWAN like Datacake?"
     a: "Datacake's tight LoRaWAN / The Things Network integration is one of its real strengths. nodrix is HTTPS/WebSocket-first; a LoRaWAN device reaches it through a gateway or network-server webhook that forwards the decoded payload to /v1/telemetry. If turnkey LoRaWAN is central to your project, weigh that."
-  - q: "Can I build dashboards as quickly in nodrix as in Datacake?"
-    a: "Datacake's low-code dashboard builder is a highlight. nodrix dashboards are drag-and-drop with value, gauge, chart, map, and control widgets — fast to assemble for typical telemetry, and embeddable as framework-agnostic Web Components anywhere."
   - q: "How do I migrate from Datacake to nodrix?"
     a: "Point your device's HTTP integration (or your LoRaWAN network-server webhook) at nodrix's /v1/telemetry instead of Datacake's HTTP endpoint — each metric becomes a variable automatically. Then rebuild dashboards and recreate Datacake rules as trigger-condition-action automations."
 related:

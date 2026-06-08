@@ -6,8 +6,6 @@ datePublished: 2026-06-08
 faqs:
   - q: "Is there an open-source alternative to Ubidots?"
     a: "Yes. nodrix is open-source (MIT) and you deploy it to your own Cloudflare account rather than paying for a hosted plan. Ubidots is a polished commercial platform billed by data points / devices; nodrix has no license cost and your bill is just your Cloudflare usage."
-  - q: "Why do people look for a Ubidots alternative?"
-    a: "Almost always cost at scale. Ubidots prices by data consumption (dots) or devices, which is predictable for a business but adds up fast for makers and growing fleets. The other reasons are wanting an open-source stack and keeping telemetry in infrastructure they own."
   - q: "Does nodrix have events and alerts like Ubidots?"
     a: "Yes. nodrix automations are visual trigger → condition → action flows that run at the edge — e.g. when a variable crosses a threshold, call a webhook, send an email, or set another variable. It covers the common Ubidots events/alerts use cases without a separate events product."
   - q: "Is nodrix suitable for commercial or industrial projects like Ubidots?"

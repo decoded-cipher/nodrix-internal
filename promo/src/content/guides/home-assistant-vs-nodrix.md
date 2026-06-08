@@ -8,12 +8,8 @@ faqs:
     a: "Not really — they solve different problems. Home Assistant is a local hub for off-the-shelf smart-home devices (Zigbee, Z-Wave, Wi-Fi gear) with local control and a huge integration library. nodrix is a cloud backend for custom hardware: your ESP32/Pico sensors POST over HTTPS to a stack you deploy on your own Cloudflare account, and you get remote dashboards and a read API. Many people run both."
   - q: "Can I use Home Assistant and nodrix together?"
     a: "Yes, that's a natural setup. Custom field sensors report to nodrix in the cloud (reachable from anywhere without exposing your home box), and you pull that data into Home Assistant via its REST/RESTful sensor integration using nodrix's read API. HA handles the local smart home; nodrix handles owned cloud telemetry."
-  - q: "Why choose nodrix over Home Assistant for a custom sensor project?"
-    a: "If your hardware is custom (an ESP32 logger, a remote LoRaWAN node, a fleet of devices) and you want cloud dashboards reachable anywhere plus a clean read API, nodrix fits without running and exposing an always-on home server. HA shines for the local smart home but is less aimed at owned cloud telemetry for custom fleets."
   - q: "Does nodrix need an always-on machine at home like Home Assistant?"
     a: "No. Home Assistant typically runs on a Raspberry Pi, NUC, or VM you keep online. nodrix is serverless — it deploys to Cloudflare (Workers, Durable Objects, D1, R2), so there's no home box to power, patch, or expose to the internet."
-  - q: "Is nodrix open source like Home Assistant?"
-    a: "Yes, nodrix is MIT-licensed and you self-host it on your own Cloudflare account. The difference is where it runs and what it's for: HA runs locally for home automation; nodrix runs at the edge as a cloud IoT backend for custom hardware."
 related:
   - href: "/guides/esp32-https-cloud/"
     label: "Connect an ESP32 over HTTPS"

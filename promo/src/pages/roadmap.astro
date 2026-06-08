@@ -1,0 +1,85 @@
+---
+import Site from '../layouts/Site.astro';
+import Waves from '../components/Waves.astro';
+import { breadcrumb, jsonLdGraph } from '../lib/seo';
+
+const repoUrl = 'https://github.com/decoded-cipher/nodrix';
+
+// Forward-looking, no hard dates — priorities shift with feedback.
+const planned: { title: string; body: string }[] = [
+  {
+    title: 'Native mobile app',
+    body: 'An iOS/Android companion for dashboards and alerts, alongside the responsive web dashboards and embeddable widgets available today.',
+  },
+  {
+    title: 'Over-the-air firmware updates',
+    body: 'Push firmware to your devices from the platform, complementing telemetry, control, and automations.',
+  },
+  {
+    title: 'Deeper automation logic',
+    body: 'Richer conditions and branching in the visual automation builder for more advanced rules.',
+  },
+  {
+    title: 'More boards & integrations',
+    body: 'Expanded first-class board examples and additional integration targets for alerts and actions.',
+  },
+  {
+    title: 'AI integration',
+    body: 'Bringing AI into the platform — for natural-language insights and smarter, assistant-driven automations.',
+  },
+  {
+    title: 'More device protocols',
+    body: 'Beyond HTTPS and WebSocket — native MQTT and other common IoT protocols, so more hardware connects without a translation layer.',
+  },
+];
+
+const site = Astro.site!;
+const jsonLd = jsonLdGraph(
+  breadcrumb(site, [
+    { name: 'Home', path: '/' },
+    { name: 'Roadmap', path: '/roadmap/' },
+  ]),
+);
+---
+
+<Site
+  title="Roadmap | nodrix"
+  description="Where nodrix is headed — what's planned next for the open-source IoT platform that deploys to your own Cloudflare account."
+>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json" set:html={jsonLd} />
+  </Fragment>
+
+  <section class="hero-glow relative overflow-hidden border-b border-neutral-200/70">
+    <Waves />
+    <div class="relative mx-auto max-w-3xl px-5 py-14 sm:px-6 sm:py-20">
+      <span class="text-sm font-semibold text-accent-600">Roadmap</span>
+      <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl">Where nodrix is headed</h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed text-neutral-600">
+        What's planned next. There are no hard dates — priorities shift with what makers ask for, and
+        shipped work lands in the
+        <a href="/changelog" class="font-semibold text-accent-600 hover:text-accent-700">changelog</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-neutral-400">On the roadmap</h2>
+      <div class="mt-5 grid gap-4 sm:grid-cols-2">
+        {planned.map((p) => (
+          <div class="rounded-2xl border border-neutral-200 bg-white p-6">
+            <h3 class="text-base font-semibold text-neutral-900">{p.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-neutral-600">{p.body}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-10 rounded-2xl border border-neutral-200 bg-neutral-50 p-6 text-sm leading-relaxed text-neutral-600">
+        Have a request or a vote? Open a
+        <a href={`${repoUrl}/issues/new`} target="_blank" rel="noopener noreferrer" class="font-semibold text-accent-600 hover:text-accent-700">GitHub issue</a>
+        — the roadmap is shaped by what people actually build.
+      </div>
+    </div>
+  </section>
+</Site>

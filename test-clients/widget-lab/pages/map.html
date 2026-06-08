@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Widget Lab · iot-map</title>
+<link rel="stylesheet" href="../assets/lab.css" />
+</head>
+<body class="lab">
+  <aside class="rail">
+    <div class="back"><a href="../index.html">← All widgets</a></div>
+    <div>
+      <h1>iot-map</h1>
+      <div class="sub">Leaflet markers (Leaflet via CDN; tiles need network)</div>
+    </div>
+
+    <fieldset>
+      <legend>Config</legend>
+      <label class="field">Title<input id="title" type="text" value="Fleet" /></label>
+      <label class="field">Basemap
+        <select id="basemap">
+          <option value="auto">auto (theme)</option>
+          <option value="streets">streets</option>
+          <option value="light">light</option>
+          <option value="dark">dark</option>
+          <option value="satellite">satellite</option>
+        </select>
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Markers (JSON → el.markers)</legend>
+      <textarea id="markers" rows="7" style="width:100%;font:12px ui-monospace,monospace;padding:6px;border:1px solid #d4d4d8;border-radius:6px">[
+  {"source":"static","lat":37.7749,"lng":-122.4194,"label":"Depot","color":"#10b981"},
+  {"source":"variable","latVar":"truckLat","lngVar":"truckLng","valueVar":"truckSpeed","label":"Truck","color":"#ea580c"}
+]</textarea>
+      <div class="quick"><button class="btn" id="applyM">Apply markers</button></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Move "Truck" (→ el.updateVar)</legend>
+      <div class="grid2">
+        <label class="field">Lat<input id="lat" type="number" value="37.78" step="0.01" /></label>
+        <label class="field">Lng<input id="lng" type="number" value="-122.42" step="0.01" /></label>
+      </div>
+      <div class="quick">
+        <button class="btn" id="move">Push position</button>
+        <button class="btn q" data-v="40.7128,-74.006">NYC</button>
+        <button class="btn q" data-v="51.5074,-0.1278">London</button>
+        <button class="btn q" data-v="35.6762,139.6503">Tokyo</button>
+      </div>
+    </fieldset>
+  </aside>
+
+  <main class="stage">
+    <div class="cards">
+      <section class="scene light"><h2>Light</h2><div class="cell wide"><iot-map id="light"></iot-map></div></section>
+      <section class="scene dark"><h2>Dark</h2><div class="cell wide"><iot-map id="dark"></iot-map></div></section>
+    </div>
+    <section class="log"><h2>iot-command events</h2><pre id="log">iot-map is read-only — it emits nothing. Edit markers or push the truck's position.</pre></section>
+  </main>
+
+  <!-- Leaflet from CDN: build.ts aliases the widget's import('leaflet') to window.L. Tiles load from OSM/CARTO (needs network). -->
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="../dist/widget-bundle.js"></script>
+  <script src="../assets/lab.js"></script>
+  <script>
+    const els = [$('light'), $('dark')];
+    function applyConfig() {
+      for (const el of els) {
+        el.setAttribute('data-title', $('title').value);
+        el.setAttribute('data-basemap', $('basemap').value);
+      }
+    }
+    $('title').addEventListener('input', applyConfig);
+    $('basemap').addEventListener('change', applyConfig);
+
+    function applyMarkers() {
+      let arr;
+      try { arr = JSON.parse($('markers').value); } catch { alert('Invalid markers JSON'); return; }
+      for (const el of els) el.markers = arr.map((m) => ({ ...m }));
+    }
+    $('applyM').addEventListener('click', applyMarkers);
+
+    function move(lat, lng) {
+      const ts = Math.floor(Date.now() / 1000);
+      for (const el of els) {
+        el.updateVar('truckLat', lat, ts);
+        el.updateVar('truckLng', lng, ts);
+        el.updateVar('truckSpeed', Math.round(20 + Math.random() * 60) + ' km/h', ts);
+      }
+    }
+    $('move').addEventListener('click', () => move(Number($('lat').value), Number($('lng').value)));
+    document.querySelectorAll('.q').forEach((b) =>
+      b.addEventListener('click', () => {
+        const [lat, lng] = b.dataset.v.split(',').map(Number);
+        $('lat').value = lat;
+        $('lng').value = lng;
+        move(lat, lng);
+      })
+    );
+
+    startLog($('log'));
+    applyConfig();
+    applyMarkers();
+    move(37.78, -122.42);
+  </script>
+</body>
+</html>

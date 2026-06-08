@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import WishlistModal from '../components/WishlistModal.astro';
 
 export interface Props {
   title: string;
@@ -20,10 +19,12 @@ const clarityId = import.meta.env.PUBLIC_CLARITY_ID;
 const gaId = import.meta.env.PUBLIC_GA_ID;
 
 const repoUrl = 'https://github.com/decoded-cipher/nodrix';
+const productHuntUrl = 'https://www.producthunt.com/products/nodrix';
 
 const nav = [
   { href: '/#features', label: 'Features' },
   { href: '/#how', label: 'How it works' },
+  { href: '/guides', label: 'Guides' },
   { href: '/docs', label: 'Docs' },
 ];
 const desc = description ?? 'Open-source IoT platform that deploys to your own Cloudflare account. Hardware POSTs over HTTPS, realtime drag-and-drop dashboards, automations, and a clean read API.';
@@ -47,7 +48,7 @@ const jsonLd = {
       url: site.href,
       logo: new URL('/icon-512.png', site).href,
       email: 'hello@nodrix.live',
-      sameAs: [repoUrl],
+      sameAs: [repoUrl, productHuntUrl],
     },
     {
       '@type': 'WebSite',
@@ -64,7 +65,7 @@ const jsonLd = {
       operatingSystem: 'Cloudflare Workers',
       description: desc,
       url: site.href,
-      softwareVersion: 'pre-alpha',
+      softwareVersion: '1.0',
       isAccessibleForFree: true,
       license: 'https://opensource.org/licenses/MIT',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
@@ -88,6 +89,7 @@ const jsonLd = {
     <title>{title}</title>
     <meta name="description" content={desc} />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/rss+xml" title="nodrix guides" href={new URL('rss.xml', site).href} />
     <meta
       name="robots"
       content={noindex
@@ -194,13 +196,15 @@ const jsonLd = {
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.4.5 0 5.9 0 12.5c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 24 12.5C24 5.9 18.6.5 12 .5Z"/></svg>
             GitHub
           </a>
-          <button
-            type="button"
-            data-wishlist-open
+          <a
+            href="/go/deploy"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-track="deploy_click"
             class="inline-flex items-center gap-2 rounded-lg bg-accent-500 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-accent-500/25 transition-all hover:bg-accent-600 hover:shadow-md hover:shadow-accent-500/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
           >
-            Join wishlist
-          </button>
+            Deploy
+          </a>
         </div>
 
         <button
@@ -222,65 +226,91 @@ const jsonLd = {
             <a href={item.href} class="block rounded-lg px-3 py-2.5 text-base font-medium text-neutral-700 hover:bg-neutral-100">{item.label}</a>
           ))}
           <a href={repoUrl} class="block rounded-lg px-3 py-2.5 text-base font-medium text-neutral-700 hover:bg-neutral-100">GitHub</a>
-          <button
-            type="button"
-            data-wishlist-open
+          <a
+            href="/go/deploy"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-track="deploy_click"
             class="mt-1 block w-full rounded-lg bg-accent-500 px-3 py-2.5 text-center text-base font-semibold text-white transition-colors hover:bg-accent-600"
           >
-            Join wishlist
-          </button>
+            Deploy
+          </a>
         </div>
       </div>
     </header>
 
     <main id="main"><slot /></main>
 
-    <WishlistModal />
-
-    <footer class="border-t border-neutral-200 bg-neutral-50">
-      <div class="mx-auto max-w-6xl px-5 py-12 sm:px-6">
-        <div class="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
-          <div class="max-w-xs">
+    <footer class="relative overflow-hidden border-t border-neutral-200 bg-neutral-50">
+      <div class="mx-auto max-w-6xl px-5 sm:px-6">
+        <div class="flex flex-col gap-12 py-14 md:flex-row md:items-start md:justify-between">
+          <div class="max-w-sm">
             <picture>
               <source srcset="/dark_logo.webp" type="image/webp" />
-              <img src="/dark_logo.png" alt="nodrix" class="h-6 w-auto" width="120" height="35" />
+              <img src="/dark_logo.png" alt="nodrix" class="h-7 w-auto" width="140" height="41" />
             </picture>
             <p class="mt-4 text-sm leading-relaxed text-neutral-500">
               Your own IoT cloud — open source, single-tenant, and running entirely on your Cloudflare account.
             </p>
+            <a
+              href={`${productHuntUrl}?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-nodrix`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-6 inline-block"
+            >
+              <img
+                src={'https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1157071&theme=light'}
+                alt="Nodrix — Featured on Product Hunt"
+                width="250"
+                height="54"
+                loading="lazy"
+              />
+            </a>
           </div>
 
-          <div class="grid grid-cols-2 gap-8 sm:grid-cols-3">
+          <div class="grid grid-cols-2 gap-8 sm:grid-cols-3 sm:gap-12 lg:gap-16">
             <div>
               <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Product</h3>
-              <ul class="mt-3 space-y-2 text-sm text-neutral-600">
-                <li><a href="/#features" class="hover:text-neutral-900">Features</a></li>
-                <li><a href="/#how" class="hover:text-neutral-900">How it works</a></li>
-                <li><a href="/widgets" class="hover:text-neutral-900">Widgets</a></li>
+              <ul class="mt-4 space-y-2.5 text-sm text-neutral-600">
+                <li><a href="/#features" class="transition-colors hover:text-accent-600">Features</a></li>
+                <li><a href="/widgets" class="transition-colors hover:text-accent-600">Widgets</a></li>
+                <li><a href="/roadmap" class="transition-colors hover:text-accent-600">Roadmap</a></li>
+                <li><a href="/changelog" class="transition-colors hover:text-accent-600">Changelog</a></li>
               </ul>
             </div>
             <div>
               <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Developers</h3>
-              <ul class="mt-3 space-y-2 text-sm text-neutral-600">
-                <li><a href="/docs" class="hover:text-neutral-900">Docs</a></li>
-                <li><a href="/docs#protocol" class="hover:text-neutral-900">Device protocol</a></li>
-                <li><a href="/docs#read-api" class="hover:text-neutral-900">Read API</a></li>
+              <ul class="mt-4 space-y-2.5 text-sm text-neutral-600">
+                <li><a href="/guides" class="transition-colors hover:text-accent-600">Guides</a></li>
+                <li><a href="/docs" class="transition-colors hover:text-accent-600">Docs</a></li>
+                <li><a href="/docs#protocol" class="transition-colors hover:text-accent-600">Device protocol</a></li>
+                <li><a href="/docs#read-api" class="transition-colors hover:text-accent-600">Read API</a></li>
               </ul>
             </div>
             <div>
               <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Project</h3>
-              <ul class="mt-3 space-y-2 text-sm text-neutral-600">
-                <li><a href={repoUrl} class="hover:text-neutral-900">GitHub</a></li>
-                <li><a href={`${repoUrl}/blob/master/README.md`} class="hover:text-neutral-900">README</a></li>
-                <li><a href="mailto:hello@nodrix.live" class="hover:text-neutral-900">Contact</a></li>
+              <ul class="mt-4 space-y-2.5 text-sm text-neutral-600">
+                <li><a href={repoUrl} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">GitHub</a></li>
+                <li><a href={`${repoUrl}/blob/master/README.md`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">README</a></li>
+                <li><a href={`${repoUrl}/issues/new`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">Report an issue</a></li>
+                <li><a href="mailto:hello@nodrix.live" class="transition-colors hover:text-accent-600">Contact</a></li>
               </ul>
             </div>
           </div>
         </div>
 
-        <div class="mt-10 flex flex-col gap-3 border-t border-neutral-200 pt-6 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>Built on Cloudflare Workers, Durable Objects, D1, R2, and KV.</p>
-          <p>Open source · MIT · Pre-alpha</p>
+        <div class="flex flex-col gap-3 border-t border-neutral-200 py-6 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
+          <p class="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span class="font-medium text-neutral-700">© {new Date().getFullYear()} nodrix</span>
+            <span class="text-neutral-300" aria-hidden="true">·</span>
+            <a href={`${repoUrl}/blob/master/LICENSE`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">MIT License</a>
+            <span class="text-neutral-300" aria-hidden="true">·</span>
+            <a href={`${repoUrl}/releases`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">v1.0</a>
+          </p>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <a href="/privacy" class="transition-colors hover:text-accent-600">Privacy Policy</a>
+            <a href="/terms" class="transition-colors hover:text-accent-600">Terms of Use</a>
+          </div>
         </div>
       </div>
     </footer>
@@ -298,7 +328,7 @@ const jsonLd = {
           open.classList.toggle('hidden', isOpen);
           close.classList.toggle('hidden', !isOpen);
         });
-        menu.querySelectorAll('a, [data-wishlist-open]').forEach(function (a) {
+        menu.querySelectorAll('a').forEach(function (a) {
           a.addEventListener('click', function () {
             menu.classList.add('hidden');
             btn.setAttribute('aria-expanded', 'false');

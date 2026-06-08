@@ -7,7 +7,7 @@ export const GET: APIRoute = ({ site }) => {
 
   const body = `# nodrix — full reference
 
-> nodrix is an open-source, single-tenant IoT cloud that deploys to your own Cloudflare account. Hardware speaks plain HTTPS, telemetry streams to realtime drag-and-drop dashboards, automations run at the edge, and a clean read API exposes the data — with no broker, no servers, and nothing leaving your account. Status: pre-alpha. License: MIT.
+> nodrix is an open-source, single-tenant IoT cloud that deploys to your own Cloudflare account. Hardware speaks plain HTTPS or WebSocket, telemetry streams to realtime drag-and-drop dashboards, automations run at the edge, and a clean read API exposes the data — with no broker, no servers, and your data never leaving your account. Status: stable (v1.0). License: MIT.
 
 Home: ${u()}
 Docs: ${u('docs')}
@@ -21,7 +21,7 @@ Source: ${repo}
 - Runs entirely on Cloudflare primitives — nothing to host, nothing to maintain.
 
 ## Features
-1. Telemetry over plain HTTPS — Hardware POSTs JSON to the project. Variables create themselves on first sight: no schema to declare, no MQTT broker to run, no SDK to install. Anything that can make an HTTPS request can talk to nodrix.
+1. Telemetry over HTTPS or WebSocket — Hardware POSTs JSON to the project, or opens a WebSocket (/v1/control/ws). Variables create themselves on first sight: no schema to declare, no MQTT broker to run, no SDK to install. Anything that can make an HTTPS request can talk to nodrix.
 2. Realtime dashboards, two-way — Drop widgets onto a grid, bind them to variables, watch values stream live over hibernating WebSockets that cost nothing while idle. Toggles, sliders, and buttons write back to hardware on the same channel; devices ack when applied.
 3. Automations without a server — A visual flow builder. Each automation is a graph: one or more triggers (variable threshold, a clock, sunrise/sunset, custom event, or manual run) flow through optional conditions (if-variable comparison that branches yes/no, time window) into actions (set a variable, call an integration, emit an event). Integrations cover HTTP service (with optional HMAC request signing), email, and chat (Slack, Telegram, Discord). All evaluated at the edge.
 4. A clean read API — Edge-cached latest state, recent time-series, and variable listings behind one bearer token. Plug in Grafana, a React app, or a Raspberry Pi screen.

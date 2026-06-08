@@ -8,13 +8,13 @@ export const GET: APIRoute = ({ site }) => {
 
   const body = `# nodrix
 
-> nodrix is an open-source, single-tenant IoT cloud that deploys to your own Cloudflare account. Hardware speaks plain HTTPS, telemetry streams to realtime drag-and-drop dashboards, automations run at the edge, and a clean read API exposes the data — with no broker, no servers, and nothing leaving your account.
+> nodrix is an open-source, single-tenant IoT cloud that deploys to your own Cloudflare account. Hardware speaks plain HTTPS or WebSocket, telemetry streams to realtime drag-and-drop dashboards, automations run at the edge, and a clean read API exposes the data — with no broker, no servers, and your data never leaving your account.
 
 ## What it is
-- Open-source (MIT), pre-alpha IoT backend for Cloudflare.
+- Open-source (MIT) IoT backend for Cloudflare; first stable release (v1.0).
 - Single-tenant: every deployment lives in the user's own Cloudflare account.
 - One-click "Deploy to Cloudflare" — provisions Workers, Durable Objects, D1, R2, and KV.
-- Devices send telemetry over plain HTTPS (POST /v1/telemetry); variables auto-create on first sight. No MQTT broker, no SDK.
+- Devices send telemetry over plain HTTPS (POST /v1/telemetry) or a WebSocket (/v1/control/ws); variables auto-create on first sight. No MQTT broker, no SDK.
 - Realtime dashboards built from drag-and-drop widgets over hibernating WebSockets.
 - Two-way control: toggles/sliders/buttons write values back to hardware.
 - Edge automations: a visual flow builder — one or more triggers (variable thresholds, schedules, sunrise/sunset, custom events) branch through conditions into actions (set variables, call an integration over HTTP/email/chat like Slack/Telegram/Discord, or emit events).
@@ -25,6 +25,9 @@ export const GET: APIRoute = ({ site }) => {
 - [Home](${u()}): Product overview, features, and how it works.
 - [Documentation](${u('docs')}): Device protocol, read API, automation model, and MCP.
 - [Widgets](${u('widgets')}): Built-in, framework-agnostic Web Component widgets.
+- [Guides](${u('guides')}): Hands-on IoT guides — connect an ESP32 to the cloud over HTTPS (no MQTT broker), receive commands back, deep-sleep battery builds, and more.
+- [Roadmap](${u('roadmap')}): What's planned next for nodrix.
+- [Changelog](${u('changelog')}): Release history.
 
 ## Markdown & full text (for machines)
 - [Full text](${u('llms-full.txt')}): The entire site in one document.

@@ -1,0 +1,19 @@
+---
+// Terminal-chrome code block, matching the snippet styling on the widgets page.
+// Plain text in, escaped automatically by Astro's expression rendering.
+export interface Props {
+  code: string;
+  label?: string;
+}
+const { code, label = 'example' } = Astro.props;
+---
+
+<div class="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 shadow-xl shadow-neutral-900/10">
+  <div class="flex items-center gap-2 border-b border-neutral-800 px-4 py-2.5">
+    <span class="h-2.5 w-2.5 rounded-full bg-neutral-700"></span>
+    <span class="h-2.5 w-2.5 rounded-full bg-neutral-700"></span>
+    <span class="h-2.5 w-2.5 rounded-full bg-neutral-700"></span>
+    <span class="ml-2 text-xs font-medium text-neutral-500">{label}</span>
+  </div>
+  <pre class="overflow-x-auto p-4 text-xs leading-relaxed text-neutral-200 sm:text-[13px]"><code>{code}</code></pre>
+</div>

@@ -1,0 +1,91 @@
+/* Shared styles for the widget lab pages. Theme tokens mirror web/src/style.css
+   so widgets render exactly as they do in the app. */
+:root {
+  --color-bg: #ffffff;
+  --color-bg-elevated: #ffffff;
+  --color-border: #e5e5e5;
+  --color-border-strong: #d4d4d4;
+  --color-text: #171717;
+  --color-text-muted: #525252;
+  --color-text-subtle: #737373;
+  --color-text-faint: #a3a3a3;
+  --accent-600: #ea580c;
+}
+.dark {
+  --color-bg: #181818;
+  --color-bg-elevated: #1f1f1f;
+  --color-border: #2a2a2a;
+  --color-border-strong: #3a3a3a;
+  --color-text: #e5e5e5;
+  --color-text-muted: #a3a3a3;
+  --color-text-subtle: #737373;
+  --color-text-faint: #525252;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; color: #171717; background: #f4f4f5; }
+a { color: #ea580c; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Per-widget page: controls rail + stage */
+body.lab { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+
+.rail {
+  padding: 20px; border-right: 1px solid #e4e4e7; background: #fff;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.rail .back { font-size: 12px; }
+.rail h1 { font-size: 15px; margin: 0; letter-spacing: .02em; }
+.rail h1 .tag { font: ui-monospace, monospace; color: #71717a; font-size: 12px; }
+.rail h1 + .sub, .rail .sub { font-size: 12px; color: #71717a; margin-top: 3px; }
+
+fieldset { border: 1px solid #e4e4e7; border-radius: 8px; padding: 12px; margin: 0; }
+legend { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #71717a; padding: 0 4px; }
+label.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; margin: 6px 0; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #52525b; margin: 8px 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+input[type="text"], input[type="number"], select {
+  width: 100%; padding: 6px 8px; font-size: 13px; border: 1px solid #d4d4d8; border-radius: 6px; background: #fff;
+}
+.btn {
+  appearance: none; border: 1px solid #d4d4d8; background: #fafafa; border-radius: 6px;
+  padding: 6px 10px; font-size: 12px; cursor: pointer;
+}
+.btn:hover { background: #f4f4f5; }
+.quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+.stage { padding: 28px; display: flex; flex-direction: column; gap: 24px; }
+.cards { display: flex; gap: 24px; flex-wrap: wrap; }
+.scene { padding: 22px; border-radius: 14px; }
+.scene.light { background: #fafafa; border: 1px solid #ececec; }
+.scene.dark  { background: #121212; }
+.scene h2 { margin: 0 0 12px; font: 600 11px system-ui; letter-spacing: .1em; text-transform: uppercase; color: #9ca3af; }
+
+/* Cells — pages set the size that suits the widget via a modifier class. */
+.cell { width: 240px; height: 240px; }
+.cell.tall  { width: 240px; height: 320px; }
+.cell.short { width: 260px; height: 150px; }
+.cell.sq    { width: 220px; height: 220px; }
+.cell.vert  { width: 150px; height: 300px; }
+.cell.wide  { width: 440px; height: 260px; }
+
+.log h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #71717a; margin: 0 0 8px; }
+.log pre {
+  margin: 0; height: 180px; overflow: auto; background: #0b0b0c; color: #d4d4d8;
+  border-radius: 10px; padding: 12px; font: 12px/1.6 ui-monospace, monospace;
+}
+.log .out { color: #fbbf24; }
+
+/* Landing page */
+body.home { padding: 40px; max-width: 920px; margin: 0 auto; }
+.home h1 { font-size: 20px; margin: 0 0 6px; }
+.home p.sub { color: #71717a; margin: 0 0 28px; font-size: 14px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.tile {
+  display: block; padding: 18px; border: 1px solid #e4e4e7; border-radius: 12px; background: #fff;
+  color: inherit; transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.tile:hover { text-decoration: none; border-color: #d4d4d8; box-shadow: 0 6px 20px -10px rgba(0,0,0,.2); }
+.tile .name { font: 600 14px ui-monospace, monospace; color: #ea580c; }
+.tile .desc { font-size: 13px; color: #52525b; margin-top: 6px; }

@@ -1,0 +1,78 @@
+---
+import Site from '../layouts/Site.astro';
+import Waves from '../components/Waves.astro';
+import { breadcrumb, jsonLdGraph } from '../lib/seo';
+
+// Append newest entries at the top.
+const entries: { version: string; date: string; title: string; items: string[] }[] = [
+  {
+    version: '1.0.0',
+    date: 'June 5, 2026',
+    title: 'First stable release',
+    items: [
+      'Telemetry over HTTPS or WebSocket, with variables that auto-create on first sight — no schema, no broker.',
+      'Realtime drag-and-drop dashboards over hibernating WebSockets.',
+      'Two-way control: toggles, sliders, and buttons write values back to hardware.',
+      'Visual automations — variable, schedule, sunrise/sunset, and event triggers into conditions and actions.',
+      'Integrations over HTTP, email, and chat (Slack, Telegram, Discord, and more).',
+      'A clean read API: latest state, time-series, and variable listings behind one token.',
+      'Optional MCP server for AI clients — owner-gated and off by default.',
+      'One-click Deploy to Cloudflare.',
+    ],
+  },
+];
+
+const site = Astro.site!;
+const jsonLd = jsonLdGraph(
+  breadcrumb(site, [
+    { name: 'Home', path: '/' },
+    { name: 'Changelog', path: '/changelog/' },
+  ]),
+);
+---
+
+<Site
+  title="Changelog | nodrix"
+  description="What's new in nodrix — release notes for the open-source IoT platform that deploys to your own Cloudflare account."
+>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json" set:html={jsonLd} />
+  </Fragment>
+
+  <section class="hero-glow relative overflow-hidden border-b border-neutral-200/70">
+    <Waves />
+    <div class="relative mx-auto max-w-3xl px-5 py-14 sm:px-6 sm:py-20">
+      <span class="text-sm font-semibold text-accent-600">Changelog</span>
+      <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl">What's new in nodrix</h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed text-neutral-600">
+        Release notes for the platform. Want to know what's coming next? See the
+        <a href="/roadmap" class="font-semibold text-accent-600 hover:text-accent-700">roadmap</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
+      <div class="space-y-12">
+        {entries.map((e) => (
+          <article class="relative border-l-2 border-neutral-200 pl-6">
+            <div class="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full border-2 border-white bg-accent-500"></div>
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="rounded-full bg-accent-50 px-2.5 py-0.5 text-sm font-bold text-accent-700">v{e.version}</span>
+              <span class="text-sm text-neutral-400">{e.date}</span>
+            </div>
+            <h2 class="mt-3 text-xl font-bold tracking-tight text-neutral-900">{e.title}</h2>
+            <ul class="mt-4 space-y-2 text-sm leading-relaxed text-neutral-600">
+              {e.items.map((it) => (
+                <li class="flex gap-2.5">
+                  <span class="mt-2 h-1 w-1 shrink-0 rounded-full bg-neutral-300" aria-hidden="true"></span>
+                  <span>{it}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Site>

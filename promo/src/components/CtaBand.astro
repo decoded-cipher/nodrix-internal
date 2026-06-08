@@ -1,0 +1,38 @@
+---
+// Conversion band for landing pages: Deploy to Cloudflare + GitHub star.
+// Fires the analytics hook (`data-track`) wired up in Site.astro.
+import DeployButton from './DeployButton.astro';
+
+export interface Props {
+  title?: string;
+  subtitle?: string;
+}
+
+const repoUrl = 'https://github.com/decoded-cipher/nodrix';
+const {
+  title = 'Deploy your own IoT cloud, in a click',
+  subtitle = "Free and open source. Deploy nodrix straight to your own Cloudflare account, or star the repo to follow where it's headed.",
+} = Astro.props;
+---
+
+<section class="border-t border-neutral-200/70 bg-neutral-50">
+  <div class="mx-auto max-w-3xl px-5 py-16 text-center sm:px-6 sm:py-20">
+    <h2 class="text-balance text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">{title}</h2>
+    <p class="mx-auto mt-3 max-w-xl text-pretty text-sm leading-relaxed text-neutral-600 sm:text-base">{subtitle}</p>
+
+    <div class="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <DeployButton size="lg" class="w-full sm:w-auto" />
+      <a
+        href={repoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-track="cta_github_star"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white px-6 py-3.5 text-base font-semibold text-neutral-800 transition-colors hover:bg-neutral-100 sm:w-auto"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.4.5 0 5.9 0 12.5c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 24 12.5C24 5.9 18.6.5 12 .5Z"/></svg>
+        Star on GitHub
+      </a>
+    </div>
+    <p class="mt-4 text-xs text-neutral-400">One-click deploy provisions everything into your own Cloudflare account — nothing leaves it.</p>
+  </div>
+</section>

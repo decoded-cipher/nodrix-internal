@@ -1,0 +1,122 @@
+---
+import Site from '../layouts/Site.astro';
+import Waves from '../components/Waves.astro';
+import { breadcrumb, jsonLdGraph } from '../lib/seo';
+
+const lastUpdated = 'June 5, 2026';
+const site = Astro.site!;
+const jsonLd = jsonLdGraph(
+  breadcrumb(site, [
+    { name: 'Home', path: '/' },
+    { name: 'Privacy Policy', path: '/privacy/' },
+  ]),
+);
+---
+
+<Site
+  title="Privacy Policy | nodrix"
+  description="How nodrix — the open-source software you deploy — handles data. nodrix is self-hosted and single-tenant: your data stays in your own Cloudflare account; the software sends only anonymous, aggregate usage statistics about the deployment itself."
+>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json" set:html={jsonLd} />
+  </Fragment>
+
+  <section class="hero-glow relative overflow-hidden border-b border-neutral-200/70">
+    <Waves />
+    <div class="relative mx-auto max-w-3xl px-5 py-14 sm:px-6 sm:py-20">
+      <span class="text-sm font-semibold text-accent-600">Legal</span>
+      <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl">Privacy Policy</h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed text-neutral-600">
+        How nodrix — the software you deploy — handles data.
+      </p>
+      <p class="mt-3 text-sm text-neutral-500">Last updated: {lastUpdated}</p>
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="prose prose-neutral mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
+      <p>
+        This Privacy Policy explains how nodrix — the open-source software you deploy — handles data.
+        nodrix is self-hosted and single-tenant: it runs entirely within your own Cloudflare account,
+        and all of your data stays there. The only information that ever leaves your deployment is
+        anonymous, aggregate usage statistics about the instance itself (described in section 1) —
+        never your data, and never anything that identifies you.
+      </p>
+
+      <h2>1. Anonymous usage statistics</h2>
+      <p>
+        So the project can tell how many self-hosted deployments exist and stay active, the nodrix
+        worker sends a small anonymous usage ping to a project-operated collector
+        (<code>telemetry.nodrix.live</code>): once when the owner account is first created, and then
+        once a day.
+      </p>
+      <p>
+        Each ping contains only a random instance identifier (not derived from you, your account, or
+        your domain), the nodrix version, which integration types are configured, aggregate counts
+        (such as the number of projects), and which features are enabled. It never contains IP
+        addresses, your device telemetry or any variable values, the names of your projects,
+        variables, or dashboards, account identifiers, email addresses, or any other personal data —
+        and the collector does not log the request's IP. Because nodrix is open source, exactly what
+        is sent can be verified in the source code. The data is anonymous and is sent automatically;
+        there is no separate opt-out.
+      </p>
+
+      <h2>2. Where your data resides</h2>
+      <p>
+        nodrix is single-tenant. When you deploy it, the platform is provisioned into your own
+        Cloudflare account, and all of your data — device telemetry, variables, dashboards,
+        automations, and their history — is stored only in that account's Cloudflare D1, R2, Durable
+        Objects, and KV. There is no nodrix-operated server between your devices and your deployment,
+        and the project has no access to your instance or its data.
+      </p>
+
+      <h2>3. Data ownership and control</h2>
+      <p>
+        You own and control all data in your deployment. You determine how long it is retained, you
+        can export it at any time through the read API, and you can delete it at any time by removing
+        the relevant records or the underlying Cloudflare resources. Because the project never holds a
+        copy of your data, there is nothing to request from us.
+      </p>
+
+      <h2>4. Processing on Cloudflare</h2>
+      <p>
+        nodrix runs on Cloudflare's infrastructure. Your deployment and the data it processes are
+        therefore also subject to Cloudflare's terms of service and
+        <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">privacy policy</a>;
+        by deploying nodrix, you are using Cloudflare directly. The region in which your data is stored
+        is determined by your own Cloudflare account and configuration.
+      </p>
+
+      <h2>5. Third-party integrations</h2>
+      <p>
+        If you configure integrations — for example email, webhooks, or chat services such as Slack,
+        Telegram, or Discord — data you choose to send through them is transmitted to those providers
+        and handled under their respective terms and privacy policies. You control which integrations
+        are enabled and what they send.
+      </p>
+
+      <h2>6. Changes to this policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. Material changes will be reflected in the
+        "Last updated" date shown above.
+      </p>
+
+      <h2>7. Contact</h2>
+      <p>
+        If you have questions about this policy, contact us at
+        <a href="mailto:hello@nodrix.live">hello@nodrix.live</a>.
+      </p>
+
+      <div class="not-prose mt-12 rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
+        <p class="text-sm font-semibold text-neutral-900">About this website</p>
+        <p class="mt-2 text-sm leading-relaxed text-neutral-600">
+          nodrix.live is our marketing website and is separate from the product described above. Like
+          most websites, it uses standard analytics — Microsoft Clarity and Google Analytics — to
+          understand which pages are useful, and it is served through Cloudflare. These apply only
+          while you browse this site, collect nothing about any nodrix deployment, and can be blocked
+          with your browser or a privacy extension.
+        </p>
+      </div>
+    </div>
+  </section>
+</Site>

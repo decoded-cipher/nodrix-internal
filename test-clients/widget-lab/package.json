@@ -1,0 +1,9 @@
+{
+  "name": "@nodrix/widget-lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun ./src/build.ts",
+    "dev": "bun ./src/build.ts --watch"
+  }
+}

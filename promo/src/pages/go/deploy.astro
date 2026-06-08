@@ -2,7 +2,9 @@
 // Tracking redirect: this page registers as a pageview in Cloudflare Web
 // Analytics (so /go/deploy count = Deploy-button clicks), then forwards to
 // Cloudflare's deploy URL. A short delay lets the auto-injected beacon fire.
-const repoUrl = 'https://github.com/decoded-cipher/nodrix';
+// Subdir URL, not repo root: Cloudflare clones only deploy/ as the new repo, so
+// the user gets the tiny config carrier instead of the whole codebase.
+const repoUrl = 'https://github.com/decoded-cipher/nodrix/tree/master/deploy';
 const deployUrl = `https://deploy.workers.cloudflare.com/?url=${encodeURIComponent(repoUrl)}`;
 ---
 

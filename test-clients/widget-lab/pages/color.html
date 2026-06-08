@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Widget Lab · iot-color</title>
+<link rel="stylesheet" href="../assets/lab.css" />
+</head>
+<body class="lab">
+  <aside class="rail">
+    <div class="back"><a href="../index.html">← All widgets</a></div>
+    <div>
+      <h1>iot-color</h1>
+      <div class="sub">HSV colour wheel</div>
+    </div>
+
+    <fieldset>
+      <legend>Config</legend>
+      <label class="field">Title<input id="title" type="text" value="Bedroom Lamp" /></label>
+      <label class="field">Output format
+        <select id="format">
+          <option value="hex">hex</option>
+          <option value="hsv">hsv</option>
+          <option value="rgb">rgb</option>
+        </select>
+      </label>
+      <label class="row"><span>Brightness control</span><input id="brightness" type="checkbox" checked /></label>
+      <label class="row"><span>Hex input</span><input id="hexInput" type="checkbox" checked /></label>
+      <label class="row"><span>Preset swatches</span><input id="presets" type="checkbox" checked /></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Push reported value (→ el.value)</legend>
+      <div class="sub" style="margin:0 0 8px">Hex string or JSON {h,s,v} / {r,g,b}.</div>
+      <input id="pushval" type="text" value="#34D399" />
+      <div class="quick">
+        <button class="btn" id="push">Push value</button>
+      </div>
+      <div class="quick">
+        <button class="btn q" data-v="#FF2D2D">#FF2D2D</button>
+        <button class="btn q" data-v="#2D6BFF">#2D6BFF</button>
+        <button class="btn q" data-v='{"h":280,"s":90,"v":70}'>hsv 280</button>
+        <button class="btn q" data-v='{"r":255,"g":180,"b":40}'>rgb amber</button>
+      </div>
+    </fieldset>
+  </aside>
+
+  <main class="stage">
+    <div class="cards">
+      <section class="scene light"><h2>Light</h2><div class="cell tall"><iot-color id="light" data-variable="demoColor"></iot-color></div></section>
+      <section class="scene dark"><h2>Dark</h2><div class="cell tall"><iot-color id="dark" data-variable="demoColor"></iot-color></div></section>
+    </div>
+    <section class="log"><h2>iot-command events</h2><pre id="log">Drag the wheel, move brightness, click a preset, or type a hex…</pre></section>
+  </main>
+
+  <script src="../dist/widget-bundle.js"></script>
+  <script src="../assets/lab.js"></script>
+  <script>
+    const els = [$('light'), $('dark')];
+    function applyConfig() {
+      for (const el of els) {
+        el.setAttribute('data-title', $('title').value);
+        el.setAttribute('data-format', $('format').value);
+        el.setAttribute('data-brightness', String($('brightness').checked));
+        el.setAttribute('data-hex-input', String($('hexInput').checked));
+        el.setAttribute('data-presets', String($('presets').checked));
+      }
+    }
+    ['title', 'format', 'brightness', 'hexInput', 'presets'].forEach((id) => $(id).addEventListener('input', applyConfig));
+
+    function push(raw) { const v = parsePush(raw); if (v !== undefined) for (const el of els) el.value = v; }
+    $('push').addEventListener('click', () => push($('pushval').value));
+    document.querySelectorAll('.q').forEach((b) => b.addEventListener('click', () => { $('pushval').value = b.dataset.v; push(b.dataset.v); }));
+
+    startLog($('log'));
+    applyConfig();
+    push('#FF7A2B');
+  </script>
+</body>
+</html>

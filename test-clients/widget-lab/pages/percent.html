@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Widget Lab · iot-percent</title>
+<link rel="stylesheet" href="../assets/lab.css" />
+</head>
+<body class="lab">
+  <aside class="rail">
+    <div class="back"><a href="../index.html">← All widgets</a></div>
+    <div>
+      <h1>iot-percent</h1>
+      <div class="sub">Percentage ring + thresholds</div>
+    </div>
+
+    <fieldset>
+      <legend>Config</legend>
+      <label class="field">Title<input id="title" type="text" value="Battery" /></label>
+      <div class="grid2">
+        <label class="field">Min<input id="min" type="number" value="0" /></label>
+        <label class="field">Max<input id="max" type="number" value="100" /></label>
+        <label class="field">Unit<input id="unit" type="text" value="%" /></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Thresholds (JSON: [{value,color}])</legend>
+      <div class="sub" style="margin:0 0 8px">value = percent (0–100); highest matching band colours the ring.</div>
+      <textarea id="thresholds" rows="5" style="width:100%;font:12px ui-monospace,monospace;padding:6px;border:1px solid #d4d4d8;border-radius:6px">[
+  {"value":0,"color":"#22c55e"},
+  {"value":60,"color":"#f59e0b"},
+  {"value":85,"color":"#ef4444"}
+]</textarea>
+      <div class="quick"><button class="btn" id="applyTh">Apply thresholds</button></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Push reported value (→ el.value)</legend>
+      <input id="pushval" type="text" value="47" />
+      <div class="quick">
+        <button class="btn" id="push">Push value</button>
+        <button class="btn q" data-v="20">20</button>
+        <button class="btn q" data-v="47">47</button>
+        <button class="btn q" data-v="70">70</button>
+        <button class="btn q" data-v="92">92</button>
+      </div>
+    </fieldset>
+  </aside>
+
+  <main class="stage">
+    <div class="cards">
+      <section class="scene light"><h2>Light</h2><div class="cell sq"><iot-percent id="light" data-variable="demoPct"></iot-percent></div></section>
+      <section class="scene dark"><h2>Dark</h2><div class="cell sq"><iot-percent id="dark" data-variable="demoPct"></iot-percent></div></section>
+    </div>
+    <section class="log"><h2>iot-command events</h2><pre id="log">iot-percent is read-only — it emits nothing. Push values across the bands to watch the ring recolour.</pre></section>
+  </main>
+
+  <script src="../dist/widget-bundle.js"></script>
+  <script src="../assets/lab.js"></script>
+  <script>
+    const els = [$('light'), $('dark')];
+    function applyConfig() {
+      for (const el of els) {
+        el.setAttribute('data-title', $('title').value);
+        el.setAttribute('data-min', $('min').value);
+        el.setAttribute('data-max', $('max').value);
+        el.setAttribute('data-unit', $('unit').value);
+      }
+    }
+    ['title', 'min', 'max', 'unit'].forEach((id) => $(id).addEventListener('input', applyConfig));
+
+    function applyThresholds() {
+      let arr;
+      try { arr = JSON.parse($('thresholds').value); } catch { alert('Invalid thresholds JSON'); return; }
+      for (const el of els) el.thresholds = arr;
+    }
+    $('applyTh').addEventListener('click', applyThresholds);
+
+    function push(raw) { const v = parsePush(raw); if (v !== undefined) for (const el of els) el.value = v; }
+    $('push').addEventListener('click', () => push($('pushval').value));
+    document.querySelectorAll('.q').forEach((b) => b.addEventListener('click', () => { $('pushval').value = b.dataset.v; push(b.dataset.v); }));
+
+    startLog($('log'));
+    applyConfig();
+    applyThresholds();
+    push('47');
+  </script>
+</body>
+</html>

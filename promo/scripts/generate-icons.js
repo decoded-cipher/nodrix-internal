@@ -12,7 +12,7 @@ const out = join(__dirname, '../public');
 
 const WHITE = '#ffffff';
 const ACCENT = '#ff6a45';
-const INK_DARK = { r: 0x17, g: 0x17, b: 0x17 }; // neutral-900 ink, for light backgrounds
+const INK_DARK = { r: 0x40, g: 0x40, b: 0x40 }; // neutral-700 ink, for light backgrounds
 
 const ok = (p) => console.log(`  ✓ ${relative(out, p)}`);
 

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Widget Lab · iot-chart</title>
+<link rel="stylesheet" href="./lab.css" />
+</head>
+<body class="lab">
+  <aside class="rail">
+    <div class="back"><a href="./index.html">← All widgets</a></div>
+    <div>
+      <h1>iot-chart</h1>
+      <div class="sub">Multi-series time-series (ApexCharts via CDN)</div>
+    </div>
+
+    <fieldset>
+      <legend>Config</legend>
+      <label class="field">Title<input id="title" type="text" value="Temp vs Humidity" /></label>
+      <label class="field">Chart type
+        <select id="ctype">
+          <option value="line">line</option>
+          <option value="area">area</option>
+          <option value="bar">bar</option>
+          <option value="stepline">stepline</option>
+        </select>
+      </label>
+      <label class="row">Zoom (drag-select)<input id="zoom" type="checkbox" /></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Series (→ el.series / el.appendPoint)</legend>
+      <div class="sub" style="margin:0 0 8px">Two demo series. Regenerate the history, or append a live tick.</div>
+      <div class="quick">
+        <button class="btn" id="regen">Regenerate</button>
+        <button class="btn" id="tick">Append tick</button>
+        <label class="row" style="margin:0">Auto<input id="auto" type="checkbox" /></label>
+      </div>
+    </fieldset>
+  </aside>
+
+  <main class="stage">
+    <div class="cards">
+      <section class="scene light"><h2>Light</h2><div class="cell wide"><iot-chart id="light"></iot-chart></div></section>
+      <section class="scene dark"><h2>Dark</h2><div class="cell wide"><iot-chart id="dark"></iot-chart></div></section>
+    </div>
+    <section class="log"><h2>iot-command events</h2><pre id="log">iot-chart is read-only — it emits nothing. Regenerate or append ticks to watch it update.</pre></section>
+  </main>
+
+  <!-- ApexCharts from CDN: build.ts aliases the widget's import('apexcharts') to window.ApexCharts. -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@5.13.0/dist/apexcharts.min.js"></script>
+  <script src="./widget-bundle.js"></script>
+  <script src="./lab.js"></script>
+  <script>
+    const els = [$('light'), $('dark')];
+    function applyConfig() {
+      for (const el of els) {
+        el.setAttribute('data-title', $('title').value);
+        el.setAttribute('data-chart-type', $('ctype').value);
+        el.setAttribute('data-zoom', $('zoom').checked ? 'true' : 'false');
+      }
+    }
+    $('title').addEventListener('input', applyConfig);
+    $('ctype').addEventListener('change', applyConfig);
+    $('zoom').addEventListener('change', applyConfig);
+
+    const SERIES = [
+      { key: 'temp', label: 'Temp', color: '#ea580c', base: 22, swing: 1.2 },
+      { key: 'hum', label: 'Humidity', color: '#0ea5e9', base: 62, swing: 3 },
+    ];
+    function genSeries(n = 40) {
+      const now = Math.floor(Date.now() / 1000);
+      return SERIES.map((s) => {
+        let v = s.base;
+        const points = [];
+        for (let i = n - 1; i >= 0; i--) {
+          v += (Math.random() - 0.5) * s.swing * 2;
+          points.push({ ts: now - i * 5, value: Math.round(v * 10) / 10 });
+        }
+        return { key: s.key, label: s.label, color: s.color, points };
+      });
+    }
+    function setSeries() {
+      const data = genSeries();
+      // Clone per element so the two charts don't share point arrays.
+      for (const el of els) el.series = data.map((s) => ({ ...s, points: s.points.map((p) => ({ ...p })) }));
+    }
+    function tick() {
+      const ts = Math.floor(Date.now() / 1000);
+      for (const el of els)
+        for (const s of SERIES)
+          el.appendPoint(s.key, { ts, value: Math.round((s.base + (Math.random() - 0.5) * s.swing * 4) * 10) / 10 });
+    }
+    $('regen').addEventListener('click', setSeries);
+    $('tick').addEventListener('click', tick);
+    let auto;
+    $('auto').addEventListener('change', () => {
+      clearInterval(auto);
+      if ($('auto').checked) auto = setInterval(tick, 1500);
+    });
+
+    startLog($('log'));
+    applyConfig();
+    setSeries();
+  </script>
+</body>
+</html>

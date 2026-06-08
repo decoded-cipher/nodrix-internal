@@ -23,9 +23,13 @@ Each page exercises both directions of the widget contract:
 | `gauge.html`  | iot-gauge  | min/max; push a number (read-only widget) |
 | `percent.html`| iot-percent| min/max/decimals/unit + colour thresholds (JSON); push a number to watch the ring recolour |
 | `push.html`   | iot-push   | payload value, label; press to fire |
+| `chart.html`  | iot-chart  | title, chart type, zoom; regenerate series / append live ticks |
+| `map.html`    | iot-map    | title, basemap, markers (JSON); push a marker's live position |
 
-`iot-chart` / `iot-map` are intentionally omitted — they pull in apexcharts/leaflet and
-need live series / map tiles, which don't fit a dependency-free offline page.
+`iot-chart` / `iot-map` need apexcharts / leaflet, which are **not** bundled — those two
+pages load them from a CDN (so they need network; the map also needs network for its tiles).
+`build.ts` aliases the widgets' `import('apexcharts')` / `import('leaflet')` to the CDN
+globals and inlines their stylesheets, so the shared `widget-bundle.js` stays lean.
 
 ## Run
 
@@ -54,9 +58,11 @@ bun run dev          # rebuilds widget-bundle.js on change
 - `lab.css` — shared styles + theme tokens (mirrors `web/src/style.css`)
 - `lab.js` — shared helpers: `$`, `startLog(preEl)`, `parsePush(raw)`
 - `entry.ts` — imports + defines the widget classes into the bundle
+- `build.ts` — the bundler: a Bun.build script that aliases apexcharts/leaflet to
+  CDN globals and inlines `?raw` stylesheets (see the chart/map note above)
 - `*.html` — one page per widget
 
 To add a widget: import + define its class in [entry.ts](entry.ts), copy an existing
 page (e.g. [value.html](value.html)) and swap in the element tag + its config fields,
 then link it from [index.html](index.html). Classes are imported individually (not the
-full registry) to keep the bundle lean and avoid pulling in chart/map dependencies.
+full registry) to keep the bundle lean.

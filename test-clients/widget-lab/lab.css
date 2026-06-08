@@ -68,6 +68,7 @@ input[type="text"], input[type="number"], select {
 .cell.short { width: 260px; height: 150px; }
 .cell.sq    { width: 220px; height: 220px; }
 .cell.vert  { width: 150px; height: 300px; }
+.cell.wide  { width: 440px; height: 260px; }
 
 .log h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #71717a; margin: 0 0 8px; }
 .log pre {

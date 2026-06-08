@@ -11,28 +11,27 @@
     <div class="back"><a href="../index.html">← All widgets</a></div>
     <div>
       <h1>iot-push</h1>
-      <div class="sub">One-shot momentary command</div>
+      <div class="sub">Momentary push-and-hold</div>
     </div>
 
     <fieldset>
       <legend>Config</legend>
-      <label class="field">Title<input id="title" type="text" value="Restart" /></label>
-      <label class="field">Payload value<input id="value" type="text" value="restart" /></label>
-      <label class="field">Button label<input id="label" type="text" value="Restart now" /></label>
+      <label class="field">Title<input id="title" type="text" value="Horn" /></label>
+      <label class="field">Button label<input id="label" type="text" value="Hold" /></label>
     </fieldset>
 
     <fieldset>
-      <legend>State</legend>
-      <div class="sub" style="margin:0">No reported state — each press fires the payload once. Press the button and watch the log.</div>
+      <legend>Behaviour</legend>
+      <div class="sub" style="margin:0">Hold the button → emits <code>true</code> on press and <code>false</code> on release. Press and hold, then let go, and watch the log.</div>
     </fieldset>
   </aside>
 
   <main class="stage">
     <div class="cards">
-      <section class="scene light"><h2>Light</h2><div class="cell short"><iot-push id="light" data-variable="demoRestart"></iot-push></div></section>
-      <section class="scene dark"><h2>Dark</h2><div class="cell short"><iot-push id="dark" data-variable="demoRestart"></iot-push></div></section>
+      <section class="scene light"><h2>Light</h2><div class="cell short"><iot-push id="light" data-variable="demoHorn"></iot-push></div></section>
+      <section class="scene dark"><h2>Dark</h2><div class="cell short"><iot-push id="dark" data-variable="demoHorn"></iot-push></div></section>
     </div>
-    <section class="log"><h2>iot-command events</h2><pre id="log">Press the button…</pre></section>
+    <section class="log"><h2>iot-command events</h2><pre id="log">Press and hold the button…</pre></section>
   </main>
 
   <script src="../dist/widget-bundle.js"></script>
@@ -42,11 +41,10 @@
     function applyConfig() {
       for (const el of els) {
         el.setAttribute('data-title', $('title').value);
-        el.setAttribute('data-value', $('value').value);
         el.setAttribute('data-label', $('label').value);
       }
     }
-    ['title', 'value', 'label'].forEach((id) => $(id).addEventListener('input', applyConfig));
+    ['title', 'label'].forEach((id) => $(id).addEventListener('input', applyConfig));
 
     startLog($('log'));
     applyConfig();

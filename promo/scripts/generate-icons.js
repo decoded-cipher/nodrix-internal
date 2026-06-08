@@ -12,6 +12,7 @@ const out = join(__dirname, '../public');
 
 const WHITE = '#ffffff';
 const ACCENT = '#ff6a45';
+const INK_DARK = { r: 0x17, g: 0x17, b: 0x17 }; // neutral-900 ink, for light backgrounds
 
 const ok = (p) => console.log(`  ✓ ${relative(out, p)}`);
 
@@ -20,6 +21,31 @@ async function transparent(size, name) {
   const file = join(out, name);
   await sharp(source)
     .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toFile(file);
+  ok(file);
+}
+
+// Dark-ink variant for LIGHT backgrounds: re-inks the white rings to a dark
+// neutral while leaving the accent dot intact (the white icons only show on dark
+// backgrounds). Low-saturation pixels are rings/edges; the saturated dot is kept.
+async function recolored(size, name, ink) {
+  const file = join(out, name);
+  const base = await sharp(source)
+    .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer();
+  const { data, info } = await sharp(base).raw().toBuffer({ resolveWithObject: true });
+  for (let i = 0; i < data.length; i += info.channels) {
+    if (data[i + 3] === 0) continue; // transparent
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    if (Math.max(r, g, b) - Math.min(r, g, b) <= 40) {
+      data[i] = ink.r;
+      data[i + 1] = ink.g;
+      data[i + 2] = ink.b;
+    }
+  }
+  await sharp(data, { raw: { width: info.width, height: info.height, channels: info.channels } })
     .png()
     .toFile(file);
   ok(file);
@@ -126,6 +152,9 @@ async function main() {
   await transparent(32, 'favicon-32x32.png');
   await transparent(192, 'icon-192.png');
   await transparent(512, 'icon-512.png');
+
+  // Light-background (dark-ink) counterpart of the square icon.
+  await recolored(192, 'icon-dark-192.png', INK_DARK);
 
   await onWhite(180, 'apple-touch-icon.png', 0.86);
   await onWhite(192, 'maskable-icon-192.png', 0.7);

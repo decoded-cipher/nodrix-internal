@@ -9,6 +9,7 @@
 //
 //   fan              — iot-toggle  ("on" / "off")  — Relay 1
 //   light_intensity  — iot-slider  (0..100)
+//   color            — iot-color   (hex string, e.g. "#FFC98A")
 //   restart          — iot-push    (one-shot, no echo)
 //
 // The keys in `handlers` below must match the "Variable" field of the
@@ -34,6 +35,7 @@ function required(name) {
 const state = {
   fan: 'off',
   light_intensity: 62,
+  color: '#FFC98A',
 };
 
 async function echo(metrics) {
@@ -61,9 +63,14 @@ const handlers = {
     console.log(`  → light_intensity = ${state.light_intensity}`);
     echo({ light_intensity: state.light_intensity });
   },
-  restart() {
-    // One-shot — no state to echo.
-    console.log(`  → restart! (e.g. reboot the controller, kick a watchdog)`);
+  color(value) {
+    state.color = String(value);
+    console.log(`  → color = ${state.color}`);
+    echo({ color: state.color });
+  },
+  restart(value) {
+    // Momentary: true on press, false on release. Act on the press only.
+    if (value) console.log(`  → restart! (e.g. reboot the controller, kick a watchdog)`);
   },
 };
 
@@ -83,9 +90,10 @@ function connect() {
   ws.on('open', () => {
     backoffMs = 500;
     console.log(`[ws] connected as controller — waiting for control writes…`);
-    // Seed current state so a freshly-loaded dashboard shows real values
-    // instead of widget defaults.
-    echo({ fan: state.fan, light_intensity: state.light_intensity });
+    // Seed current state for a fresh dashboard. Each key also auto-creates its
+    // project variable, which the worker requires before accepting control
+    // writes — so unseeded keys (color, restart) would never reach this client.
+    echo({ fan: state.fan, light_intensity: state.light_intensity, color: state.color, restart: false });
   });
 
   ws.on('message', (raw) => {

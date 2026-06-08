@@ -4,11 +4,11 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Widget Lab · iot-chart</title>
-<link rel="stylesheet" href="./lab.css" />
+<link rel="stylesheet" href="../assets/lab.css" />
 </head>
 <body class="lab">
   <aside class="rail">
-    <div class="back"><a href="./index.html">← All widgets</a></div>
+    <div class="back"><a href="../index.html">← All widgets</a></div>
     <div>
       <h1>iot-chart</h1>
       <div class="sub">Multi-series time-series (ApexCharts via CDN)</div>
@@ -49,8 +49,8 @@
 
   <!-- ApexCharts from CDN: build.ts aliases the widget's import('apexcharts') to window.ApexCharts. -->
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@5.13.0/dist/apexcharts.min.js"></script>
-  <script src="./widget-bundle.js"></script>
-  <script src="./lab.js"></script>
+  <script src="../dist/widget-bundle.js"></script>
+  <script src="../assets/lab.js"></script>
   <script>
     const els = [$('light'), $('dark')];
     function applyConfig() {

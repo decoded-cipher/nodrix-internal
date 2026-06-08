@@ -4,11 +4,11 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Widget Lab · iot-value</title>
-<link rel="stylesheet" href="./lab.css" />
+<link rel="stylesheet" href="../assets/lab.css" />
 </head>
 <body class="lab">
   <aside class="rail">
-    <div class="back"><a href="./index.html">← All widgets</a></div>
+    <div class="back"><a href="../index.html">← All widgets</a></div>
     <div>
       <h1>iot-value</h1>
       <div class="sub">Read-only readout</div>
@@ -41,8 +41,8 @@
     <section class="log"><h2>iot-command events</h2><pre id="log">iot-value is read-only — it emits nothing. Push values to see it update.</pre></section>
   </main>
 
-  <script src="./widget-bundle.js"></script>
-  <script src="./lab.js"></script>
+  <script src="../dist/widget-bundle.js"></script>
+  <script src="../assets/lab.js"></script>
   <script>
     const els = [$('light'), $('dark')];
     function applyConfig() {

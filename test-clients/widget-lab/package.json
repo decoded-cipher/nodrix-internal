@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bun ./build.ts",
-    "dev": "bun ./build.ts --watch"
+    "build": "bun ./src/build.ts",
+    "dev": "bun ./src/build.ts --watch"
   }
 }

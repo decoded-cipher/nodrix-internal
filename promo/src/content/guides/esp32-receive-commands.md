@@ -4,8 +4,8 @@ description: "How to get data back to an ESP32 over HTTP: poll for control write
 category: hardware
 board: ESP32
 difficulty: intermediate
-datePublished: 2026-06-03
-dateUpdated: 2026-06-04
+datePublished: 2026-06-08
+dateUpdated: 2026-06-08
 faqs:
   - q: "Can you push data to an ESP32 over plain HTTP?"
     a: "Not push, exactly — the device pulls. It polls a control endpoint on an interval and applies any queued writes, which gives near-real-time control without a broker. For instant updates while the board is awake, hold a WebSocket open and the cloud pushes down it."

@@ -4,7 +4,7 @@ description: "Push ESP32 sensor data to the cloud over HTTPS and receive command
 category: hardware
 board: ESP32
 difficulty: intermediate
-datePublished: 2026-06-03
+datePublished: 2026-06-08
 faqs:
   - q: "Can an ESP32 really talk to the cloud without MQTT?"
     a: "Yes. An HTTPS POST to a single endpoint sends a reading, and a GET fetches queued commands. No broker is required for periodic telemetry."

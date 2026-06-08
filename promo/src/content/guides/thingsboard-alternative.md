@@ -2,7 +2,7 @@
 title: "A lightweight ThingsBoard alternative for makers — zero servers to run"
 description: "ThingsBoard is powerful but heavy to self-host. nodrix is an open-source alternative that one-click deploys to your own Cloudflare account — no Java, Postgres, broker, or VM to operate, with dashboards, edge automations, and a read API."
 category: comparison
-datePublished: 2026-06-04
+datePublished: 2026-06-08
 faqs:
   - q: "What's a lighter-weight alternative to ThingsBoard?"
     a: "nodrix. ThingsBoard is a capable, enterprise-grade platform, but self-hosting it means running Java, a database (Postgres or Cassandra), and usually a message queue — real ops. nodrix instead deploys onto Cloudflare's serverless primitives (Workers, Durable Objects, D1, R2) in one click, with no server, broker, or database for you to operate."
@@ -24,6 +24,9 @@ related:
   - href: "/guides/arduino-cloud-alternative/"
     label: "Arduino Cloud alternative"
     desc: "The Arduino-ecosystem comparison."
+  - href: "/guides/ubidots-alternative/"
+    label: "Ubidots alternative"
+    desc: "The commercial platform compared on cost and ownership."
   - href: "/docs"
     label: "Device protocol & API"
     desc: "Telemetry, control, automations, and the read API."

@@ -4,8 +4,8 @@ description: "A complete ESP32 self-watering build: calibrate a capacitive soil 
 category: project
 board: ESP32
 difficulty: beginner
-datePublished: 2026-06-03
-dateUpdated: 2026-06-04
+datePublished: 2026-06-08
+dateUpdated: 2026-06-08
 faqs:
   - q: "Why does the watering logic live in the cloud instead of on the ESP32?"
     a: "So you can change it without reflashing. Thresholds, burst length, alert channels, and the whole trigger-condition-action flow are edited in nodrix and take effect on the next reading. The board keeps one job — report a number, act on a flag — which is the part you don't want to be reprogramming every time you re-pot a plant or swap a sensor."

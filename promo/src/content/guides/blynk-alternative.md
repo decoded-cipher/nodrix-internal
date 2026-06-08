@@ -2,7 +2,7 @@
 title: "The open-source Blynk alternative that runs on your own Cloudflare account"
 description: "Looking for a Blynk alternative? nodrix is open-source IoT you deploy to your own Cloudflare account — no per-device pricing, no hosted cloud holding your data, plain HTTPS/WebSocket with dashboards, automations, and a read API."
 category: comparison
-datePublished: 2026-06-04
+datePublished: 2026-06-08
 faqs:
   - q: "Is there an open-source alternative to Blynk?"
     a: "Yes. nodrix is an open-source (MIT) IoT backend you deploy to your own Cloudflare account rather than signing up for a hosted service. Devices talk plain HTTPS or WebSocket, and the dashboards, automations, and data all live in your own tenancy. Blynk's client libraries are open source too, but its current platform (Blynk.IoT) is a hosted commercial service, not something you self-host."
@@ -24,6 +24,9 @@ related:
   - href: "/guides/arduino-cloud-alternative/"
     label: "Arduino Cloud alternative"
     desc: "If you're weighing the Arduino ecosystem too."
+  - href: "/guides/adafruit-io-alternative/"
+    label: "Adafruit IO alternative"
+    desc: "Another maker-favorite hosted feed service, compared."
   - href: "/docs"
     label: "Device protocol & API"
     desc: "Telemetry, control, automations, and the read API in full."

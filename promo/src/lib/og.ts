@@ -84,9 +84,11 @@ export async function ogImagePng({
   tags = [],
   tagline = 'Your own IoT cloud, on Cloudflare',
 }: OgInput): Promise<Buffer> {
-  // Large faint watermark — the category word, etched bottom-right.
+  // Large faint watermark — the category word, etched bottom-right. One fixed size across
+  // every category so the etched word never changes scale (sized so the longest, COMPARISON,
+  // still sits inside the frame).
   const watermark = category ? (WATERMARK[category.toLowerCase()] ?? category.toUpperCase()) : '';
-  const wsize = watermark.length <= 6 ? 250 : watermark.length <= 9 ? 200 : 150;
+  const wsize = 150;
 
   const tree = h(
     'div',

@@ -2,7 +2,7 @@
 title: "An Arduino Cloud alternative for any board — open-source, on your own Cloudflare"
 description: "Arduino Cloud is polished but tied to the Arduino ecosystem and a hosted freemium plan. nodrix is an open-source alternative for any board that speaks HTTPS — deployed to your own Cloudflare account, no per-device limits, no lock-in."
 category: comparison
-datePublished: 2026-06-04
+datePublished: 2026-06-08
 faqs:
   - q: "Is there an alternative to Arduino Cloud that isn't tied to Arduino boards?"
     a: "Yes. nodrix is board-agnostic: anything that can make an HTTPS request — ESP32, ESP8266, Raspberry Pi Pico W, a Raspberry Pi, an Arduino, or a Python script — can send telemetry and receive commands. There's no required SDK, IDE, or board family. nodrix is open-source (MIT) and deploys to your own Cloudflare account."
@@ -24,6 +24,9 @@ related:
   - href: "/guides/thingsboard-alternative/"
     label: "ThingsBoard alternative"
     desc: "The self-hosting-weight comparison."
+  - href: "/guides/adafruit-io-alternative/"
+    label: "Adafruit IO alternative"
+    desc: "The other maker-favorite feed service, compared."
   - href: "/docs"
     label: "Device protocol & API"
     desc: "Telemetry, control, automations, and the read API."

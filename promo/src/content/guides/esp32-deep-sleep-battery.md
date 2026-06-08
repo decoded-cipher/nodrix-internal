@@ -4,8 +4,8 @@ description: "Make a battery-powered ESP32 sensor run for months while still rep
 category: hardware
 board: ESP32
 difficulty: intermediate
-datePublished: 2026-06-03
-dateUpdated: 2026-06-04
+datePublished: 2026-06-08
+dateUpdated: 2026-06-08
 faqs:
   - q: "How long can an ESP32 run on a battery while sending data?"
     a: "With deep sleep between readings, a single 18650 cell can last months. A ~3-second wake every 15 minutes spends almost all its time drawing microamps in sleep, not the ~120-160 mA of an active Wi-Fi radio — so the radio's brief bursts, not the idle time, set the lifetime."

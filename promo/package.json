@@ -10,6 +10,7 @@
     "deploy": "astro build && wrangler pages deploy dist --project-name nodrix",
     "typecheck": "astro check",
     "og:gen": "bun scripts/gen-og.ts",
+    "og:site": "bun scripts/gen-site-og.ts",
     "icons": "bun scripts/generate-icons.js"
   },
   "dependencies": {

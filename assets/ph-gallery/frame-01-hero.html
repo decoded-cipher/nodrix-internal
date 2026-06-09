@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nodrix — Frame 1 (Hero)</title>
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .hero {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    border: 1px solid var(--n-200);
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 9999px;
+    padding: 4px 14px 4px 4px;
+    font-size: 13px; color: var(--n-600); font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .badge .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--c-50); color: var(--c-700);
+    font-weight: 600; padding: 3px 10px; border-radius: 9999px;
+    border: 1px solid var(--c-100);
+  }
+  .badge .dot {
+    width: 7px; height: 7px; border-radius: 9999px; background: var(--c-500);
+    box-shadow: 0 0 0 4px rgba(255,106,69,0.18);
+  }
+  h1 {
+    font-size: 60px; line-height: 1.06; letter-spacing: -0.025em; font-weight: 800;
+    margin: 28px 0 0; color: var(--n-900);
+    white-space: nowrap;
+  }
+  h1 .accent { color: var(--c-500); }
+  .sub {
+    margin: 24px auto 0; max-width: 740px;
+    font-size: 20px; line-height: 1.55; color: var(--n-600);
+  }
+  .stack {
+    margin-top: 44px;
+  }
+  .stack .kicker {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--n-400);
+  }
+  .chips {
+    margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--n-200); background: rgba(255,255,255,0.78); backdrop-filter: blur(8px);
+    padding: 7px 14px; border-radius: 9999px;
+    font-size: 14px; font-weight: 600; color: var(--n-600);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .chip svg { width: 16px; height: 16px; color: var(--n-400); }
+  .footnote {
+    position: absolute; bottom: 28px; left: 0; right: 0; text-align: center;
+    font-size: 13px; color: var(--n-500); letter-spacing: 0.01em;
+  }
+  .footnote .sep { color: var(--n-300); margin: 0 10px; }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="aurora" aria-hidden="true">
+    <span class="a1"></span><span class="a2"></span><span class="a3"></span>
+  </div>
+  <div class="bg-dotgrid" style="position:absolute;inset:0;opacity:0.7"></div>
+
+  <div class="hero">
+    <span class="badge">
+      <span class="pill"><span class="dot"></span>v1.0.0 · MIT</span>
+      <span>Open source · Star it on GitHub →</span>
+    </span>
+    <h1>
+      Your own IoT cloud.<br>
+      <span class="accent">Running on your Cloudflare account.</span>
+    </h1>
+    <p class="sub">
+      An open-source IoT backend that lives in your Cloudflare account. Hardware speaks plain
+      HTTPS. Data streams to drag-and-drop dashboards in realtime. No broker, no servers, no
+      middleman.
+    </p>
+    <div class="stack">
+      <div class="kicker">Runs entirely on your Cloudflare primitives</div>
+      <div class="chips">
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Workers</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></svg>Durable Objects</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8c4.97 0 9-1.34 9-3s-4.03-3-9-3-9 1.34-9 3 4.03 3 9 3z"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>D1</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>R2</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.59 17.41A2 2 0 0 0 2 18.83V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.17a2 2 0 0 0 1.42-.59l.81-.81a6.5 6.5 0 1 0-4-4z"/></svg>KV</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    Open source<span class="sep">·</span>Single-tenant<span class="sep">·</span>One-click deploy
+  </div>
+</div>
+</body>
+</html>

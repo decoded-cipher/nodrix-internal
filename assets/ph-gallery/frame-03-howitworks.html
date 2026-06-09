@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nodrix — Frame 3 (How it works)</title>
+<link rel="stylesheet" href="_shared.css">
+<style>
+  body { background: #fff; }
+  .bg-dotgrid { position: absolute; inset: 0; opacity: 0.5; }
+
+  .pad { position: absolute; inset: 0; padding: 50px 60px 36px; display: flex; flex-direction: column; }
+
+  .kicker {
+    font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--c-600);
+  }
+  h1 {
+    margin: 10px 0 0; font-size: 52px; font-weight: 800; letter-spacing: -0.025em;
+    color: var(--n-900); max-width: 1000px; line-height: 1.06;
+  }
+  h1 .accent { color: var(--c-500); }
+  .lede {
+    margin-top: 14px; max-width: 800px; font-size: 17px; line-height: 1.5; color: var(--n-600);
+  }
+
+  /* Diagram canvas — hub + spokes */
+  .diagram {
+    position: relative; flex: 1; margin-top: 24px; margin-bottom: 48px;
+  }
+  .flow-svg {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  /* Side tiles — devices (left) and consumers (right) */
+  .col {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 14px;
+    z-index: 2;
+  }
+  .col.left  { left: 0; }
+  .col.right { right: 0; }
+
+  .tile {
+    background: #fff; border: 1px solid var(--n-200); border-radius: 11px;
+    padding: 11px 14px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 4px 14px -10px rgba(15,23,42,0.18), 0 1px 2px rgba(15,23,42,0.04);
+    min-width: 200px;
+  }
+  .tile .t-ic {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: var(--n-100); color: var(--n-700);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .tile .t-ic svg { width: 15px; height: 15px; }
+  .tile .t-text { display: flex; flex-direction: column; line-height: 1.2; }
+  .tile .t-name { font-size: 13px; font-weight: 700; color: var(--n-900); letter-spacing: -0.005em; }
+  .tile .t-sub { font-size: 10.5px; color: var(--n-500); margin-top: 2px; font-weight: 500; }
+
+  /* Worker centerpiece */
+  .worker {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 360px;
+    background: linear-gradient(180deg, #fff, #fff8f5);
+    border: 1.5px solid var(--c-200); border-radius: 18px;
+    padding: 22px 22px 20px;
+    box-shadow:
+      0 30px 60px -30px rgba(255,106,69,0.40),
+      0 8px 24px -12px rgba(15,23,42,0.10),
+      inset 0 1px 0 rgba(255,255,255,0.9);
+    z-index: 3;
+  }
+  .worker::before {
+    /* Soft halo */
+    content: ""; position: absolute; inset: -22px;
+    background: radial-gradient(closest-side, rgba(255,106,69,0.16), transparent 70%);
+    border-radius: 32px; z-index: -1; pointer-events: none;
+  }
+  .worker .w-head { display: flex; align-items: center; gap: 12px; }
+  .worker .w-ic {
+    width: 44px; height: 44px; border-radius: 11px;
+    background: linear-gradient(135deg, var(--c-400), var(--c-600));
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px -4px rgba(237,74,38,0.50);
+  }
+  .worker .w-ic svg { width: 22px; height: 22px; }
+  .worker .w-title { font-size: 19px; font-weight: 800; color: var(--n-900); letter-spacing: -0.015em; line-height: 1.1; }
+  .worker .w-sub { font-size: 12px; color: var(--n-500); margin-top: 3px; font-weight: 500; }
+  .worker .w-services {
+    margin-top: 16px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 7px;
+  }
+  .worker .svc {
+    background: #fff; border: 1px solid var(--n-200); border-radius: 8px;
+    padding: 8px 0;
+    text-align: center;
+    font-size: 10.5px; font-weight: 700; color: var(--n-700);
+    letter-spacing: 0.02em;
+  }
+  .worker .svc .svc-sub {
+    display: block; margin-top: 2px;
+    font-size: 8.5px; color: var(--n-400); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .worker .badge {
+    position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+    background: var(--n-900); color: #fff;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 4px 10px; border-radius: 9999px;
+    text-transform: uppercase; white-space: nowrap;
+  }
+
+  /* Protocol labels along the spokes */
+  .proto {
+    position: absolute; transform: translate(-50%, -50%);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; font-weight: 600;
+    background: #fff; color: var(--n-700);
+    border: 1px solid var(--n-200); border-radius: 6px;
+    padding: 4px 9px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    z-index: 4;
+  }
+  .proto.in  { left: 27%; top: 18%; }
+  .proto.out { left: 73%; top: 18%; background: var(--c-50); border-color: var(--c-100); color: var(--c-700); }
+
+  .caption {
+    display: flex; align-items: center; justify-content: space-between;
+    color: var(--n-500); font-size: 13.5px;
+  }
+  .caption b { color: var(--n-900); font-weight: 700; }
+  .caption .pills { display: flex; gap: 8px; }
+  .caption .pills span {
+    font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 9999px;
+    background: var(--n-100); color: var(--n-700);
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="bg-dotgrid"></div>
+  <div class="pad">
+    <div class="kicker">How it works</div>
+    <h1>No broker. No SDK. <span class="accent">No third party.</span></h1>
+    <p class="lede">One Worker terminates HTTPS, holds live state in Durable Objects, and streams updates to anything you point at it. Runs in your account, on Cloudflare's edge.</p>
+
+    <div class="diagram">
+      <!-- Connecting flow lines -->
+      <svg class="flow-svg" viewBox="0 0 1150 460" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="flow-in" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="rgba(115,115,115,0.35)"/>
+            <stop offset="100%" stop-color="rgba(255,106,69,0.85)"/>
+          </linearGradient>
+          <linearGradient id="flow-out" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="rgba(255,106,69,0.85)"/>
+            <stop offset="100%" stop-color="rgba(115,115,115,0.35)"/>
+          </linearGradient>
+          <marker id="arr-in" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--c-500)"/>
+          </marker>
+          <marker id="arr-out" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#737373"/>
+          </marker>
+        </defs>
+
+        <!-- LEFT: 3 device spokes converging to worker (entry at x≈395) -->
+        <path d="M200, 80 C 320, 80  340,180 395,210" stroke="url(#flow-in)" stroke-width="2" fill="none" marker-end="url(#arr-in)"/>
+        <path d="M200,230 C 320,230  340,230 395,230" stroke="url(#flow-in)" stroke-width="2" fill="none" marker-end="url(#arr-in)"/>
+        <path d="M200,380 C 320,380  340,280 395,250" stroke="url(#flow-in)" stroke-width="2" fill="none" marker-end="url(#arr-in)"/>
+
+        <!-- RIGHT: 3 consumer spokes fanning out from worker (exit at x≈755) -->
+        <path d="M755,210 C 810,180  830, 80 950, 80" stroke="url(#flow-out)" stroke-width="2" fill="none" marker-end="url(#arr-out)"/>
+        <path d="M755,250 C 810,280  830,380 950,380" stroke="url(#flow-out)" stroke-width="2" fill="none" marker-end="url(#arr-out)"/>
+      </svg>
+
+      <!-- LEFT: Devices -->
+      <div class="col left">
+        <div class="tile">
+          <div class="t-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/></svg>
+          </div>
+          <div class="t-text">
+            <span class="t-name">ESP32 · Arduino</span>
+            <span class="t-sub">Anything with TLS</span>
+          </div>
+        </div>
+        <div class="tile">
+          <div class="t-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h6"/></svg>
+          </div>
+          <div class="t-text">
+            <span class="t-name">Raspberry Pi</span>
+            <span class="t-sub">Python · Node · Go</span>
+          </div>
+        </div>
+        <div class="tile">
+          <div class="t-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          </div>
+          <div class="t-text">
+            <span class="t-name">curl · scripts</span>
+            <span class="t-sub">A one-liner is enough</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER: Worker -->
+      <div class="worker">
+        <span class="badge">Your Cloudflare</span>
+        <div class="w-head">
+          <div class="w-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div>
+            <div class="w-title">Your Worker</div>
+            <div class="w-sub">Hono · auth · ingest · fanout</div>
+          </div>
+        </div>
+        <div class="w-services">
+          <div class="svc">DO<span class="svc-sub">Live</span></div>
+          <div class="svc">D1<span class="svc-sub">Meta</span></div>
+          <div class="svc">R2<span class="svc-sub">Cold</span></div>
+          <div class="svc">KV<span class="svc-sub">Cache</span></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Consumers -->
+      <div class="col right">
+        <div class="tile">
+          <div class="t-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+          </div>
+          <div class="t-text">
+            <span class="t-name">Dashboards</span>
+            <span class="t-sub">Drag-and-drop · WS</span>
+          </div>
+        </div>
+        <div class="tile">
+          <div class="t-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 9 11l4 4 8-9"/><path d="M21 6h-4M21 6v4"/></svg>
+          </div>
+          <div class="t-text">
+            <span class="t-name">Grafana · BI</span>
+            <span class="t-sub">Read API · NDJSON</span>
+          </div>
+        </div>
+        <div class="tile">
+          <div class="t-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+          </div>
+          <div class="t-text">
+            <span class="t-name">MCP · your app</span>
+            <span class="t-sub">Claude · React · CLI</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Protocol pills -->
+      <div class="proto in">POST /v1/telemetry</div>
+      <div class="proto out">WS · REST</div>
+    </div>
+
+    <div class="caption">
+      <div>One <b>Worker</b>. Three <b>Durable Objects</b>. Zero servers to operate.</div>
+      <div class="pills">
+        <span>Hono</span><span>Workflows</span><span>SQLite-in-DO</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

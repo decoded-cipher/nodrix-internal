@@ -4,6 +4,9 @@
 // uptime every INTERVAL_MS using the project token. Each key auto-creates a
 // variable on first POST. These feed the iot-value, iot-gauge, and iot-chart
 // widgets on the Tunnel A dashboard.
+//
+// The telemetry response carries any queued control writes; we apply them and ack via
+// /v1/control/ack — so a periodic device never polls for control.
 
 import axios from 'axios';
 
@@ -47,12 +50,22 @@ async function post() {
     uptime_hours,
   };
   try {
-    await axios.post(
+    const res = await axios.post(
       ENDPOINT,
       { metrics },
       { headers: { Authorization: `Bearer ${TOKEN}` }, timeout: 10_000 }
     );
     console.log(`[tunnel-a] temp=${tunnel.air_temp}°C  hum=${tunnel.humidity}%  bat=${tunnel.battery}%  uptime=${uptime_hours}h`);
+    // Control rode the response — apply (here: just log), then ack it.
+    const control = res.data?.control ?? [];
+    if (control.length) {
+      for (const w of control) console.log(`  → control ${w.variable} = ${JSON.stringify(w.value)}`);
+      await axios.post(
+        `https://${HOST}/v1/control/ack`,
+        { ids: control.map((w) => w.id) },
+        { headers: { Authorization: `Bearer ${TOKEN}` }, timeout: 10_000 }
+      );
+    }
   } catch (e) {
     const err = e.response ? `${e.response.status} ${JSON.stringify(e.response.data)}` : e.message;
     console.error(`[tunnel-a] ✗ ${err}`);

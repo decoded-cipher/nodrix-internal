@@ -35,7 +35,8 @@ Source: ${repo}
 4. Build & automate — Compose a dashboard, bind widgets to variables, and wire automations to act on the data — or hand it off through the read API.
 
 ## Device protocol (overview)
-- Send telemetry: POST /v1/telemetry with header "Authorization: Bearer <project-token>" and a JSON body like { "metrics": { "temperature": 23.4, "humidity": 61 } }. Responds 204 No Content; variables are auto-created.
+- Send telemetry: POST /v1/telemetry with header "Authorization: Bearer <project-token>" and a JSON body like { "metrics": { "temperature": 23.4, "humidity": 61 } }. Responds 200 with { "control": [...] } — queued control writes for the device, [] when none; variables are auto-created.
+- Receive control: every telemetry response returns { "control": [...] }, so a reporting device never polls; apply the writes and acknowledge the ones you handled with POST /v1/control/ack { "ids": [...] } so they aren't re-sent. A device that doesn't post telemetry can fetch the queue directly with GET /v1/control.
 - Read state: GET /v1/projects/:proj/state returns the latest value per variable, edge-cached.
 
 ## Widgets (framework-agnostic Web Components)

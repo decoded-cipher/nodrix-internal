@@ -24,8 +24,22 @@ Authorization: Bearer <project-token>
 
 { "metrics": { "temperature": 23.4, "humidity": 61 } }
 
-→ 204 No Content   # variables auto-created
+→ 200   { "control": [] }   # queued writes for your device; [] when none
 \`\`\`
+
+Control writes ride back on every telemetry response, so a reporting device never polls. Apply them, then acknowledge the ones you handled with \`POST /v1/control/ack\` so they aren't re-sent:
+
+\`\`\`
+POST /v1/telemetry
+{ "metrics": { "temperature": 23.4 } }
+→ { "control": [ { "id": "ctl_x", "variable": "relay", "value": "on" } ] }
+
+POST /v1/control/ack
+{ "ids": ["ctl_x"] }
+→ { "acked": 1 }
+\`\`\`
+
+A device that doesn't post telemetry can fetch the queue directly with \`GET /v1/control\`.
 
 Or hold one WebSocket — it carries telemetry up, control writes down, events up, and acks on a single connection (HTTP stays available for devices that just wake, send, and sleep):
 

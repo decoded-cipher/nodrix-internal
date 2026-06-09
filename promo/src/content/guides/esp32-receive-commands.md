@@ -11,6 +11,8 @@ faqs:
     a: "Not push, exactly — the device pulls. It polls a control endpoint on an interval and applies any queued writes, which gives near-real-time control without a broker. For instant updates while the board is awake, hold a WebSocket open and the cloud pushes down it."
   - q: "How responsive is HTTP polling?"
     a: "As responsive as your interval. Poll every 2-5 seconds and a dashboard toggle reaches the board in seconds; poll once per wake and a sleepy sensor picks up commands when it next reports. The trade is request volume and battery, not capability."
+  - q: "Do I need a separate request to fetch commands?"
+    a: "No. Every telemetry response already carries any queued writes — read them straight off it, so a reporting device never polls. You still ack the ones you applied with POST /v1/control/ack, but that only fires when a command actually came down, not every cycle. The standalone GET /v1/control endpoint is there for devices that don't post telemetry."
   - q: "What happens to a command sent while my device is offline or asleep?"
     a: "It waits. Control writes are queued and delivered at-least-once: the cloud holds a write until the device acknowledges it, and re-delivers anything outstanding the moment the device reconnects or next polls. Nothing is lost across a nap or a Wi-Fi blip."
   - q: "Why do I have to acknowledge commands?"
@@ -125,13 +127,61 @@ it hasn't already applied — that split is what makes a re-delivered command sa
 not optional: skip it and the cloud assumes the write never landed and keeps returning it on every
 poll.
 
+### Skip the poll: control rides the telemetry response
+
+A device that's already POSTing telemetry doesn't need the separate `GET /v1/control` — the same
+queue comes back on the telemetry response. Apply the writes and ack the ids you handled with
+`POST /v1/control/ack`, exactly as above. One fewer request every cycle, and the ack only fires when
+there's actually something to ack.
+
+```cpp
+void report(float tempC) {
+  WiFiClientSecure client;
+  client.setInsecure();                          // dev only — pin a CA in production
+
+  HTTPClient https;
+  https.begin(client, String(HOST) + "/v1/telemetry");
+  https.addHeader("Content-Type", "application/json");
+  https.addHeader("Authorization", String("Bearer ") + TOKEN);
+  if (https.POST("{\"metrics\":{\"temperature\":" + String(tempC) + "}}") != 200) { https.end(); return; }
+
+  JsonDocument doc;
+  deserializeJson(doc, https.getString());   // { "control": [ { "id", "variable", "value" } ] }
+  https.end();
+
+  String ids = "[";
+  bool first = true;
+  for (JsonObject w : doc["control"].as<JsonArray>()) {
+    if (strcmp(w["variable"], "relay") == 0)
+      digitalWrite(RELAY_PIN, strcmp(w["value"], "on") == 0 ? HIGH : LOW);
+    if (!first) ids += ',';
+    ids += '"'; ids += (const char*)w["id"]; ids += '"';
+    first = false;
+  }
+  ids += "]";
+
+  if (ids != "[]") {                             // ack only when something came down
+    HTTPClient ack;
+    ack.begin(client, String(HOST) + "/v1/control/ack");
+    ack.addHeader("Content-Type", "application/json");
+    ack.addHeader("Authorization", String("Bearer ") + TOKEN);
+    ack.POST("{\"ids\":" + ids + "}");
+    ack.end();
+  }
+}
+```
+
+This is the right shape for periodic and battery devices: the board is already connected to send its
+reading, so the downlink rides back on the response — no extra poll.
+
 ### Choosing a poll interval
 
 The interval is a straight latency-versus-cost dial:
 
 - **Always awake, want it snappy:** poll every 2-5 seconds. A toggle reaches the board in seconds.
-- **Battery / deep sleep:** poll once per wake, right after you send telemetry — the board is
-  already connected, so the extra request is nearly free. Commands simply apply on the next wake.
+- **Battery / deep sleep:** don't poll separately — every telemetry response already carries any
+  queued control (above). You only spend an extra request to ack when a command actually comes down;
+  commands apply on the next wake.
 - **In between:** back off when idle. Poll fast for a minute after activity, then slow down.
 
 ## Option B — the control WebSocket (instant)

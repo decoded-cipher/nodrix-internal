@@ -14,7 +14,7 @@ faqs:
   - q: "Why does my dev board drain fast even in deep sleep?"
     a: "Usually the board, not the chip. Many dev boards keep a USB-serial chip, an always-on LDO regulator, or a power LED alive in sleep, turning the ESP32's ~10 µA into hundreds of microamps or more. For real battery builds pick a board designed for low sleep current, or power the bare module directly."
   - q: "Can a sleeping device still receive commands?"
-    a: "Yes, on its schedule. A deep-sleep device can't be pushed to instantly, but it polls the control endpoint right after it sends telemetry each wake and applies anything queued. Commands wait in the cloud and land on the next wake — seconds to minutes later, not never."
+    a: "Yes, on its schedule. A deep-sleep device can't be pushed to instantly, but every telemetry response already carries any queued commands, so it applies them each wake without a separate poll. Commands wait in the cloud and land on the next wake — seconds to minutes later, not never."
   - q: "Does deep sleep drop the Wi-Fi connection every time?"
     a: "Yes — deep sleep powers down the radio and wipes RAM, so each wake reconnects from scratch. The fix is to cache the BSSID and channel (and optionally a static IP) in RTC memory so reconnect skips the scan and DHCP, cutting association from 3-4 seconds to under one."
 related:
@@ -130,13 +130,13 @@ void setup() {
     WiFiClientSecure client;
     client.setInsecure();                         // dev only — pin a CA in production
     HTTPClient https;
+    // Commands ride the response; applyControl() acts on them and acks via /v1/control/ack.
     https.begin(client, String(HOST) + "/v1/telemetry");
     https.addHeader("Content-Type", "application/json");
     https.addHeader("Authorization", String("Bearer ") + TOKEN);
-    https.POST("{\"metrics\":{\"temperature\":" + String(t, 1) + "}}");  // -> 204
+    if (https.POST("{\"metrics\":{\"temperature\":" + String(t, 1) + "}}") == 200)
+      applyControl(client, https.getString());
     https.end();
-
-    pollControl();                                // apply queued commands while we're up
   }
   esp_sleep_enable_timer_wakeup((uint64_t)SLEEP_MINUTES * 60ULL * 1000000ULL);
   esp_deep_sleep_start();                         // execution ends here; wakes into setup()
@@ -145,8 +145,10 @@ void setup() {
 void loop() {}
 ```
 
-`pollControl()` is the downlink — fetch `GET /v1/control`, apply, ack. It's worth doing every wake
-since the radio is already on; the full version is in
+`applyControl()` is the downlink — read the queued writes off the telemetry response, apply them, and
+ack the ones you handled with `POST /v1/control/ack`. Reading control off the response saves the
+separate `GET /v1/control` each wake — on a battery device, request count and radio-on time are
+exactly what you're rationing. The full version is in
 [Receive commands on an ESP32](/guides/esp32-receive-commands/). A sleepy device can't be pushed to
 instantly, but commands queued in the cloud land on the next wake.
 
@@ -183,7 +185,7 @@ minute and you're back to weeks.
 
 - **It's a Wi-Fi budget, not a sleep budget.** Optimize the radio-on time first; everything else is
   rounding error.
-- **HTTPS fits deep sleep perfectly.** There's no session to keep alive — wake, POST, poll, sleep.
-  No broker, no persistent socket.
+- **HTTPS fits deep sleep perfectly.** There's no session to keep alive — wake, POST (commands ride
+  the response), sleep. No broker, no persistent socket.
 - **Runs on your account.** Readings land in a nodrix instance on your own Cloudflare account, ready
   to chart, alert on, or read back through the API.

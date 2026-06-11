@@ -12,6 +12,8 @@ Deploy, claim, and connect: the nodrix device protocol, read API, and automation
 2. Open the worker URL and create the first account; it becomes the owner.
 3. Create your first project.
 
+New to Cloudflare? The account is free, and the deploy asks for a card only to switch on R2 (object storage) — that's account verification, not a bill. nodrix runs on the free plan. Full walk-through: [How to deploy nodrix to Cloudflare](${u('guides/deploy-nodrix-cloudflare')}).
+
 ## Tokens
 Mint a project token (a bearer token) to authenticate device telemetry and read-API calls.
 

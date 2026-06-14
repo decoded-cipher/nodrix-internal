@@ -15,16 +15,16 @@ faqs:
   - q: "How do I move an ESP32 from Blynk to nodrix?"
     a: "Swap the Blynk virtual-pin writes for an HTTPS POST to /v1/telemetry (or a WebSocket frame), and read commands back by polling /v1/control or holding the control socket open. Then rebuild your widgets on a nodrix dashboard and recreate any Blynk automations as trigger-condition-action flows. See the ESP32-over-HTTPS guide for the device code."
 related:
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "The device code to point your hardware at nodrix instead."
-  - href: "/guides/thingsboard-alternative/"
+  - href: "/guides/thingsboard-alternative"
     label: "ThingsBoard alternative"
     desc: "How nodrix compares to the open-source heavyweight."
-  - href: "/guides/arduino-cloud-alternative/"
+  - href: "/guides/arduino-cloud-alternative"
     label: "Arduino Cloud alternative"
     desc: "If you're weighing the Arduino ecosystem too."
-  - href: "/guides/adafruit-io-alternative/"
+  - href: "/guides/adafruit-io-alternative"
     label: "Adafruit IO alternative"
     desc: "Another maker-favorite hosted feed service, compared."
   - href: "/docs"
@@ -101,7 +101,7 @@ nodrix instead:
 
 Commands come back by polling `GET /v1/control` and acking what you apply, or by holding the
 control WebSocket open for instant writes — the full firmware is in
-[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/). From there you rebuild your widgets on a
+[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud). From there you rebuild your widgets on a
 nodrix dashboard and recreate any Blynk automations as trigger-condition-action flows.
 
 ## The bottom line

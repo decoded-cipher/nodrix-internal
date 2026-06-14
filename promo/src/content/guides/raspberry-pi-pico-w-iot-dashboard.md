@@ -17,10 +17,10 @@ faqs:
   - q: "Can the Pico W run on battery like an ESP32?"
     a: "It can deep sleep with machine.deepsleep, but be honest about the RP2040: its sleep floor is higher than an ESP32's, so battery life is shorter for the same duty cycle. For long battery runs, an ESP32/ESP8266 with deep sleep is the better pick; the Pico W shines on mains power or short missions."
 related:
-  - href: "/guides/esp8266-iot-dashboard/"
+  - href: "/guides/esp8266-iot-dashboard"
     label: "ESP8266 to the cloud over HTTPS"
     desc: "The same loop in Arduino C++ on the ESP8266."
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "The fuller treatment, including the control WebSocket and deep sleep."
   - href: "/widgets"
@@ -135,8 +135,8 @@ poll_control()
 deepsleep(15 * 60 * 1000)   # milliseconds; board resets and re-runs on wake
 ```
 
-If long battery life is the goal, an [ESP32](/guides/esp32-https-cloud/) or
-[ESP8266](/guides/esp8266-iot-dashboard/) with deep sleep will outlast a Pico W. The Pico W is at its
+If long battery life is the goal, an [ESP32](/guides/esp32-https-cloud) or
+[ESP8266](/guides/esp8266-iot-dashboard) with deep sleep will outlast a Pico W. The Pico W is at its
 best on mains power, short missions, or where you specifically want MicroPython and the RP2040's PIO.
 
 ## Production checklist

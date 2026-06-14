@@ -26,7 +26,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 };
 
 const site = Astro.site!;
-const path = `/guides/${guide.id}/`;
+const path = `/guides/${guide.id}`;
 const updated = fm.dateUpdated ?? fm.datePublished;
 
 const nodes: object[] = [
@@ -45,7 +45,7 @@ const nodes: object[] = [
   },
   breadcrumb(site, [
     { name: 'Home', path: '/' },
-    { name: 'Guides', path: '/guides/' },
+    { name: 'Guides', path: '/guides' },
     { name: fm.title, path },
   ]),
 ];
@@ -71,7 +71,7 @@ const fmtDate = (d: Date) =>
     <Waves />
     <div class="relative mx-auto max-w-4xl px-5 py-12 sm:px-6 sm:py-16">
       <nav class="text-sm text-neutral-500" aria-label="Breadcrumb">
-        <a href="/guides/" class="font-semibold text-accent-600 hover:text-accent-700">Guides</a>
+        <a href="/guides" class="font-semibold text-accent-600 hover:text-accent-700">Guides</a>
         <span class="mx-1.5 text-neutral-300">/</span>
         <span>{CATEGORY_LABEL[fm.category]}</span>
       </nav>

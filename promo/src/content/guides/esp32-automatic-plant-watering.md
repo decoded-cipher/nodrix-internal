@@ -22,10 +22,10 @@ faqs:
   - q: "Is the project token safe baked into the firmware?"
     a: "Treat it as a secret. It scopes to this one project and all traffic is HTTPS, but don't commit it to a public repo — load it from NVS or a config file for anything real, and rotate it if it leaks."
 related:
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "The full Wi-Fi and TLS firmware this build links out to."
-  - href: "/guides/esp32-receive-commands/"
+  - href: "/guides/esp32-receive-commands"
     label: "Receive commands on an ESP32"
     desc: "The control-write downlink that drives the pump."
   - href: "/widgets"
@@ -247,9 +247,9 @@ A few things worth understanding rather than copying:
   once a pulse starts it always ends, even if Wi-Fi drops in the middle. There's no path where the
   pump latches on because a "stop" message got lost.
 - **TLS is skipped for the first run.** `beginSSL` without a CA gets you connected quickly. For
-  production, pin a certificate — see [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/) —
+  production, pin a certificate — see [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud) —
   and for a hardened command path (reconnect backoff, stricter parsing) see
-  [Receive commands on an ESP32](/guides/esp32-receive-commands/).
+  [Receive commands on an ESP32](/guides/esp32-receive-commands).
 - **HTTP is equally valid.** If your device wakes briefly and sleeps rather than holding a socket
   open, a plain `POST /v1/telemetry` reports the reading and `GET /v1/control` collects any pending
   command — nodrix accepts both transports interchangeably.
@@ -317,7 +317,7 @@ A self-watering system fails unattended, so two cases are worth designing for:
 ## Going further
 
 - **Run it on a battery.** Swap the always-open socket for a wake-report-sleep cycle over HTTP and a
-  single cell lasts months — see [ESP32 battery life](/guides/esp32-deep-sleep-battery/).
+  single cell lasts months — see [ESP32 battery life](/guides/esp32-deep-sleep-battery).
 - **Add plants by repeating.** Send `soil_moisture_2`, `soil_moisture_3`, and so on; each
   auto-creates its own variable. Add a gauge per plant and duplicate the automation — no firmware
   change, because the device contract never assumed a single plant.

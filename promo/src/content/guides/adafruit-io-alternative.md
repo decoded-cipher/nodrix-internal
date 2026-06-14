@@ -15,13 +15,13 @@ faqs:
   - q: "How do I move a feed from Adafruit IO to nodrix?"
     a: "Wherever your firmware publishes to an Adafruit IO feed (MQTT publish or the REST /data endpoint), send the same value to nodrix's /v1/telemetry instead — the metric key becomes a variable automatically. Then rebuild your blocks as nodrix widgets and recreate any IO actions as trigger-condition-action automations."
 related:
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "The exact firmware to point your hardware at nodrix."
-  - href: "/guides/thingspeak-alternative/"
+  - href: "/guides/thingspeak-alternative"
     label: "ThingSpeak alternative"
     desc: "If you're also weighing the data-logging route."
-  - href: "/guides/blynk-alternative/"
+  - href: "/guides/blynk-alternative"
     label: "Blynk alternative"
     desc: "The other popular hosted IoT cloud, compared honestly."
   - href: "/docs"
@@ -99,7 +99,7 @@ to nodrix instead — the metric key becomes a variable the first time it's seen
 ```
 
 Commands come back by polling `GET /v1/control` (or over the control WebSocket if the board stays
-awake) — the full firmware is in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/). From
+awake) — the full firmware is in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud). From
 there you rebuild your blocks as nodrix widgets and recreate any IO actions as
 trigger-condition-action flows.
 

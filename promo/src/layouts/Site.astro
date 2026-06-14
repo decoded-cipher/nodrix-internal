@@ -35,7 +35,9 @@ const imageAlt = 'nodrix — your own IoT cloud, on Cloudflare';
 // Everything below derives from `site` in astro.config.mjs — change the
 // domain there and canonical / OG / JSON-LD all follow.
 const site = Astro.site!;
-const canonical = new URL(Astro.url.pathname, site).href;
+// `file` build → pathname is /docs.html; normalize to the served form (/docs, /).
+const cleanPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/?index$/, '') || '/';
+const canonical = new URL(cleanPath, site).href;
 const ogImage = new URL(image, site).href;
 
 const jsonLd = {

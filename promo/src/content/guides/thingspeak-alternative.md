@@ -13,13 +13,13 @@ faqs:
   - q: "How do I move a ThingSpeak channel to nodrix?"
     a: "Replace the channel field write (GET/POST to /update with your API key) with an HTTPS POST to nodrix's /v1/telemetry — each metric key becomes a variable automatically, so a channel's eight fields just become eight named metrics. Then rebuild your plots as nodrix chart widgets."
 related:
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "The firmware to point your hardware at nodrix."
-  - href: "/guides/adafruit-io-alternative/"
+  - href: "/guides/adafruit-io-alternative"
     label: "Adafruit IO alternative"
     desc: "The other popular hosted feed service, compared."
-  - href: "/guides/thingsboard-alternative/"
+  - href: "/guides/thingsboard-alternative"
     label: "ThingsBoard alternative"
     desc: "If you're weighing the open-source heavyweight too."
   - href: "/docs"
@@ -94,7 +94,7 @@ channel update, POST the same values to nodrix — each key becomes a variable a
 
 Use real metric names instead of `field1`/`field2` and your dashboards get a lot more readable.
 Commands flow the other way via `GET /v1/control` or the control WebSocket — the full firmware is
-in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/).
+in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
 
 ## The bottom line
 

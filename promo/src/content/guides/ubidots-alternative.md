@@ -13,13 +13,13 @@ faqs:
   - q: "How do I migrate from Ubidots to nodrix?"
     a: "Replace the Ubidots variable POST (to /api/v1.6/devices/<label> with your token) with an HTTPS POST to nodrix's /v1/telemetry — each metric becomes a variable automatically. Rebuild your dashboard widgets and recreate Ubidots events as trigger-condition-action automations."
 related:
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "The firmware to point your hardware at nodrix."
-  - href: "/guides/datacake-alternative/"
+  - href: "/guides/datacake-alternative"
     label: "Datacake alternative"
     desc: "Another low-code hosted platform, compared."
-  - href: "/guides/thingsboard-alternative/"
+  - href: "/guides/thingsboard-alternative"
     label: "ThingsBoard alternative"
     desc: "If you're weighing the open-source heavyweight too."
   - href: "/docs"
@@ -92,7 +92,7 @@ key becomes a variable automatically:
 ```
 
 Commands flow back via `GET /v1/control` or the control WebSocket — the full firmware is in
-[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/). Rebuild your widgets on a nodrix
+[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud). Rebuild your widgets on a nodrix
 dashboard and recreate Ubidots events as trigger-condition-action automations.
 
 ## The bottom line

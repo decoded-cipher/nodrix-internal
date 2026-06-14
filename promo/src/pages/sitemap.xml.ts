@@ -4,13 +4,13 @@ import { getCollection } from 'astro:content';
 // Static top-level pages. Add new ones here.
 const staticRoutes: { path: string; priority: string }[] = [
   { path: '', priority: '1.0' },
-  { path: 'docs/', priority: '0.8' },
-  { path: 'widgets/', priority: '0.8' },
-  { path: 'guides/', priority: '0.8' },
-  { path: 'roadmap/', priority: '0.6' },
-  { path: 'changelog/', priority: '0.6' },
-  { path: 'privacy/', priority: '0.3' },
-  { path: 'terms/', priority: '0.3' },
+  { path: 'docs', priority: '0.8' },
+  { path: 'widgets', priority: '0.8' },
+  { path: 'guides', priority: '0.8' },
+  { path: 'roadmap', priority: '0.6' },
+  { path: 'changelog', priority: '0.6' },
+  { path: 'privacy', priority: '0.3' },
+  { path: 'terms', priority: '0.3' },
 ];
 
 export const GET: APIRoute = async ({ site }) => {
@@ -18,7 +18,7 @@ export const GET: APIRoute = async ({ site }) => {
   const guides = await getCollection('guides');
   const guideRoutes = guides
     .filter((g) => !g.data.draft)
-    .map((g) => ({ path: `guides/${g.id}/`, priority: '0.7' }));
+    .map((g) => ({ path: `guides/${g.id}`, priority: '0.7' }));
 
   const lastmod = new Date().toISOString().split('T')[0];
   const urls = [...staticRoutes, ...guideRoutes]

@@ -17,10 +17,10 @@ faqs:
   - q: "Does this lock me into one provider?"
     a: "No. The pattern is plain HTTPS plus JSON. Here it targets a nodrix instance running in your own Cloudflare account, but any HTTPS API works the same way."
 related:
-  - href: "/guides/esp32-receive-commands/"
+  - href: "/guides/esp32-receive-commands"
     label: "Receive commands on an ESP32"
     desc: "The downlink in depth: control writes, acking, and the WebSocket path."
-  - href: "/guides/esp32-deep-sleep-battery/"
+  - href: "/guides/esp32-deep-sleep-battery"
     label: "ESP32 battery life with deep sleep"
     desc: "Power budgeting and the patterns that stretch a cell to months."
   - href: "/docs"

@@ -18,13 +18,13 @@ faqs:
   - q: "Does deep sleep drop the Wi-Fi connection every time?"
     a: "Yes — deep sleep powers down the radio and wipes RAM, so each wake reconnects from scratch. The fix is to cache the BSSID and channel (and optionally a static IP) in RTC memory so reconnect skips the scan and DHCP, cutting association from 3-4 seconds to under one."
 related:
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "The telemetry and control loop this build sleeps between."
-  - href: "/guides/esp32-receive-commands/"
+  - href: "/guides/esp32-receive-commands"
     label: "Receive commands on an ESP32"
     desc: "Polling for control once per wake on a sleepy device."
-  - href: "/guides/esp32-automatic-plant-watering/"
+  - href: "/guides/esp32-automatic-plant-watering"
     label: "ESP32 plant watering"
     desc: "A sensor build you can convert to a battery node."
   - href: "/docs"
@@ -41,7 +41,7 @@ out to a season or more between charges. Get any of those wrong and the same har
 This guide is about the power side specifically: where the energy goes, the deep-sleep structure
 that makes it possible, connecting fast enough to matter, a real worked budget, and the dev-board
 traps that quietly wreck battery life. For the telemetry and control code itself, see
-[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/).
+[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
 
 ## Where the power goes
 
@@ -147,7 +147,7 @@ void loop() {}
 
 `pollControl()` is the downlink — fetch `GET /v1/control`, apply, ack. It's worth doing every wake
 since the radio is already on; the full version is in
-[Receive commands on an ESP32](/guides/esp32-receive-commands/). A sleepy device can't be pushed to
+[Receive commands on an ESP32](/guides/esp32-receive-commands). A sleepy device can't be pushed to
 instantly, but commands queued in the cloud land on the next wake.
 
 ## Do the math

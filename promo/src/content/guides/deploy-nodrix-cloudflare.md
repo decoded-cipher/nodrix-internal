@@ -25,10 +25,10 @@ related:
   - href: "/docs"
     label: "Device protocol & API"
     desc: "Send telemetry and read it back after deploy."
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "Point your first device at the new deployment."
-  - href: "/guides/thingsboard-alternative/"
+  - href: "/guides/thingsboard-alternative"
     label: "Why run it on your own Cloudflare"
     desc: "The ownership trade behind the one-click deploy."
 ---
@@ -153,7 +153,7 @@ curl -X POST https://<your-worker>.workers.dev/v1/telemetry \
 
 A reading lands, a widget appears, and you've got a working IoT backend on infrastructure you own.
 For the device side in full — including getting commands back to the hardware — see
-[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/).
+[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
 
 ## Staying up to date
 

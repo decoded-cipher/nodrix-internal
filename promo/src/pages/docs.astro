@@ -22,7 +22,7 @@ const jsonLd = {
       headline: 'nodrix documentation',
       description:
         'Deploy, claim, and connect: the nodrix device protocol, dashboards, read API, and automation model.',
-      url: new URL('docs/', site).href,
+      url: new URL('docs', site).href,
       inLanguage: 'en',
       isPartOf: { '@id': new URL('#website', site).href },
     },
@@ -30,7 +30,7 @@ const jsonLd = {
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: site.href },
-        { '@type': 'ListItem', position: 2, name: 'Docs', item: new URL('docs/', site).href },
+        { '@type': 'ListItem', position: 2, name: 'Docs', item: new URL('docs', site).href },
       ],
     },
   ],

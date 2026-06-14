@@ -17,10 +17,10 @@ faqs:
   - q: "Why is my ESP8266 POST returning -1?"
     a: "Almost always TLS or memory. Confirm you used https:// and a BearSSL client; try setInsecure() to isolate certificate problems; and watch the heap — running out of RAM during the handshake also surfaces as a failed connection."
 related:
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "The ESP32 version of this guide"
     desc: "Same loop on the ESP32, with WiFiClientSecure and the CA bundle."
-  - href: "/guides/raspberry-pi-pico-w-iot-dashboard/"
+  - href: "/guides/raspberry-pi-pico-w-iot-dashboard"
     label: "Raspberry Pi Pico W to the cloud"
     desc: "The same idea in MicroPython on the Pico W."
   - href: "/widgets"
@@ -136,7 +136,7 @@ void pollControl() {
 
 Poll every few seconds for near-real-time control, or once per wake for a sleepy device. (For
 instant control on an always-on board, hold the control WebSocket open instead — the
-[ESP32 downlink guide](/guides/esp32-receive-commands/) shows the socket path; it's the same on the
+[ESP32 downlink guide](/guides/esp32-receive-commands) shows the socket path; it's the same on the
 8266.)
 
 ## Step 4 — Deep sleep, the ESP8266 way

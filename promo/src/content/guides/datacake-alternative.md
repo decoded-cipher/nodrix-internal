@@ -11,13 +11,13 @@ faqs:
   - q: "How do I migrate from Datacake to nodrix?"
     a: "Point your device's HTTP integration (or your LoRaWAN network-server webhook) at nodrix's /v1/telemetry instead of Datacake's HTTP endpoint — each metric becomes a variable automatically. Then rebuild dashboards and recreate Datacake rules as trigger-condition-action automations."
 related:
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "The firmware to point your hardware at nodrix."
-  - href: "/guides/ubidots-alternative/"
+  - href: "/guides/ubidots-alternative"
     label: "Ubidots alternative"
     desc: "Another hosted commercial platform, compared."
-  - href: "/guides/blynk-alternative/"
+  - href: "/guides/blynk-alternative"
     label: "Blynk alternative"
     desc: "The popular hosted IoT cloud, compared honestly."
   - href: "/docs"
@@ -87,7 +87,7 @@ becomes a variable automatically:
 For LoRaWAN, set your network server's HTTP integration (the webhook that fires on uplink) to send
 the decoded payload to the same `/v1/telemetry` endpoint. Commands flow back via `GET /v1/control`
 or the control WebSocket — the full firmware is in
-[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/).
+[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
 
 ## The bottom line
 

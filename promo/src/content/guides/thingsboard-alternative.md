@@ -15,16 +15,16 @@ faqs:
   - q: "When should I stay on ThingsBoard?"
     a: "When you need enterprise scale, multi-tenancy, a mature rule engine, many device protocols, or on-prem requirements. ThingsBoard is built for that. nodrix targets makers and small teams who want zero ops and a single-tenant deployment they fully own."
 related:
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "Point a device at nodrix with no broker."
-  - href: "/guides/blynk-alternative/"
+  - href: "/guides/blynk-alternative"
     label: "Blynk alternative"
     desc: "If you're comparing the app-first option too."
-  - href: "/guides/arduino-cloud-alternative/"
+  - href: "/guides/arduino-cloud-alternative"
     label: "Arduino Cloud alternative"
     desc: "The Arduino-ecosystem comparison."
-  - href: "/guides/ubidots-alternative/"
+  - href: "/guides/ubidots-alternative"
     label: "Ubidots alternative"
     desc: "The commercial platform compared on cost and ownership."
   - href: "/docs"
@@ -89,7 +89,7 @@ For those, ThingsBoard is the grown-up answer and the operational weight is the 
 ThingsBoard gives you a powerful platform you must operate. nodrix gives you a narrower platform you
 don't have to operate at all — the same "your data, your infra" ownership, minus the servers.
 Pointing hardware at it is a plain HTTPS POST (see
-[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/)); there's no broker to provision.
+[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud)); there's no broker to provision.
 
 If you need enterprise scale, multi-tenancy, or a deeper rule engine today, ThingsBoard's depth is
 the right call — and several of those are on the nodrix roadmap.

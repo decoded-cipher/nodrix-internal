@@ -15,16 +15,16 @@ faqs:
   - q: "Does nodrix do over-the-air firmware updates like Arduino Cloud?"
     a: "Over-the-air firmware updates are on the roadmap. nodrix handles telemetry, dashboards, automations, and control writes today, with OTA planned. If OTA is essential to your workflow right now, factor that in; otherwise, stay connected as we add it."
 related:
-  - href: "/guides/esp32-https-cloud/"
+  - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "The device pattern, which works on any Wi-Fi board."
-  - href: "/guides/blynk-alternative/"
+  - href: "/guides/blynk-alternative"
     label: "Blynk alternative"
     desc: "The app-first comparison."
-  - href: "/guides/thingsboard-alternative/"
+  - href: "/guides/thingsboard-alternative"
     label: "ThingsBoard alternative"
     desc: "The self-hosting-weight comparison."
-  - href: "/guides/adafruit-io-alternative/"
+  - href: "/guides/adafruit-io-alternative"
     label: "Adafruit IO alternative"
     desc: "The other maker-favorite feed service, compared."
   - href: "/docs"
@@ -93,7 +93,7 @@ WiFi + HTTPS pattern:
 ```
 
 Commands come back over `GET /v1/control` (poll + ack) or the control WebSocket — the full firmware
-is in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud/), and the same pattern works on any
+is in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud), and the same pattern works on any
 Wi-Fi-capable board.
 
 ## The bottom line

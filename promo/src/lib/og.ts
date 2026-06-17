@@ -16,6 +16,10 @@ const semibold = readFileSync(new URL('600SemiBold/PlusJakartaSans_600SemiBold.t
 const logo = readFileSync(new URL('../../public/dark_logo.png', import.meta.url));
 const logoUri = 'data:image/png;base64,' + logo.toString('base64');
 
+// White logo, for the coral side panel on the blog card.
+const whiteLogo = readFileSync(new URL('../../public/white_logo.png', import.meta.url));
+const whiteLogoUri = 'data:image/png;base64,' + whiteLogo.toString('base64');
+
 // Aurora background — soft, blurred coral glows echoing the home-page hero. Kept to the top
 // half so the crisp coral strip along the bottom edge stays clean: no blurred glow bleeds into
 // or smudges it. Built as a real SVG (radial gradients + gaussian blur) and pre-rasterized with
@@ -74,6 +78,7 @@ const WATERMARK: Record<string, string> = {
   project: 'PROJECT',
   comparison: 'COMPARISON',
   concept: 'CONCEPT',
+  blog: 'BLOG',
 };
 
 export type OgInput = { title: string; category?: string; tags?: string[]; tagline?: string };
@@ -131,6 +136,119 @@ export async function ogImagePng({
       ]),
       // coral edge strip along the bottom
       h('div', { display: 'flex', position: 'absolute', left: 0, right: 0, bottom: 0, height: 8, backgroundImage: 'linear-gradient(90deg, #ff6a45, #ffb59c)' }),
+    ],
+  );
+
+  const svg = await satori(tree as unknown as Parameters<typeof satori>[0], {
+    width: 1200,
+    height: 630,
+    fonts: [
+      { name: 'Plus Jakarta Sans', data: extrabold, weight: 800, style: 'normal' },
+      { name: 'Plus Jakarta Sans', data: semibold, weight: 600, style: 'normal' },
+    ],
+  });
+
+  return Buffer.from(new Resvg(svg).render().asPng());
+}
+
+/* ---------------------------------------------------------------------------
+   Blog card — a distinct, byline-forward LIGHT variant so a shared blog post
+   never looks like a guide. White with a faint dot grid and a soft coral glow,
+   the post type as a pill, and the author + date in a band along the bottom
+   (no big category watermark — that's the guide card's signature).
+--------------------------------------------------------------------------- */
+
+// Light backdrop: white base, a soft coral glow top-right, and a faint dot grid
+// echoing the dashboard canvas. The lower band stays clean for the byline.
+const LIGHT_BG = (() => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
+    <defs>
+      <radialGradient id="lg1"><stop offset="0%" stop-color="#ff6a45" stop-opacity="0.18"/><stop offset="70%" stop-color="#ff6a45" stop-opacity="0"/></radialGradient>
+      <radialGradient id="lg2"><stop offset="0%" stop-color="#ffa489" stop-opacity="0.14"/><stop offset="72%" stop-color="#ffa489" stop-opacity="0"/></radialGradient>
+      <filter id="lb" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="75"/></filter>
+      <pattern id="ldots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#0f172a" fill-opacity="0.05"/></pattern>
+    </defs>
+    <rect width="1200" height="630" fill="#ffffff"/>
+    <g filter="url(#lb)">
+      <circle cx="1080" cy="-30" r="340" fill="url(#lg1)"/>
+      <circle cx="150" cy="40" r="280" fill="url(#lg2)"/>
+    </g>
+    <rect width="1200" height="630" fill="url(#ldots)"/>
+  </svg>`;
+  return 'data:image/png;base64,' + Buffer.from(new Resvg(svg).render().asPng()).toString('base64');
+})();
+
+const BLOG_TYPE: Record<string, string> = {
+  release: 'RELEASE',
+  engineering: 'ENGINEERING',
+  'case-study': 'CASE STUDY',
+};
+
+export type BlogOgInput = { title: string; type?: string; byline?: string; meta?: string };
+
+export async function blogOgImagePng({ title, type, byline = 'nodrix', meta = '' }: BlogOgInput): Promise<Buffer> {
+  const typeLabel = type ? (BLOG_TYPE[type] ?? type.toUpperCase()) : 'BLOG';
+  const initials =
+    byline
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0]!.toUpperCase())
+      .join('') || 'N';
+
+  const tree = h(
+    'div',
+    {
+      display: 'flex',
+      width: 1200,
+      height: 630,
+      position: 'relative',
+      overflow: 'hidden',
+      backgroundColor: '#ffffff',
+      borderWidth: 1,
+      borderStyle: 'solid',
+      borderColor: '#e9e9ec',
+      fontFamily: 'Plus Jakarta Sans',
+    },
+    [
+      { type: 'img', props: { src: LIGHT_BG, width: 1200, height: 630, style: { position: 'absolute', top: 0, left: 0 } } },
+      // Left: coral side panel — brand mark up top, author block at the bottom.
+      h(
+        'div',
+        {
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          width: 432,
+          height: 630,
+          padding: 56,
+          backgroundImage: 'linear-gradient(150deg, #ff7a52 0%, #ec4a26 100%)',
+        },
+        [
+          { type: 'img', props: { src: whiteLogoUri, width: 170, height: 50 } },
+          h('div', { display: 'flex', flexDirection: 'column' }, [
+            h('div', { display: 'flex', fontSize: 15, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.72)', marginBottom: 18 }, 'Written by'),
+            h('div', { display: 'flex', alignItems: 'center' }, [
+              h('div', { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 58, height: 58, borderRadius: 9999, backgroundColor: '#ffffff', color: '#ec4a26', fontSize: 23, fontWeight: 800, marginRight: 16 }, initials),
+              h('div', { display: 'flex', flexDirection: 'column' }, [
+                h('div', { display: 'flex', fontSize: 25, fontWeight: 600, color: '#ffffff' }, byline),
+                meta
+                  ? h('div', { display: 'flex', fontSize: 17, fontWeight: 600, color: 'rgba(255,255,255,0.82)', marginTop: 3 }, meta)
+                  : h('div', { display: 'flex' }),
+              ]),
+            ]),
+          ]),
+        ],
+      ),
+      // Right: white title area.
+      h('div', { display: 'flex', flexDirection: 'column', flexGrow: 1, padding: 64 }, [
+        h('div', { display: 'flex' }, [badge(typeLabel, true, 0)]),
+        h('div', { display: 'flex', flexGrow: 1 }),
+        h('div', { display: 'flex', width: 72, height: 7, borderRadius: 9999, backgroundColor: '#ff6a45' }),
+        h('div', { display: 'flex', fontSize: 56, fontWeight: 800, color: '#141414', lineHeight: 1.1, letterSpacing: -1.2, marginTop: 22, maxWidth: 600 }, title),
+        h('div', { display: 'flex', flexGrow: 1 }),
+        h('div', { display: 'flex', fontSize: 20, fontWeight: 600, color: '#a3a3a3' }, 'nodrix.live'),
+      ]),
     ],
   );
 

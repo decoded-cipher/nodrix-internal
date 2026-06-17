@@ -21,4 +21,28 @@ const guides = defineCollection({
   }),
 });
 
-export const collections = { guides };
+// Blog — the narrative track: prose release notes, build-in-public engineering
+// stories, and edited "built with nodrix" case studies. Shares the guides shape;
+// swaps the hardware-specific fields (category/board/difficulty) for type/author/version.
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    type: z.enum(['release', 'engineering', 'case-study']),
+    // Omitted → authored by nodrix. Case studies carry a byline.
+    author: z.object({ name: z.string(), role: z.string().optional(), url: z.string().url().optional() }).optional(),
+    // Release posts only — links the post to its /changelog entry.
+    version: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    datePublished: z.coerce.date(),
+    dateUpdated: z.coerce.date().optional(),
+    faqs: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
+    related: z
+      .array(z.object({ href: z.string(), label: z.string(), desc: z.string().optional() }))
+      .default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { guides, blog };

@@ -3,12 +3,13 @@ import Site from '../layouts/Site.astro';
 import Waves from '../components/Waves.astro';
 import { breadcrumb, jsonLdGraph } from '../lib/seo';
 
-// Append newest entries at the top.
-const entries: { version: string; date: string; title: string; items: string[] }[] = [
+// Append newest entries at the top. `postSlug` links a release to its narrative blog post.
+const entries: { version: string; date: string; title: string; postSlug?: string; items: string[] }[] = [
   {
     version: '1.0.0',
     date: 'June 9, 2026',
     title: 'First stable release',
+    postSlug: 'announcing-nodrix-1-0',
     items: [
       'Telemetry over HTTPS or WebSocket — variables auto-create on first sight, no schema, no broker.',
       'Realtime drag-and-drop dashboards over hibernating WebSockets, shareable by public link.',
@@ -63,6 +64,11 @@ const jsonLd = jsonLdGraph(
               <span class="text-sm text-neutral-400">{e.date}</span>
             </div>
             <h2 class="mt-3 text-xl font-bold tracking-tight text-neutral-900">{e.title}</h2>
+            {e.postSlug && (
+              <a href={`/blog/${e.postSlug}`} class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-accent-600 hover:text-accent-700">
+                Read the release notes <span aria-hidden="true">→</span>
+              </a>
+            )}
             <ul class="mt-4 space-y-2 text-sm leading-relaxed text-neutral-600">
               {e.items.map((it) => (
                 <li class="flex gap-2.5">

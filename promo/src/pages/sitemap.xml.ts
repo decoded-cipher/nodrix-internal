@@ -1,6 +1,9 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
+const iso = (d: Date) => d.toISOString().split('T')[0];
+const STATIC_LASTMOD = '2026-06-17';
+
 // Static top-level pages. Add new ones here.
 const staticRoutes: { path: string; priority: string }[] = [
   { path: '', priority: '1.0' },
@@ -19,16 +22,19 @@ export const GET: APIRoute = async ({ site }) => {
   const guides = await getCollection('guides');
   const guideRoutes = guides
     .filter((g) => !g.data.draft)
-    .map((g) => ({ path: `guides/${g.id}`, priority: '0.7' }));
+    .map((g) => ({ path: `guides/${g.id}`, priority: '0.7', lastmod: iso(g.data.dateUpdated ?? g.data.datePublished) }));
 
   const blog = await getCollection('blog');
   const blogRoutes = blog
     .filter((p) => !p.data.draft)
-    .map((p) => ({ path: `blog/${p.id}`, priority: '0.7' }));
+    .map((p) => ({ path: `blog/${p.id}`, priority: '0.7', lastmod: iso(p.data.dateUpdated ?? p.data.datePublished) }));
 
-  const lastmod = new Date().toISOString().split('T')[0];
-  const urls = [...staticRoutes, ...guideRoutes, ...blogRoutes]
-    .map(({ path, priority }) => {
+  const urls = [
+    ...staticRoutes.map((r) => ({ ...r, lastmod: STATIC_LASTMOD })),
+    ...guideRoutes,
+    ...blogRoutes,
+  ]
+    .map(({ path, priority, lastmod }) => {
       const loc = new URL(path, site).href;
       return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
     })

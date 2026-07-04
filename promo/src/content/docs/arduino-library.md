@@ -274,11 +274,11 @@ instead.
 
 The repository ships five worked examples:
 
-- **LedControl** — toggle the on-board LED from a dashboard.
-- **HomeLights** — two independently controlled lights or relays.
-- **MultiWiFi** — connect through several networks with failover.
-- **SensorTelemetry** — periodic readings over a cert-pinned socket.
-- **DeepSleepSensor** — HTTP mode: wake, report, apply control, deep sleep.
+- [**LedControl**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/LedControl) — toggle the on-board LED from a dashboard.
+- [**HomeLights**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/HomeLights) — two independently controlled lights or relays.
+- [**MultiWiFi**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/MultiWiFi) — connect through several networks with failover.
+- [**SensorTelemetry**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/SensorTelemetry) — periodic readings over a cert-pinned socket.
+- [**DeepSleepSensor**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/DeepSleepSensor) — HTTP mode: wake, report, apply control, deep sleep.
 
-Grab them from [github.com/decoded-cipher/nodrix-sdk](https://github.com/decoded-cipher/nodrix-sdk),
-flash `LedControl`, and bind a toggle to `led` to see it end to end.
+Each name links to its sketch. Flash `LedControl`, bind a dashboard toggle to `led`, and you'll see
+it end to end.

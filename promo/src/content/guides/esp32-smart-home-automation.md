@@ -105,7 +105,8 @@ the relay switches.
 One socket carries the whole house: toggle states come down it the instant you tap the dashboard or
 a scene fires, and each relay's real state goes back up so the controls never lie. The
 [nodrix Arduino library](https://github.com/decoded-cipher/nodrix-sdk) holds that socket, acks each
-command, and reconnects on its own, so the sketch is just four relays and their handlers.
+command, and reconnects on its own, so the sketch is just four relays and their handlers — the
+complete version is the [HomeLights example](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/HomeLights).
 
 ```cpp
 #include <Nodrix.h>

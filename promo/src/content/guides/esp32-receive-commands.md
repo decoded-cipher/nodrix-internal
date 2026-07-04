@@ -129,7 +129,8 @@ it:
   works behind home routers, captive portals, and cellular NAT — port 443 is open everywhere.
 - **One token, one project.** The same project token authorizes telemetry, control, and the socket;
   treat it as a secret and load it from config for anything real.
-- **Install it.** Arduino Library Manager or PlatformIO; source at
-  [github.com/decoded-cipher/nodrix-sdk](https://github.com/decoded-cipher/nodrix-sdk).
+- **Install it.** Arduino Library Manager or PlatformIO; source and the
+  [`LedControl` example](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/LedControl)
+  at [github.com/decoded-cipher/nodrix-sdk](https://github.com/decoded-cipher/nodrix-sdk).
 - **It runs on your account.** The control queue and dashboard live in a nodrix instance on your own
   Cloudflare account — single-tenant, nothing leaving your tenancy.

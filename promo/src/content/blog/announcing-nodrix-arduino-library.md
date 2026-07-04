@@ -209,7 +209,9 @@ shortest path onto it from an ESP32.
 ## Get it
 
 The library is at `0.1.0` and focused on doing one job well. If you build with ESP32 or ESP8266, the
-fastest way to feel the difference is to flash the `LedControl` example and bind a toggle to `led`.
+fastest way to feel the difference is to flash the
+[`LedControl`](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/LedControl) example
+and bind a toggle to `led`.
 
 - **Reference:** [the Arduino library docs](/docs/arduino-library) — install, API, transports, TLS.
 - **Source & examples:** [github.com/decoded-cipher/nodrix-sdk](https://github.com/decoded-cipher/nodrix-sdk).

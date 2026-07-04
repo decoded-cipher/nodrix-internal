@@ -95,14 +95,18 @@ to nodrix instead — the metric key becomes a variable the first time it's seen
 
 ```cpp
 #include <Nodrix.h>
+#include <DHT.h>
+
+DHT dht(4, DHT11);
 
 void setup() {
+  dht.begin();
   Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
 }
 
 void loop() {
   Nodrix.run();
-  Nodrix.send("temperature", readTemp());   // was feed("temperature")->save(t)
+  Nodrix.send("temperature", dht.readTemperature());   // was feed("temperature")->save(t)
 }
 ```
 

@@ -116,17 +116,21 @@ and sleep on a timer. That's the entire life of a battery node.
 ```cpp
 #include <WiFi.h>
 #include <Nodrix.h>
+#include <DHT.h>
 #include <esp_sleep.h>
 
 #define SLEEP_MINUTES 15
 const char* HOST  = "nodrix.you.workers.dev";   // bare host, no https://
 const char* TOKEN = "tok_your_project_token";
 
+DHT dht(4, DHT11);
+
 void setup() {
+  dht.begin();
   fastConnect();                                  // RTC-cached association (above)
   if (WiFi.status() == WL_CONNECTED) {
     Nodrix.beginHTTP(HOST, TOKEN);                // reuses the live connection
-    Nodrix.send("temperature", readTemp());       // your sensor
+    Nodrix.send("temperature", dht.readTemperature());
     Nodrix.flush();                               // POST the reading
     Nodrix.poll();                                // apply queued commands while we're up
   }

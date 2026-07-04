@@ -57,12 +57,16 @@ One token, both directions. That's the whole protocol surface.
 
 ```cpp
 #include <Nodrix.h>
+#include <DHT.h>
 
 const char* HOST  = "nodrix.you.workers.dev";   // bare host, no https://
 const char* TOKEN = "tok_your_project_token";
 
+DHT dht(D2, DHT11);
+
 void setup() {
   Serial.begin(115200);
+  dht.begin();
   Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
 }
 ```
@@ -79,8 +83,8 @@ void loop() {
   static uint32_t last = 0;
   if (millis() - last > 10000) {
     last = millis();
-    Nodrix.send("temperature", readTemp());
-    Nodrix.send("humidity", readHumidity());
+    Nodrix.send("temperature", dht.readTemperature());
+    Nodrix.send("humidity", dht.readHumidity());
   }
 }
 ```
@@ -113,9 +117,10 @@ it, `ESP.deepSleep()` puts the board to sleep and it never comes back.
 
 void setup() {
   Serial.begin(115200);
+  dht.begin();
   Nodrix.beginHTTP(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
-  Nodrix.send("temperature", readTemp());
-  Nodrix.send("humidity", readHumidity());
+  Nodrix.send("temperature", dht.readTemperature());
+  Nodrix.send("humidity", dht.readHumidity());
   Nodrix.flush();   // POST the batch
   Nodrix.poll();    // grab queued commands while awake
   ESP.deepSleep((uint64_t)SLEEP_MINUTES * 60ULL * 1000000ULL);  // wakes via GPIO16 -> RST

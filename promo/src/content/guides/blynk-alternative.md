@@ -97,18 +97,22 @@ your own Cloudflare, not Blynk's cloud.
 
 ```cpp
 #include <Nodrix.h>
+#include <DHT.h>
+
+DHT dht(4, DHT11);
 
 NODRIX_WRITE("led") {                 // Blynk's BLYNK_WRITE(V1), minus the vendor cloud
   digitalWrite(LED_PIN, value.asBool());
 }
 
 void setup() {
+  dht.begin();
   Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
 }
 
 void loop() {
   Nodrix.run();
-  Nodrix.send("temperature", readTemp());   // was Blynk.virtualWrite(V2, t)
+  Nodrix.send("temperature", dht.readTemperature());   // was Blynk.virtualWrite(V2, t)
 }
 ```
 

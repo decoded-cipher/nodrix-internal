@@ -92,7 +92,7 @@ after you report — the board is already connected, so the extra request is nea
 
 void setup() {
   Nodrix.beginHTTP(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
-  Nodrix.send("soil", readSoil());
+  Nodrix.send("soil", analogRead(34));
   Nodrix.flush();   // POST telemetry
   Nodrix.poll();    // fetch + apply queued writes, then ack
 

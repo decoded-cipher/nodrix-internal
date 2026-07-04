@@ -89,14 +89,18 @@ No IDE lock-in. On an ESP32 or ESP8266, the optional nodrix library makes it a f
 
 ```cpp
 #include <Nodrix.h>
+#include <DHT.h>
+
+DHT dht(4, DHT11);
 
 void setup() {
+  dht.begin();
   Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
 }
 
 void loop() {
   Nodrix.run();
-  Nodrix.send("temperature", readTemp());
+  Nodrix.send("temperature", dht.readTemperature());
 }
 ```
 

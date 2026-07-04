@@ -180,7 +180,7 @@ A device lives one of two ways, and the library matches both without changing yo
 ```cpp
 void setup() {
   Nodrix.beginHTTP(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
-  Nodrix.send("soil", readSoil());
+  Nodrix.send("soil", analogRead(34));
   Nodrix.flush();   // POST telemetry
   Nodrix.poll();    // fetch + apply queued control, then ack
   // ... then esp_deep_sleep_start()
@@ -278,8 +278,8 @@ The repository ships five worked examples:
 - [**LedControl**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/LedControl) — toggle the on-board LED from a dashboard.
 - [**HomeLights**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/HomeLights) — two independently controlled lights or relays.
 - [**MultiWiFi**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/MultiWiFi) — connect through several networks with failover.
-- [**SensorTelemetry**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/SensorTelemetry) — periodic readings over a cert-pinned socket.
-- [**DeepSleepSensor**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/DeepSleepSensor) — HTTP mode: wake, report, apply control, deep sleep.
+- [**SensorTelemetry**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/SensorTelemetry) — DHT11 temperature/humidity over a cert-pinned socket.
+- [**DeepSleepSensor**](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/DeepSleepSensor) — HTTP mode: read a DHT11, report, apply control, deep sleep.
 
 Each name links to its sketch. Flash `LedControl`, bind a dashboard toggle to `led`, and you'll see
-it end to end.
+it end to end. The two DHT11 examples need the **DHT sensor library** by Adafruit.

@@ -82,8 +82,9 @@ a compromise — it is the simpler correct choice.
   ESP8266, which the library also supports).
 - A sensor. The examples use a BME280 (temperature, humidity, pressure) over I2C, but any reading
   works.
-- The **Arduino IDE** (or PlatformIO) with the ESP32 board package and two libraries from the
-  Library Manager: **Nodrix** and **ArduinoJson**.
+- The **Arduino IDE** (or PlatformIO) with the ESP32 board package and these libraries from the
+  Library Manager: **Nodrix**, **ArduinoJson**, and — for the BME280 — **Adafruit BME280** plus
+  **Adafruit Unified Sensor**.
 - A cloud endpoint. We use a nodrix instance: deploy once to your Cloudflare account, create a
   project, and mint a **project token** — that token is the device's key.
 
@@ -116,12 +117,16 @@ openssl s_client -showcerts -connect nodrix.you.workers.dev:443 </dev/null
 
 ```cpp
 #include <Nodrix.h>
+#include <Adafruit_BME280.h>
 
 const char* HOST  = "nodrix.you.workers.dev";   // bare host, no https://
 const char* TOKEN = "tok_your_project_token";
 
+Adafruit_BME280 bme;
+
 void setup() {
   Serial.begin(115200);
+  bme.begin(0x76);                               // 0x76 or 0x77, per your board
   Nodrix.setCACert(ROOT_CA);                     // omit for the insecure default
   Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
 }
@@ -139,8 +144,8 @@ void loop() {
   static uint32_t last = 0;
   if (millis() - last > 10000) {
     last = millis();
-    Nodrix.send("temperature", readTemp());
-    Nodrix.send("humidity", readHumidity());
+    Nodrix.send("temperature", bme.readTemperature());
+    Nodrix.send("humidity", bme.readHumidity());
   }
 }
 ```
@@ -208,11 +213,12 @@ void fastConnect() {
 
 void setup() {
   Serial.begin(115200);
+  bme.begin(0x76);
   fastConnect();
   if (WiFi.status() == WL_CONNECTED) {
     Nodrix.beginHTTP(HOST, TOKEN);              // reuses the live connection
-    Nodrix.send("temperature", readTemp());
-    Nodrix.send("humidity", readHumidity());
+    Nodrix.send("temperature", bme.readTemperature());
+    Nodrix.send("humidity", bme.readHumidity());
     Nodrix.flush();                             // POST the batch
     Nodrix.poll();                              // grab any queued commands while we're up
   }

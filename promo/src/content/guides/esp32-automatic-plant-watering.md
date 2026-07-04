@@ -166,28 +166,25 @@ capped burst per command, and report the pump state back so the dashboard reflec
 
 const char* WIFI_SSID = "your-ssid";
 const char* WIFI_PASS = "your-password";
-const char* HOST      = "nodrix.you.workers.dev";   // host only — no https://
+const char* HOST      = "nodrix.you.workers.dev";
 const char* TOKEN     = "tok_your_project_token";
 
-const int SENSOR_PIN = 34;          // ADC1, input-only, no Wi-Fi clash
-const int PUMP_PIN   = 26;          // switches the relay/MOSFET, never the pump itself
-const int DRY = 3200;               // raw ADC reading in dry air   (calibrate)
-const int WET = 1300;               // raw ADC reading submerged     (calibrate)
-const int BURST_MS = 5000;          // one capped watering pulse
+const int SENSOR_PIN = 34;
+const int PUMP_PIN   = 26;
+const int DRY = 3200;        // raw ADC reading in dry air — calibrate
+const int WET = 1300;        // raw ADC reading submerged — calibrate
+const int BURST_MS = 5000;
 
 int readMoisture() {
   long sum = 0;
   for (int i = 0; i < 16; i++) { sum += analogRead(SENSOR_PIN); delay(10); }
-  return constrain(map(sum / 16, DRY, WET, 0, 100), 0, 100);   // averaged, 0-100%
+  return constrain(map(sum / 16, DRY, WET, 0, 100), 0, 100);
 }
 
-// Runs whenever the cloud writes `pump`. On "on", pour one short, capped burst
-// and report the state back so the dashboard stays honest.
 NODRIX_WRITE("pump") {
-  if (!value.asBool()) { digitalWrite(PUMP_PIN, LOW); Nodrix.send("pump", false); return; }
-  Nodrix.send("pump", true);
-  digitalWrite(PUMP_PIN, HIGH);   // active-LOW relay? invert this and the line below
-  delay(BURST_MS);                // short, capped burst — finishes even if Wi-Fi drops
+  if (!value.asBool()) { digitalWrite(PUMP_PIN, LOW); return; }
+  digitalWrite(PUMP_PIN, HIGH);
+  delay(BURST_MS);
   digitalWrite(PUMP_PIN, LOW);
   Nodrix.send("pump", false);
   Nodrix.event("watered");
@@ -196,15 +193,15 @@ NODRIX_WRITE("pump") {
 void setup() {
   pinMode(PUMP_PIN, OUTPUT);
   digitalWrite(PUMP_PIN, LOW);
-  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);   // one socket, both directions
+  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
 }
 
 void loop() {
   Nodrix.run();
 
-  static unsigned long lastTelemetry = 0;
-  if (millis() - lastTelemetry >= 5UL * 60 * 1000) {   // report moisture every 5 min
-    lastTelemetry = millis();
+  static unsigned long lastReading = 0;
+  if (millis() - lastReading >= 5UL * 60 * 1000) {
+    lastReading = millis();
     Nodrix.send("soil_moisture", readMoisture());
   }
 }

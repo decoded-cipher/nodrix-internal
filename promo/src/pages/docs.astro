@@ -71,14 +71,27 @@ const jsonLd = {
             </li>
           ))}
         </ul>
-        <div class="mt-6 rounded-lg border border-accent-100 bg-accent-50/60 p-3">
-          <p class="text-[11px] font-semibold uppercase tracking-wider text-accent-700">Library</p>
-          <a href="/docs/arduino-library" class="group mt-1.5 flex items-center gap-1 text-sm font-semibold text-accent-700 hover:text-accent-800">
-            Arduino library
-            <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">→</span>
-          </a>
-          <p class="mt-1 text-xs leading-relaxed text-neutral-500">ESP32 and ESP8266 device library.</p>
-        </div>
+        <a
+          href="/docs/arduino-library"
+          class="group mt-6 block rounded-xl border border-accent-200/70 bg-gradient-to-b from-accent-50 to-white p-3.5 shadow-sm transition-all hover:border-accent-300 hover:shadow-md"
+        >
+          <div class="flex items-center justify-between">
+            <span class="grid h-8 w-8 place-items-center rounded-lg bg-accent-100 text-accent-600">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="7" y="7" width="10" height="10" rx="1.5" />
+                <path d="M10 3v3 M14 3v3 M10 18v3 M14 18v3 M3 10h3 M3 14h3 M18 10h3 M18 14h3" />
+              </svg>
+            </span>
+            <span aria-hidden="true" class="text-accent-400 transition-transform group-hover:translate-x-0.5">→</span>
+          </div>
+          <p class="mt-2.5 text-[11px] font-semibold uppercase tracking-wider text-accent-600">Library reference</p>
+          <p class="mt-0.5 text-sm font-bold text-neutral-900">Arduino library</p>
+          <p class="mt-1 text-xs leading-relaxed text-neutral-500">WiFi, TLS, JSON, and acks in a few lines.</p>
+          <div class="mt-2.5 flex flex-wrap gap-1">
+            <span class="rounded-full border border-neutral-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-neutral-500">ESP32</span>
+            <span class="rounded-full border border-neutral-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-neutral-500">ESP8266</span>
+          </div>
+        </a>
       </nav>
     </aside>
 

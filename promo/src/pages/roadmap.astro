@@ -5,29 +5,52 @@ import { breadcrumb, jsonLdGraph } from '../lib/seo';
 
 const repoUrl = 'https://github.com/decoded-cipher/nodrix';
 
-// Forward-looking, no hard dates — priorities shift with feedback.
-const planned: { title: string; body: string }[] = [
+type Status = 'shipped' | 'in-progress' | 'planned';
+
+const STATUS: Record<Status, { label: string; cls: string }> = {
+  shipped: { label: 'Shipped', cls: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
+  'in-progress': { label: 'In progress', cls: 'bg-amber-50 text-amber-700 ring-amber-200' },
+  planned: { label: 'Planned', cls: 'bg-neutral-100 text-neutral-500 ring-neutral-200' },
+};
+
+const roadmap: { status: Status; title: string; body: string }[] = [
   {
+    status: 'shipped',
+    title: 'Initial stable release',
+    body: 'nodrix 1.0 — the first stable version: telemetry, realtime dashboards, two-way control, a visual automation builder, integrations, a read API, and an MCP server, all on your own Cloudflare account.',
+  },
+  {
+    status: 'shipped',
+    title: 'Arduino library for ESP32 & ESP8266',
+    body: 'Connect hardware in a few lines — <code class="inline-code">NODRIX_WRITE</code> control handlers, one-call telemetry, and WebSocket or HTTP transport, without the boilerplate.',
+  },
+  {
+    status: 'in-progress',
+    title: 'AI integration',
+    body: 'Bringing AI into the platform — natural-language insights and smarter, assistant-driven automations.',
+  },
+  {
+    status: 'planned',
     title: 'Native mobile app',
     body: 'An iOS/Android companion for dashboards and alerts, alongside the responsive web dashboards and embeddable widgets available today.',
   },
   {
+    status: 'planned',
     title: 'Over-the-air firmware updates',
     body: 'Push firmware to your devices from the platform, complementing telemetry, control, and automations.',
   },
   {
+    status: 'planned',
     title: 'Deeper automation logic',
     body: 'Richer conditions and branching in the visual automation builder for more advanced rules.',
   },
   {
+    status: 'planned',
     title: 'More boards & integrations',
     body: 'Expanded first-class board examples and additional integration targets for alerts and actions.',
   },
   {
-    title: 'AI integration',
-    body: 'Bringing AI into the platform — for natural-language insights and smarter, assistant-driven automations.',
-  },
-  {
+    status: 'planned',
     title: 'More device protocols',
     body: 'Beyond HTTPS and WebSocket — native MQTT and other common IoT protocols, so more hardware connects without a translation layer.',
   },
@@ -56,21 +79,27 @@ const jsonLd = jsonLdGraph(
       <span class="text-sm font-semibold text-accent-600">Roadmap</span>
       <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl">Where nodrix is headed</h1>
       <p class="mt-4 max-w-2xl text-base leading-relaxed text-neutral-600">
-        What's planned next. There are no hard dates — priorities shift with what makers ask for, and
-        shipped work lands in the
+        What's shipped, in progress, and next. There are no hard dates — priorities shift with what
+        makers ask for, and every release lands in the
         <a href="/changelog" class="font-semibold text-accent-600 hover:text-accent-700">changelog</a>.
       </p>
     </div>
   </section>
 
   <section class="bg-white">
-    <div class="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
+    <div class="mx-auto max-w-5xl px-5 py-12 sm:px-6 sm:py-16">
       <h2 class="text-xs font-semibold uppercase tracking-wider text-neutral-400">On the roadmap</h2>
-      <div class="mt-5 grid gap-4 sm:grid-cols-2">
-        {planned.map((p) => (
-          <div class="rounded-2xl border border-neutral-200 bg-white p-6">
-            <h3 class="text-base font-semibold text-neutral-900">{p.title}</h3>
-            <p class="mt-2 text-sm leading-relaxed text-neutral-600">{p.body}</p>
+      <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {roadmap.map((p) => (
+          <div class={`rounded-2xl border p-6 ${p.status === 'shipped' ? 'border-emerald-200 bg-emerald-50/40' : 'border-neutral-200 bg-white'}`}>
+            <span class={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${STATUS[p.status].cls}`}>
+              {p.status === 'shipped' && (
+                <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+              )}
+              {STATUS[p.status].label}
+            </span>
+            <h3 class="mt-3 text-base font-semibold text-neutral-900">{p.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-neutral-600" set:html={p.body}></p>
           </div>
         ))}
       </div>

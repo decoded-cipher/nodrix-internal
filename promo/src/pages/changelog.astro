@@ -4,7 +4,22 @@ import Waves from '../components/Waves.astro';
 import { breadcrumb, jsonLdGraph } from '../lib/seo';
 
 // Append newest entries at the top. `postSlug` links a release to its narrative blog post.
-const entries: { version: string; date: string; title: string; postSlug?: string; items: string[] }[] = [
+// Platform releases carry a `version`; companion releases (e.g. the library) carry a `tag`.
+const entries: { version?: string; tag?: string; date: string; title: string; postSlug?: string; items: string[] }[] = [
+  {
+    tag: 'Arduino library',
+    date: 'July 4, 2026',
+    title: 'Arduino library for ESP32 & ESP8266',
+    postSlug: 'announcing-nodrix-arduino-library',
+    items: [
+      '<code class="inline-code">NODRIX_WRITE</code> control handlers — handle cloud writes in a few lines, with typed value coercion.',
+      'One-call telemetry with automatic batching and wire-limit guardrails.',
+      'Two transports behind one API: an always-on WebSocket, or HTTP polling for deep-sleep nodes.',
+      'At-least-once control delivery with automatic acks, reconnect, and control-variable seeding.',
+      'Multiple WiFi networks with automatic failover, and opt-in TLS certificate pinning.',
+      'ESP32 (including S2/S3/C3/C6/H2) and ESP8266 — via Arduino Library Manager or PlatformIO.',
+    ],
+  },
   {
     version: '1.0.0',
     date: 'June 9, 2026',
@@ -55,12 +70,14 @@ const jsonLd = jsonLdGraph(
 
   <section class="bg-white">
     <div class="mx-auto max-w-3xl px-5 py-12 sm:px-6 sm:py-16">
-      <div class="space-y-12">
+      <div>
         {entries.map((e) => (
-          <article class="relative border-l-2 border-neutral-200 pl-6">
+          <article class="relative border-l-2 border-neutral-200 pb-12 pl-6 last:pb-0">
             <div class="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full border-2 border-white bg-accent-500"></div>
             <div class="flex flex-wrap items-center gap-3">
-              <span class="rounded-full bg-accent-50 px-2.5 py-0.5 text-sm font-bold text-accent-700">v{e.version}</span>
+              {e.version
+                ? <span class="rounded-full bg-accent-50 px-2.5 py-0.5 text-sm font-bold text-accent-700">v{e.version}</span>
+                : <span class="rounded-full bg-emerald-50 px-2.5 py-0.5 text-sm font-bold text-emerald-700">{e.tag}</span>}
               <span class="text-sm text-neutral-400">{e.date}</span>
             </div>
             <h2 class="mt-3 text-xl font-bold tracking-tight text-neutral-900">{e.title}</h2>
@@ -73,7 +90,7 @@ const jsonLd = jsonLdGraph(
               {e.items.map((it) => (
                 <li class="flex gap-2.5">
                   <span class="mt-2 h-1 w-1 shrink-0 rounded-full bg-neutral-300" aria-hidden="true"></span>
-                  <span>{it}</span>
+                  <span set:html={it} />
                 </li>
               ))}
             </ul>

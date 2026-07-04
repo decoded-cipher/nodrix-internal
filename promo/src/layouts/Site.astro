@@ -19,14 +19,15 @@ const clarityId = import.meta.env.PUBLIC_CLARITY_ID;
 const gaId = import.meta.env.PUBLIC_GA_ID;
 
 const repoUrl = 'https://github.com/decoded-cipher/nodrix';
+const sdkRepoUrl = 'https://github.com/decoded-cipher/nodrix-sdk';
 const productHuntUrl = 'https://www.producthunt.com/products/nodrix';
 
 const nav = [
   { href: '/#features', label: 'Features' },
-  { href: '/#how', label: 'How it works' },
   { href: '/guides', label: 'Guides' },
-  { href: '/blog', label: 'Blog' },
   { href: '/docs', label: 'Docs' },
+  { href: '/widgets', label: 'Widgets' },
+  { href: '/blog', label: 'Blog' },
 ];
 const desc = description ?? 'Open-source IoT platform that deploys to your own Cloudflare account. Hardware POSTs over HTTPS, realtime drag-and-drop dashboards, automations, and a clean read API.';
 
@@ -287,7 +288,7 @@ const jsonLd = {
                 <li><a href="/guides" class="transition-colors hover:text-accent-600">Guides</a></li>
                 <li><a href="/blog" class="transition-colors hover:text-accent-600">Blog</a></li>
                 <li><a href="/docs" class="transition-colors hover:text-accent-600">Docs</a></li>
-                <li><a href="/docs#protocol" class="transition-colors hover:text-accent-600">Device protocol</a></li>
+                <li><a href={sdkRepoUrl} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">Arduino library</a></li>
               </ul>
             </div>
             <div>

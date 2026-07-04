@@ -56,6 +56,16 @@
   font-size: 0.8125rem;
   font-weight: 400;
 }
+/* Inline code chip for custom (non-prose) layouts — changelog, roadmap, etc. */
+.inline-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background-color: var(--color-neutral-100);
+  color: var(--color-neutral-800);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.85em;
+  font-weight: 500;
+}
 /* Tailwind Typography adds backtick pseudo-elements to inline code — drop them. */
 .prose :not(pre) > code::before,
 .prose :not(pre) > code::after {

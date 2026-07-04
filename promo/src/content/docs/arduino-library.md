@@ -237,8 +237,8 @@ Nodrix.event("door_opened");
 
 ## Debug logging
 
-Build with `-DNODRIX_DEBUG` to print connection and protocol activity to Serial while bringing a
-board up. The library never calls `Serial.begin()` itself — that stays yours.
+Call `Nodrix.setDebug(true)` before `begin()` to print connection and protocol activity to Serial
+while bringing a board up. The library never calls `Serial.begin()` itself — that stays yours.
 
 ## API reference
 
@@ -259,6 +259,7 @@ board up. The library never calls `Serial.begin()` itself — that stays yours.
 | `setInsecure()` | Skip certificate validation (default) |
 | `setCACert(pem)` | Pin a root CA (ESP32) |
 | `setFingerprint(fp)` | Pin a SHA-1 fingerprint (ESP8266 HTTP) |
+| `setDebug(on)` | Log connection and protocol activity to Serial |
 | `NODRIX_WRITE("var") { ... }` | Handle a cloud write; `value` is in scope |
 
 ## Supported boards

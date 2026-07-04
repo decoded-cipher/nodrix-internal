@@ -1,6 +1,6 @@
 ---
-title: "Announcing the Nodrix Arduino library for ESP32 and ESP8266"
-description: "The new Nodrix Arduino library, explained in full — why hardware was the one place that still felt like boilerplate, what the library is, and every feature: NODRIX_WRITE control handlers, one-call telemetry, WebSocket and HTTP transports, at-least-once reliability, multi-network failover, and TLS pinning."
+title: "Why we built the Nodrix Arduino library"
+description: "Nodrix is deliberately SDK-free — and that's a feature everywhere except on a microcontroller. The story behind the optional Arduino library for ESP32 and ESP8266: the boilerplate it kills, the bug it fixes, and why it's C++ only."
 type: engineering
 author:
   name: Arjun Krishna
@@ -10,251 +10,208 @@ datePublished: 2026-07-04
 tags:
   - arduino
   - esp32
-  - esp8266
-  - library
+  - engineering
 faqs:
-  - q: "Do I have to use the library to connect hardware to nodrix?"
-    a: "No. nodrix has no required SDK — the device protocol is plain HTTPS and WebSocket with JSON, and anything that can make a request (a Raspberry Pi, a server script, an Arduino with a WiFi library) can talk to it directly. The library is optional, and it only exists for the one place the plumbing genuinely hurts: hand-written embedded C++ on an ESP32 or ESP8266."
-  - q: "Which boards does it support?"
-    a: "Every ESP32 — the original plus the S2, S3, C3, C6, and H2 variants — and ESP8266. That covers the common DevKits, XIAO ESP32-C3/S3, Arduino Nano ESP32, Seeed ESP32 boards, NodeMCU, and Wemos D1 mini. Boards that reach WiFi through a coprocessor (Pico W, UNO R4 WiFi, WiFiNINA) and cellular modules aren't supported yet."
-  - q: "Is there a Python or Node SDK too?"
-    a: "No, and there isn't planned to be one. Off a microcontroller, connecting to nodrix is already just an HTTP request or a WebSocket — a Python or Node wrapper would save almost nothing. The boilerplate only ever piled up in embedded C++, where you hand-roll WiFi, TLS, JSON, and reconnects, so that's the only place a library earns its keep."
-  - q: "How does it handle reconnects and commands sent while the device was offline?"
-    a: "Control delivery is at-least-once. The cloud holds a write until the device acks it and re-sends anything outstanding on the next connect or poll, so a command sent while the board was asleep or offline still lands. The library acks every write it delivers to your handler and reconnects on its own — you just keep handlers idempotent, which setting a pin naturally is."
-  - q: "Does it validate TLS certificates?"
-    a: "By default it connects encrypted but unverified — the fastest path to a first working device. When you're ready to pin, call setCACert() with your host's root CA on ESP32 (WebSocket and HTTP), or setFingerprint() on ESP8266 in HTTP mode. The README includes the openssl command to fetch the certificate."
+  - q: "Is nodrix still SDK-free?"
+    a: "Yes. The device protocol is still plain HTTPS and WebSocket with JSON, and any board or language can talk to nodrix directly with no library at all. The Arduino library is optional and sits on top of that open protocol — it removes boilerplate, it doesn't replace the protocol or lock you in."
+  - q: "Why is the library only for ESP32 and ESP8266?"
+    a: "Because that's the only place the boilerplate actually hurts. Off a microcontroller — a Raspberry Pi, a server script, a phone — connecting to nodrix is already just an HTTPS request, so a Python or Node wrapper would save almost nothing. In embedded C++ you hand-roll WiFi, TLS, JSON, acks, and reconnects every time, so that's where a library earns its keep."
+  - q: "Do I have to use the library?"
+    a: "No. It's optional. Anything that can make an HTTPS request or open a WebSocket can send telemetry and receive control directly — the library just does it in a few lines instead of a hundred on ESP32/ESP8266."
+  - q: "What was wrong with hand-writing the device code?"
+    a: "It's easy to get subtly wrong. A naive sketch string-matches the JSON, which misses control values that arrive as a boolean or number rather than a string, and it often forgets to acknowledge the command — so the cloud re-delivers it forever. Even a careful hand-written version is ~90 lines where the real logic is three. The library handles the acking, reconnects, control-variable seeding, and typed-value coercion for you."
 related:
-  - href: "https://github.com/decoded-cipher/nodrix-sdk"
-    label: "nodrix-sdk on GitHub"
-    desc: "The library source, examples, and installation."
+  - href: "/docs/arduino-library"
+    label: "Arduino library reference"
+    desc: "Install, API, transports, TLS — the full docs."
   - href: "/guides/esp32-receive-commands"
     label: "Receive commands on an ESP32"
-    desc: "The downlink the library runs for you, explained in depth."
-  - href: "/guides/esp32-smart-home-automation"
-    label: "Build a DIY smart home"
-    desc: "A complete build on top of the library."
+    desc: "The downlink, explained in depth."
   - href: "/docs#protocol"
     label: "Device protocol"
-    desc: "The plain HTTPS/WebSocket contract underneath."
+    desc: "The open HTTPS/WebSocket contract underneath."
 ---
 
-nodrix has always been deliberately SDK-free. A device authenticates with a token and speaks plain
+Nodrix has always been deliberately SDK-free. A device authenticates with a token and speaks plain
 HTTPS or WebSocket, so a Raspberry Pi, a server script, or anything that can make a request talks to
 it with no broker and nothing to install. That's a feature nearly everywhere — except on a
 microcontroller, where "just make an HTTPS request" quietly expands into WiFi management, a TLS
-socket, JSON parsing, protocol framing, acks, and reconnect handling. The real device logic ends up
-a few lines buried in a hundred lines of plumbing.
+socket, JSON parsing, protocol framing, acknowledgements, and reconnect handling.
 
-The new **Nodrix Arduino library** fixes exactly that, and only that. It's an open-source
-(`nodrix-sdk`) C++ library for **ESP32 and ESP8266** that hides the transport, TLS, JSON, and the
-nodrix control/telemetry protocol behind a small API, so a sketch is mostly the device's own logic
-again. This post covers why it exists, what it is, and every feature in detail.
+This is the story of the one place nodrix still felt like boilerplate, and the small Arduino library
+we wrote to fix it. If you just want the reference — install, API, transports, TLS — that lives in
+the [Arduino library docs](/docs/arduino-library). This post is the why.
 
-## Why: the sketch was mostly plumbing
+## The sketch that looks fine and isn't
 
-Here's the shape of the problem. To handle a single "turn the LED on" command from the cloud, a
-hand-written sketch has to open a TLS WebSocket, parse every inbound frame, detect the control
-message, pull out the variable and value, act on it, and then build and send an acknowledgement so
-the cloud stops re-sending — all before you've written a line of actual device behavior:
+Here's the first thing most people write to drive an LED from the cloud. It connects, opens the
+socket, and reacts to the incoming message:
 
 ```cpp
-void onWsEvent(WStype_t type, uint8_t* payload, size_t len) {
-  if (type != WStype_TEXT) return;
-  JsonDocument doc;
-  deserializeJson(doc, payload, len);
-  if (strcmp(doc["type"] | "", "control") != 0) return;
-
-  if (strcmp(doc["variable"] | "", "led") == 0) {
-    const char* v = doc["value"] | "";                 // but value can be a bool or number too
-    digitalWrite(LED_PIN, (strcmp(v, "on") == 0 || strcmp(v, "1") == 0) ? HIGH : LOW);
-  }
-
-  JsonDocument ack;                                    // now hand-build the ack frame
-  ack["type"] = "ack";
-  ack["ids"].to<JsonArray>().add(doc["id"]);
-  String out; serializeJson(ack, out);
-  ws.sendTXT(out);
-}
-```
-
-That's before the WiFi connect loop, the `beginSSL` call to `/v1/control/ws?token=…`, the reconnect
-interval, and the `ws.loop()` pump in `loop()`. And the string comparison on `value` is subtly
-wrong: control values arrive **typed**, so a toggle can send the JSON boolean `true` rather than the
-string `"on"`, and the hand-rolled check silently misses it. Every device re-implements this, and
-every device gets a corner of it wrong.
-
-With the library, that entire handler is the logic and nothing else:
-
-```cpp
-NODRIX_WRITE("led") {
-  digitalWrite(LED_PIN, value.asBool() ? HIGH : LOW);
-  Nodrix.send("led", value.asBool());
-}
-```
-
-The socket, the parse, the type coercion, and the ack are gone — handled underneath.
-
-## What it is
-
-The library ships as its own repository, [`nodrix-sdk`](https://github.com/decoded-cipher/nodrix-sdk),
-under the MIT license. Despite the "sdk" name it's a single C++/hardware library — there's no
-Python or Node client, by design, because off a microcontroller connecting to nodrix is already
-trivial. The Arduino name is `Nodrix`, so regardless of the repo you write:
-
-```cpp
-#include <Nodrix.h>
-```
-
-It depends on two well-known libraries — **ArduinoJson** (v7) and **WebSockets** (Links2004) — and
-targets **every ESP32 variant** (S2, S3, C3, C6, H2) and **ESP8266**. Here's a complete, flashable
-sketch that controls the on-board LED from a dashboard toggle:
-
-```cpp
-#include <Nodrix.h>
+#include <WiFi.h>
+#include <WebSocketsClient.h>
 #include "secret.h"
 
-const int LED_PIN = 2;
+WebSocketsClient ws;
 
-NODRIX_WRITE("led") {
-  digitalWrite(LED_PIN, value.asBool() ? HIGH : LOW);
-  Nodrix.send("led", value.asBool());
+void webSocketEvent(WStype_t type, uint8_t *payload, size_t length) {
+  if (type == WStype_TEXT) {
+    String msg = String((char*)payload);
+    if (msg.indexOf("\"value\":\"on\"")  != -1 || msg.indexOf("\"value\":\"1\"") != -1)
+      digitalWrite(LED_BUILTIN, HIGH);
+    if (msg.indexOf("\"value\":\"off\"") != -1 || msg.indexOf("\"value\":\"0\"") != -1)
+      digitalWrite(LED_BUILTIN, LOW);
+  }
 }
 
 void setup() {
-  pinMode(LED_PIN, OUTPUT);
-  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
+  pinMode(LED_BUILTIN, OUTPUT);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  while (WiFi.status() != WL_CONNECTED) delay(500);
+  ws.beginSSL(HOST, 443, ("/v1/control/ws?token=" + String(TOKEN)).c_str());
+  ws.onEvent(webSocketEvent);
 }
 
-void loop() {
-  Nodrix.run();
+void loop() { ws.loop(); }
+```
+
+It works on the bench, and it's quietly broken in two ways.
+
+**It never acknowledges the command.** Nodrix delivers control *at-least-once* — the cloud holds a
+write until the device confirms it, and re-sends anything outstanding on every reconnect. This sketch
+never acks, so the write is never "done"; it comes back every time the socket blips.
+
+**It string-matches the JSON.** It only catches the *string* `"on"` or `"1"`. But control values
+arrive **typed** — a dashboard toggle can send the JSON boolean `true` or the number `1`, and
+`"\"value\":\"1\""` matches neither. The LED silently ignores real writes. (There's a third, quieter
+issue: the cloud won't even queue a write to `led` until that variable has been seen once — so on a
+fresh project this handler may never fire at all.)
+
+## The sketch that's correct — and 90 lines
+
+Fix all of that properly and you get the version that actually belongs in production: parse the JSON,
+pull out the fields, drive the pin, and — the part everyone forgets — build and send the ack so the
+cloud stops re-delivering.
+
+```cpp
+case WStype_TEXT: {
+  JsonDocument doc;
+  if (deserializeJson(doc, payload)) return;
+
+  if (String(doc["type"] | "") == "control") {
+    String id       = doc["id"] | "";
+    String variable = doc["variable"] | "";
+    String value    = doc["value"] | "";
+
+    if (variable == "led")
+      digitalWrite(LED_BUILTIN, (value == "on" || value == "1") ? HIGH : LOW);
+
+    JsonDocument ack;                      // hand-build the ack frame
+    ack["type"] = "ack";
+    ack["ids"].to<JsonArray>().add(id);
+    String out; serializeJson(ack, out);
+    ws.sendTXT(out);
+  }
+  break;
 }
 ```
 
-That's the whole program. Everything below is what it does for you.
+That's just the message handler. Around it you still need the connect loop, `beginSSL`, a reconnect
+interval, the CONNECTED/DISCONNECTED cases, and logging — the real sketch is about ninety lines. And
+it *still* carries the typed-value bug: `doc["value"] | ""` coerces to a string, so a boolean `true`
+becomes `""` and the LED never turns on. The one line that is actually your project — *"if `led`,
+drive the pin"* — is buried in plumbing that every device re-implements and every device gets a
+corner of wrong.
 
-## Control handlers with NODRIX_WRITE
+## The rule: your sketch should only hold your logic
 
-`NODRIX_WRITE("var") { ... }` registers a handler for a variable. When a dashboard widget, an
-automation, or the API writes that variable, the block runs with a `value` in scope — no dispatch
-table to maintain and no call to wire up in `setup()`. Registration happens before `setup()` runs, so
-adding a handler is a single self-contained block anywhere in the sketch.
-
-The `value` is a `NodrixValue` that coerces the wire type for you, which is what kills the buggy
-string-sniffing from the "before" example:
-
-- `value.asBool()` — `true` for the boolean `true`, any non-zero number, or `"on"`/`"1"`/`"true"`/`"yes"`.
-- `value.asInt()` / `asLong()` — integers, parsing numeric strings.
-- `value.asFloat()` / `asDouble()` — numbers.
-- `value.asString()` — the raw string.
-- `value.isNull()` — no value.
-
-A slider that sends `42` and a toggle that sends `"on"` both just work, because the handler asks for
-the type it wants rather than guessing at the type it got.
-
-## Telemetry in one call
-
-Sending readings is a single call per metric, with overloads for every common type:
+That's the line we drew. Everything that isn't specific to *your* project — the transport, the JSON,
+the acks, the reconnects, the seeding, the type coercion — belongs to the library. Everything that is
+— which pin, which threshold, what to do when a value arrives — stays in your sketch. Held to that
+rule, the whole thing above becomes:
 
 ```cpp
-Nodrix.send("temperature", 22.5);
-Nodrix.send("online", true);
-Nodrix.send("status", "ok");
+NODRIX_WRITE("led") {
+  digitalWrite(LED_PIN, value.asBool() ? HIGH : LOW);
+  Nodrix.send("led", value.asBool());
+}
 ```
 
-Calls **stage** a metric rather than transmitting immediately; the library coalesces them into one
-frame on the next `run()` (WebSocket) or `flush()`/`poll()` (HTTP), so ten `send()` calls become one
-efficient payload. The buffer also enforces the wire limits before sending — batching within the
-per-frame metric cap, dropping over-long keys, clamping oversized strings — so a bug in one reading
-can't get the whole batch rejected.
+The socket, the parse, the ack, and the reconnect are gone — handled underneath. You call
+`Nodrix.begin(...)` once and `Nodrix.run()` in the loop, and that's the only "boilerplate" left — the
+same shape as `Blynk.run()`. And that `value.asBool()` is quietly fixing the bug both hand-written
+versions share: it coerces a JSON boolean, a number, *and* the string forms, so a toggle works no
+matter which the dashboard sends.
 
-## Two transports, same handlers
+## And that's one variable
 
-A microcontroller lives one of two ways, and the library matches both without changing your logic:
-
-- **WebSocket — `Nodrix.begin(...)`.** An always-on socket. Control writes arrive instantly and
-  telemetry streams up the same connection. Call `Nodrix.run()` every `loop()`. This is the right
-  mode for lights, relays, and anything cloud-driven.
-- **HTTP — `Nodrix.beginHTTP(...)`.** For battery and deep-sleep nodes. The device wakes, `send()`s
-  its readings and `flush()`es them, calls `poll()` to fetch and apply any pending control, and goes
-  back to sleep. No connection is held open between wakes.
-
-The same `NODRIX_WRITE` handlers fire in both modes, so you can prototype on a wall-powered board over
-WebSocket and move to a battery build on HTTP without rewriting anything on the device or the cloud.
-
-## Reliability, handled underneath
-
-The protocol's sharp edges are the real reason to use the library rather than hand-roll it, and they
-all live below the API:
-
-- **At-least-once delivery.** A control write stays queued until it's acknowledged and is re-sent on
-  the next connect or poll, so a command issued while the board was asleep or offline still lands.
-- **Automatic acks.** The library acknowledges every write it delivers to your handler, so the cloud
-  stops re-sending it. Because delivery is at-least-once you may see a command twice across a
-  reconnect, so handlers should be idempotent — setting a pin to a definite state naturally is.
-- **Reconnect and catch-up.** On the WebSocket it reconnects on its own and flushes anything that
-  queued while it was gone; liveness rides on WebSocket-level heartbeats.
-- **Control-variable seeding.** The cloud only queues writes to a variable it has already seen. The
-  library seeds registered control variables on connect and re-echoes their last known state, so a
-  reconnect restores the device's real state rather than clobbering it — and your dashboard hydrates
-  correctly the first time.
-
-## Multiple WiFi networks with failover
-
-A device that moves between a home and a workshop, or wants a hotspot as a backup, can register
-several networks. The strongest reachable one is used, and the device fails over between them mid-run
-if a network drops:
+Everything above is a single on/off LED. Real projects aren't. A smart-home board switches four
+relays; a plant watcher reads a sensor and drives a pump; a fleet is a dozen of each. In the
+hand-written world every variable is another branch to parse, another id to ack, another value to
+seed and echo — the ninety lines don't stay ninety, they grow with the project. With the library each
+variable is still just one block:
 
 ```cpp
-Nodrix.addAP("home-ssid", "home-pass");
-Nodrix.addAP("workshop-ssid", "workshop-pass");
-Nodrix.begin(HOST, TOKEN);   // no ssid/pass — connects using the list above
+NODRIX_WRITE("light_living")  { digitalWrite(LIVING,  value.asBool()); }
+NODRIX_WRITE("light_bedroom") { digitalWrite(BEDROOM, value.asBool()); }
+NODRIX_WRITE("fan")           { digitalWrite(FAN,     value.asBool()); }
 ```
 
-`begin()` and `beginHTTP()` each take either the four-argument form with inline credentials or the
-two-argument form that draws on the `addAP()` list.
+It gets sharper the moment a project needs **both transports**. Some devices are mains-powered and
+hold a socket open for instant control; others run on a battery — wake, report, sleep. Hand-rolled,
+those are two different programs: a WebSocket event loop *and* an HTTP poll-fetch-ack cycle, each with
+its own parse, ack, and reconnect. With the library it's the same handlers and a one-line switch —
+`Nodrix.begin(...)` for the always-on board, `Nodrix.beginHTTP(...)` for the sleeper. You write the
+project once; the transport is a detail. That's the number to picture: not ninety lines saved once,
+but ninety-plus lines you *don't* write in every sketch, for every variable, on every device.
 
-## TLS you can turn on when you're ready
+## Why each piece is in the library
 
-By default the library connects encrypted but unverified — the shortest path to a first working
-device. When you want to pin, call one setter before `begin()`:
+We didn't hide things to be clever — each one prevents a specific failure you'd rather never meet:
 
-- `Nodrix.setCACert(pem)` — pin the root CA on ESP32, for both WebSocket and HTTP.
-- `Nodrix.setFingerprint(fp)` — pin a SHA-1 fingerprint on ESP8266 in HTTP mode.
+- **Typed-value coercion.** Control values arrive typed: a toggle sends a boolean, a slider a number,
+  a select a string. Hand-rolled string-matching silently misses two of the three — it's the bug in
+  both sketches above.
+- **Automatic acks.** Delivery is at-least-once, so an un-acked write isn't done, it's *pending*, and
+  it comes back on every reconnect. Forgetting the ack is the most common way a device misbehaves.
+- **Control-variable seeding.** The cloud won't queue a write to a variable it has never seen, so an
+  un-seeded handler simply never fires on a fresh project — an evening lost wondering why.
+- **Reconnect and heartbeat.** Sockets drop, and a dead one can look alive for a long time. The
+  library reconnects itself and rides protocol heartbeats so a silent link gets noticed.
+- **Multiple WiFi networks, with failover.** This one is essential, not a nicety. A device that lives
+  on a network *will* lose it — a router reboots, the signal dips, a board roams between the house and
+  the workshop AP. A single hardcoded `WiFi.begin(SSID, PASS)` with no failover just goes dark and
+  stays dark. `addAP()` takes several networks and the library fails over between them mid-session, so
+  months of uptime survive a flaky connection.
+- **Telemetry batching.** Ten `send()` calls shouldn't be ten frames, and one over-long value
+  shouldn't get the whole batch rejected. The library coalesces and clamps before it sends.
 
-The README carries the `openssl s_client` one-liner to fetch your host's certificate. One honest
-limitation: on ESP8266 the WebSocket transport is always unvalidated, so for a pinned socket use an
-ESP32, or ESP8266 in HTTP mode with a fingerprint.
+None of these are exotic. They're the corners you only find after the device has run for a week —
+which is exactly why they belong in the library, written once, instead of in every sketch. The
+[reference docs](/docs/arduino-library) show how each is used.
 
-## Events and debugging
+## Why it's C++ only, and stays optional
 
-Beyond telemetry and control, a device can fire a named **event** to trigger a server-side
-automation — `Nodrix.event("door_opened")` — over the same connection. And building with
-`-DNODRIX_DEBUG` prints connection and protocol activity to Serial while you're bringing a board up.
+Two decisions people ask about.
 
-## Getting it
+**Why no Python or Node SDK?** Because the boilerplate only ever piled up in one place. Off a
+microcontroller, talking to nodrix is already a single HTTPS request or one WebSocket — a wrapper
+would save almost nothing and add a dependency to maintain. The pain was specific to embedded C++,
+so the fix is too. There is deliberately no plan for other-language SDKs.
 
-Install from the **Arduino Library Manager** (search for Nodrix) or add it to **PlatformIO**:
+**Why keep it optional?** Because the platform's whole point is that you own it, with no lock-in, and
+a mandatory SDK quietly walks that back. The device protocol stays plain, open HTTPS and WebSocket —
+the naive sketch at the top of this post still works, warts and all. The library is a convenience
+over a protocol you could always speak by hand, not a gate in front of it. That's the same reason it
+never became the headline: the hero is *your own IoT cloud on Cloudflare*; the library is just the
+shortest path onto it from an ESP32.
 
-```ini
-lib_deps =
-  bblanchon/ArduinoJson@^7
-  links2004/WebSockets@^2.6
-  https://github.com/decoded-cipher/nodrix-sdk.git
-```
+## Get it
 
-The repository ships five worked examples — a single LED, two-light home control, multi-network
-failover, cert-pinned sensor telemetry, and an HTTP deep-sleep node — so most people go from install
-to a controllable device in a few minutes. Two guides go deeper on the ideas the library runs for
-you: [receiving commands on an ESP32](/guides/esp32-receive-commands) for the downlink, and
-[building a DIY smart home](/guides/esp32-smart-home-automation) for a complete project on top of it.
+The library is at `0.1.0` and focused on doing one job well. If you build with ESP32 or ESP8266, the
+fastest way to feel the difference is to flash the `LedControl` example and bind a toggle to `led`.
 
-## What's next
+- **Reference:** [the Arduino library docs](/docs/arduino-library) — install, API, transports, TLS.
+- **Source & examples:** [github.com/decoded-cipher/nodrix-sdk](https://github.com/decoded-cipher/nodrix-sdk).
 
-The library is at 0.1.0 and focused on doing one job well. More boards — the coprocessor-WiFi and
-cellular families — and a richer set of examples are the near-term additions, and it will track the
-device protocol as nodrix grows. It stays what it is: a thin, open, no-lock-in convenience over a
-protocol you could always have spoken by hand.
-
-If you build with ESP32 or ESP8266, the fastest way to see it is to
-[grab it from the repo](https://github.com/decoded-cipher/nodrix-sdk), flash the LED example, and
-bind a toggle to `led`. The plumbing is finally somebody else's problem.
+The plumbing is finally somebody else's problem.

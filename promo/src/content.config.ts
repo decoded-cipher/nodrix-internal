@@ -45,4 +45,21 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { guides, blog };
+// Reference docs — same rendering as guides, on their own /docs/* routes.
+// A documentation track: canonical, scannable, kept in sync with the code.
+const docs = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/docs' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    datePublished: z.coerce.date(),
+    dateUpdated: z.coerce.date().optional(),
+    faqs: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
+    related: z
+      .array(z.object({ href: z.string(), label: z.string(), desc: z.string().optional() }))
+      .default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { guides, blog, docs };

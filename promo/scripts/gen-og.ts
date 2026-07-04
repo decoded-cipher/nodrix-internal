@@ -12,9 +12,12 @@ const GUIDES_DIR = resolve(HERE, '../src/content/guides');
 const GUIDES_OUT = resolve(HERE, '../public/og/guides');
 const BLOG_DIR = resolve(HERE, '../src/content/blog');
 const BLOG_OUT = resolve(HERE, '../public/og/blog');
+const DOCS_DIR = resolve(HERE, '../src/content/docs');
+const DOCS_OUT = resolve(HERE, '../public/og/docs');
 
 mkdirSync(GUIDES_OUT, { recursive: true });
 mkdirSync(BLOG_OUT, { recursive: true });
+mkdirSync(DOCS_OUT, { recursive: true });
 
 const fmtOgDate = (d: unknown): string =>
   d ? new Date(d as string).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
@@ -59,3 +62,14 @@ for (const file of blogFiles) {
   console.log(`og: blog/${slug}.png`);
 }
 console.log(`Generated ${blogFiles.length} OG image(s) -> public/og/blog/`);
+
+// Reference docs: the guide-style card, badged "Docs".
+const docFiles = readdirSync(DOCS_DIR).filter((f) => f.endsWith('.md'));
+for (const file of docFiles) {
+  const slug = basename(file, '.md');
+  const { data } = matter(readFileSync(resolve(DOCS_DIR, file), 'utf8'));
+  const png = await ogImagePng({ title: String(data.title), category: 'docs' });
+  writeFileSync(resolve(DOCS_OUT, `${slug}.png`), png);
+  console.log(`og: docs/${slug}.png`);
+}
+console.log(`Generated ${docFiles.length} OG image(s) -> public/og/docs/`);

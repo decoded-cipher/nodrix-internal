@@ -29,10 +29,16 @@ export const GET: APIRoute = async ({ site }) => {
     .filter((p) => !p.data.draft)
     .map((p) => ({ path: `blog/${p.id}`, priority: '0.7', lastmod: iso(p.data.dateUpdated ?? p.data.datePublished) }));
 
+  const docs = await getCollection('docs');
+  const docRoutes = docs
+    .filter((d) => !d.data.draft)
+    .map((d) => ({ path: `docs/${d.id}`, priority: '0.8', lastmod: iso(d.data.dateUpdated ?? d.data.datePublished) }));
+
   const urls = [
     ...staticRoutes.map((r) => ({ ...r, lastmod: STATIC_LASTMOD })),
     ...guideRoutes,
     ...blogRoutes,
+    ...docRoutes,
   ]
     .map(({ path, priority, lastmod }) => {
       const loc = new URL(path, site).href;

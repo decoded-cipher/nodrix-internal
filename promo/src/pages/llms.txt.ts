@@ -24,6 +24,7 @@ export const GET: APIRoute = ({ site }) => {
 ## Pages
 - [Home](${u()}): Product overview, features, and how it works.
 - [Documentation](${u('docs')}): Device protocol, read API, automation model, and MCP.
+- [Arduino library](${u('docs/arduino-library')}): Reference for the optional ESP32/ESP8266 library — NODRIX_WRITE control handlers, telemetry, WebSocket/HTTP transports, and TLS pinning.
 - [Widgets](${u('widgets')}): Built-in, framework-agnostic Web Component widgets.
 - [Guides](${u('guides')}): Hands-on IoT guides — connect an ESP32 to the cloud over HTTPS (no MQTT broker), receive commands back, deep-sleep battery builds, and more.
 - [Blog](${u('blog')}): Release notes, build-in-public engineering stories, and case studies.

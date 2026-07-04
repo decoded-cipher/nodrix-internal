@@ -210,15 +210,22 @@ device. To pin a certificate, call one setter before `begin()`:
 - `Nodrix.setCACert(pem)` — pin the root CA on ESP32, for both WebSocket and HTTP.
 - `Nodrix.setFingerprint(fp)` — pin a SHA-1 fingerprint on ESP8266 in HTTP mode.
 
-Fetch the root CA for your host with `openssl` and paste the last certificate block into `secret.h`:
+Pin the **root CA**, not the server (leaf) certificate — the leaf rotates every ~90 days, the root
+does not. Your host already serves its root as the last block of the TLS chain; pull that block
+straight into `secret.h`:
 
 ```sh
 openssl s_client -showcerts -servername yourproject.workers.dev \
-  -connect yourproject.workers.dev:443 </dev/null
+  -connect yourproject.workers.dev:443 </dev/null 2>/dev/null \
+| awk '/BEGIN CERTIFICATE/{c++; b=""} {b=b $0 ORS} /END CERTIFICATE/{last=b} END{printf "\n%s", last}'
 ```
 
+For Cloudflare `*.workers.dev` that returns GTS Root R4 — the one shipped in the `SensorTelemetry`
+example. A custom domain returns its own root; the command is the same.
+
 One limitation to know: on ESP8266 the WebSocket transport is always unvalidated. For a pinned
-socket, use an ESP32, or ESP8266 in HTTP mode with a fingerprint.
+socket, use an ESP32, or ESP8266 in HTTP mode with a fingerprint — but a fingerprint pins the leaf,
+so it must be refreshed on each rotation; prefer a root CA where you can.
 
 ## Events
 

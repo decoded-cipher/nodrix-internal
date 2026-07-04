@@ -65,6 +65,13 @@ const steps = [
   },
 ];
 
+const updates = [
+  { tag: 'Release', href: '/blog/announcing-nodrix-arduino-library', label: 'Arduino library for ESP32 & ESP8266' },
+  { tag: 'Guide', href: '/guides/esp32-smart-home-automation', label: 'Build a DIY smart home with an ESP32' },
+  { tag: 'Release', href: '/blog/announcing-nodrix-1-0', label: 'nodrix 1.0 is live' },
+  { tag: 'Guide', href: '/guides/esp32-automatic-plant-watering', label: 'ESP32 automatic plant watering' },
+];
+
 const widgets = [
   { name: 'iot-value', kind: 'Display', desc: 'Latest reading of a variable.' },
   { name: 'iot-gauge', kind: 'Display', desc: 'Arc gauge with min / max bounds.' },
@@ -80,8 +87,47 @@ const widgets = [
   title="nodrix — your own IoT cloud, on Cloudflare"
   description="Open-source, single-tenant IoT platform that deploys to your own Cloudflare account. Hardware over HTTPS or WebSocket, realtime dashboards, automations, and a clean read API."
 >
+  <!-- What's-new ticker -->
+  <div class="marquee-bar border-b border-neutral-200/70 bg-neutral-50/80 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center gap-3 px-5 sm:gap-4 sm:px-6">
+      <span class="flex shrink-0 items-center gap-1.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-accent-700">
+        <span class="relative flex h-1.5 w-1.5">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-400 opacity-75"></span>
+          <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent-500"></span>
+        </span>
+        <span class="hidden sm:inline">What's new</span>
+      </span>
+      <div class="marquee-viewport relative min-w-0 flex-1 overflow-hidden">
+        <div class="marquee-track flex w-max py-1.5">
+          <ul class="flex items-center">
+            {updates.map((u) => (
+              <li class="mr-10 shrink-0">
+                <a href={u.href} class="group inline-flex items-center gap-2 whitespace-nowrap text-[13px] text-neutral-600 transition-colors hover:text-neutral-900">
+                  <span class="rounded bg-accent-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-700">{u.tag}</span>
+                  <span class="font-medium">{u.label}</span>
+                  <span aria-hidden="true" class="text-accent-500 transition-transform group-hover:translate-x-0.5">→</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <ul class="flex items-center" aria-hidden="true">
+            {updates.map((u) => (
+              <li class="mr-10 shrink-0">
+                <a href={u.href} tabindex="-1" class="group inline-flex items-center gap-2 whitespace-nowrap text-[13px] text-neutral-600 transition-colors hover:text-neutral-900">
+                  <span class="rounded bg-accent-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-accent-700">{u.tag}</span>
+                  <span class="font-medium">{u.label}</span>
+                  <span aria-hidden="true" class="text-accent-500 transition-transform group-hover:translate-x-0.5">→</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Hero -->
-  <section class="relative flex min-h-[calc(100svh-3.5rem)] items-center overflow-hidden border-b border-neutral-200/70">
+  <section class="relative flex min-h-[calc(100svh-5.5rem)] items-center overflow-hidden border-b border-neutral-200/70">
     <div class="aurora" aria-hidden="true">
       <span class="a1"></span>
       <span class="a2"></span>
@@ -332,4 +378,30 @@ const widgets = [
       </div>
     </div>
   </section>
+
+  <style>
+    .marquee-viewport {
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 1.5rem, #000 calc(100% - 1.5rem), transparent);
+      mask-image: linear-gradient(to right, transparent, #000 1.5rem, #000 calc(100% - 1.5rem), transparent);
+    }
+    .marquee-track {
+      animation: marquee-scroll 42s linear infinite;
+    }
+    .marquee-bar:hover .marquee-track {
+      animation-play-state: paused;
+    }
+    @keyframes marquee-scroll {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .marquee-track {
+        animation: none;
+      }
+    }
+  </style>
 </Site>

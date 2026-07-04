@@ -36,72 +36,65 @@ related:
     desc: "The trigger and action model behind the watering logic."
 ---
 
-A capacitive sensor and a small pump are all the hardware a plant needs to water itself. The
-interesting part is everything around them: deciding *when* to water without over-watering, doing
-it reliably when Wi-Fi flakes, and being able to change your mind later without unplugging
-anything. This build puts the sensor and pump on an ESP32 and keeps every decision in the cloud,
-so the firmware you flash once never has to change.
+A capacitive sensor and a small pump are all a plant needs to water itself. The hard part is
+deciding when to water without over-watering, doing it reliably when Wi-Fi flakes, and being able to
+retune later without unplugging anything. This build puts the sensor and pump on an ESP32 and keeps
+every decision in the cloud, so the firmware you flash once never changes.
 
-The board does two things and nothing else: it reports a moisture number, and it runs the pump
-when it's told to. The watering rules, the dashboard, the alerts, and the safety checks all live
-in nodrix, which runs on **your own Cloudflare account** — so there's no broker to operate, no
-server to keep alive, and no data leaving your tenancy.
+The board does two things: report a moisture number, and run the pump when told. The rules,
+dashboard, alerts, and safety checks live in nodrix on **your own Cloudflare account** — no broker to
+operate, no server to keep alive, no data leaving your tenancy.
 
 ## The idea: a dumb device and a smart cloud
 
-Putting the watering logic on the ESP32 works on the bench and bites you later: the thresholds are
-baked into a binary, tuning them means reflashing, and the board can't tell you it's been watering
-hourly because the sensor came loose. Split the system the other way instead:
+Bake the watering logic into the ESP32 and every tweak means reflashing — and the board can't tell
+you it's been watering hourly because the sensor came loose. Split it the other way:
 
-- **The device reports state and reacts to commands** — it sends `soil_moisture` and watches for a
-  `pump` flag. That contract almost never changes.
-- **The cloud holds the logic** — thresholds, burst length, the trigger-condition-action flow, and
-  alert channels are edited in nodrix and apply on the next reading, no reflash.
-- **The cloud holds the memory** — every reading is stored and charted, so the watering rhythm is
-  visible and a misbehaving sensor is obvious at a glance.
+- **The device reports and reacts** — it sends `soil_moisture` and watches for a `pump` flag. That
+  contract rarely changes.
+- **The cloud holds the logic** — thresholds, burst length, and the trigger-condition-action flow are
+  edited in nodrix and apply on the next reading, no reflash.
+- **The cloud holds the memory** — every reading is stored and charted, so a misbehaving sensor is
+  obvious at a glance.
 
 ## What you'll build
 
 - A live **soil-moisture gauge** and a rolling **24-hour chart** of the watering rhythm.
 - **Automatic watering**: the pump runs when the soil dries out and stops once it recovers.
 - A **pump toggle** for watering on demand, and a **value** readout of the current pump state.
-- A **Telegram alert** each time the plant is watered, and a scheduled **reservoir check** that
-  warns you when watering stops helping.
+- A **Telegram alert** each time the plant is watered, and a scheduled **reservoir check**.
 
 ## What you'll need
 
-- An **ESP32** dev board (any of the common DevKit variants).
-- A **capacitive** soil-moisture sensor. Avoid the cheap resistive forks — they corrode within
-  weeks because they pass current through wet soil.
-- A **5V pump** plus a **relay module or logic-level MOSFET**, tubing, and a small reservoir.
-- A **separate 5V supply** sized for the pump's stall current. Don't run the pump off the board.
+- An **ESP32** dev board (any common DevKit variant).
+- A **capacitive** soil-moisture sensor — not the resistive forks, which corrode within weeks.
+- A **5V pump**, a **relay module or logic-level MOSFET**, tubing, and a small reservoir.
+- A **separate 5V supply** sized for the pump's stall current — don't run the pump off the board.
 - The **Arduino IDE** with the ESP32 board package and the **Nodrix** library from the Library
   Manager (it pulls in ArduinoJson and WebSockets).
 - A **nodrix instance** with a project and a project token.
 
-## Reading the soil honestly
+## Reading the soil
 
-A capacitive sensor outputs an analog voltage that tracks how much water is around its probe — high
-in dry air, low when wet. The ESP32 reads that on a 12-bit ADC (0–4095), and two details bite
-people:
+A capacitive sensor outputs a voltage that tracks moisture — high in dry air, low when wet. The
+ESP32 reads it on a 12-bit ADC (0–4095), with two gotchas:
 
-- **Use an ADC1 pin.** The ESP32's ADC2 channels are shared with the Wi-Fi radio, so once you're
-  connected an analog read on ADC2 returns nonsense. **GPIO34** is on ADC1, is input-only, and has
-  no internal pull-up — ideal for a sensor output.
-- **The reading is noisy and non-linear.** Raw ADC samples jitter, and the converter is least
-  accurate near its rails. Averaging a handful of samples smooths the jitter; a two-point
-  calibration handles the rest.
+- **Use an ADC1 pin.** ADC2 is shared with the Wi-Fi radio, so an analog read there returns nonsense
+  once connected. **GPIO34** is on ADC1, input-only, and has no internal pull-up — ideal for a sensor
+  output.
+- **Average the samples.** Raw readings jitter and are least accurate near the rails; averaging a
+  handful smooths it.
 
-Calibration is just two numbers. Read the raw value in open air (`DRY`) and fully submerged
-(`WET`), then map everything between them to a 0–100% scale. Those anchors shift with soil type and
-pot size, so calibrate in the setup you'll actually run — and remember that "30% moisture" only
-means anything relative to *your* `DRY` and `WET`.
+Calibration is two numbers: the raw value in open air (`DRY`) and fully submerged (`WET`).
+Everything between maps to a 0–100% scale. Those anchors shift with soil type and pot size, so
+calibrate in the setup you'll actually run — "30% moisture" only means anything relative to your
+`DRY` and `WET`.
 
 ## Wiring
 
 The sensor's analog output goes to **GPIO34**. The pump draws far more current than a GPIO can
-supply, so the ESP32 only switches a relay or MOSFET on **GPIO26**, and the pump runs from its
-**own 5V supply** — never off a board pin.
+supply, so the ESP32 only switches a relay or MOSFET on **GPIO26**, and the pump runs from its own
+5V supply — never off a board pin.
 
 | From | To | Wire |
 |------|----|------|
@@ -115,51 +108,41 @@ supply, so the ESP32 only switches a relay or MOSFET on **GPIO26**, and the pump
 | Relay <span class="pin">NO</span> | Pump <span class="pin">+</span> | Power (switched) |
 | Pump <span class="pin">−</span> | 5V supply <span class="pin">−</span> | Ground |
 
-The sensor and relay share the ESP32's ground; the pump's separate supply only feeds the relay's
-load side. Tie the two grounds together so the control signal has a common reference.
+The sensor and relay share the ESP32's ground; the pump's separate supply feeds only the relay's
+load side. Tie the grounds together so the control signal has a common reference.
 
 ## Switching the pump safely
 
-A pump is an inductive, current-hungry load, and treating it like an LED is how boards die. Three
-rules:
+A pump is an inductive, current-hungry load, and treating it like an LED kills boards. Three rules:
 
-- **Never drive it from a GPIO.** A pin sources a few milliamps; even a small pump pulls hundreds
-  and spikes higher at stall. Use a relay or a logic-level MOSFET as the switch, powered from the
-  separate supply.
-- **Add a flyback diode** across the pump terminals, cathode to **+**. When the motor switches off
-  its collapsing field produces a reverse voltage spike; the diode gives that spike somewhere to go
-  instead of through your switch.
-- **Mind the relay's polarity.** Many relay modules are **active-low** — pulling `IN` low energizes
-  the coil. The firmware below assumes active-high (`HIGH` = on); if your board is the other way,
-  invert the two `digitalWrite` calls.
+- **Never drive it from a GPIO.** A pin sources a few milliamps; a pump pulls hundreds, more at
+  stall. Switch it with a relay or logic-level MOSFET on the separate supply.
+- **Add a flyback diode** across the pump, cathode to **+**, to absorb the reverse spike when the
+  motor switches off.
+- **Check relay polarity.** Many modules are active-low. The firmware below assumes active-high
+  (`HIGH` = on); invert the two `digitalWrite` calls if yours differs.
 
 ## The control loop
 
 The loop is deliberately gentle, because soil and water are slow:
 
 1. The ESP32 reports `soil_moisture` every few minutes.
-2. When it drops **below 30%**, the automation's dry branch sets `pump` to `on` and sends a Telegram message.
-3. The ESP32 sees `pump = on` and runs the pump in a **short, capped burst**.
-4. When moisture climbs back **above 60%**, the same automation's recovered branch sets `pump` to `off`.
+2. Below **30%**, the automation sets `pump` to `on`.
+3. The ESP32 runs a **short, capped burst**.
+4. Above **60%**, the automation sets `pump` to `off`.
 
-Two design choices matter here. The **two separated thresholds** give the system hysteresis: if it
-turned on and off at a single 45% line, normal sensor jitter would make the pump chatter. Turning
-on at 30% and only releasing at 60% builds in a dead band, so the soil genuinely wets through
-between decisions. And the burst is **capped and short** rather than "run until wet," because water
-takes time to wick to the probe — pour for thirty seconds, wait, measure again. Chasing the reading
-in real time is how you flood a desk.
-
-Because all of that lives in nodrix, none of it is compiled into the board. You can widen the dead
-band, shorten the burst, or add a "only water during daylight" condition from the dashboard, and
-the next reading picks up the new rules.
+The two thresholds give hysteresis: a single setpoint would make the pump chatter on sensor jitter,
+so turning on at 30% and only off at 60% builds a dead band that lets the soil wet through between
+decisions. And the burst is capped, not "run until wet" — water takes time to reach the probe, so it
+pours briefly, waits, and measures again. All of it lives in nodrix, so you retune from the
+dashboard without reflashing.
 
 ## The firmware
 
-One socket carries everything. Moisture and pump-state go *up* it; pump commands come *down* it the
-instant you flip the dashboard toggle or an automation fires. The
+One socket carries everything: moisture goes up, pump commands come down. The
 [nodrix Arduino library](https://github.com/decoded-cipher/nodrix-sdk) holds that socket, acks each
-command, and reconnects on its own, so the sketch is just your logic: read the sensor, run one
-capped burst per command, and report the pump state back so the dashboard reflects reality.
+command, and reconnects on its own, so the sketch is just your logic — read the sensor, run one
+capped burst per command, report the pump state back.
 
 ```cpp
 #include <Nodrix.h>
@@ -207,25 +190,22 @@ void loop() {
 }
 ```
 
-A few things worth understanding rather than copying:
+Worth understanding rather than copying:
 
-- **The library keeps it reliable.** nodrix keeps a command pending until it's acked and re-sends
-  anything undelivered the moment the socket reconnects, so a "water now" you sent while the board
-  was offline still arrives. The library acks each delivery for you. Because a burst is short and
-  self-limiting, an occasional repeat just waters a little more — there's no latch to get stuck on.
-- **The burst is self-limiting.** It's a synchronous `digitalWrite` / `delay` / `digitalWrite`, so
-  once a pulse starts it always ends, even if Wi-Fi drops in the middle. There's no path where the
-  pump latches on because a "stop" message got lost.
-- **TLS is skipped for the first run.** `Nodrix.begin()` connects on the default — encrypted but
-  unverified. For production, pin a certificate with `Nodrix.setCACert()` — see
+- **The burst is self-limiting.** It's a synchronous `digitalWrite` / `delay` / `digitalWrite`, so a
+  pulse always ends even if Wi-Fi drops mid-pour — there's no path that latches the pump on.
+- **Delivery is at-least-once.** The cloud holds a command until it's acked and re-sends on
+  reconnect, so a "water now" sent while the board was offline still arrives. The library acks for
+  you; because a burst is short, an occasional repeat just waters a little more.
+- **TLS is skipped for the first run.** `Nodrix.begin()` connects encrypted but unverified. For
+  production, pin a certificate with `Nodrix.setCACert()` — see
   [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
-- **HTTP is equally valid.** If your device wakes briefly and sleeps rather than holding a socket
-  open, `Nodrix.beginHTTP()` with `Nodrix.poll()` reports the reading and collects any pending
-  command per wake — same handler.
+- **HTTP works too.** For a wake-report-sleep node, `Nodrix.beginHTTP()` with `Nodrix.poll()` reports
+  the reading and collects any pending command per wake — same handler.
 
 ## Build the dashboard
 
-Add four widgets in the dashboard editor, each bound to a variable:
+Add four widgets, each bound to a variable:
 
 | Widget | Bind to | Shows |
 |---|---|---|
@@ -234,54 +214,45 @@ Add four widgets in the dashboard editor, each bound to a variable:
 | Toggle | `pump` | manual water-now switch |
 | Value | `pump` | current pump state |
 
-The gauge and chart update live over a hibernating WebSocket — the same kind the device holds, so
-values stream in without polling. The widgets are bidirectional: the toggle writes the same `pump`
-flag the automations use, so manual and automatic watering share one path, and the device's
-reported pump state flows back to keep the toggle and value honest.
+The gauge and chart update live over a hibernating WebSocket. The toggle writes the same `pump` flag
+the automation uses, so manual and automatic watering share one path, and the device's echoed state
+keeps the toggle and value honest.
 
-The chart is the diagnostic that earns its place. A healthy, tuned system settles into a regular
-sawtooth — a slow dry-down, a sharp recovery, repeat. When that pattern changes, the chart tells
-you before the plant does: a flattening curve means water isn't reaching the probe (empty
-reservoir, slipped tubing), and a sawtooth that's suddenly twice as fast usually means the sensor
-has shifted in the pot.
+The chart is the diagnostic that earns its place. A tuned system settles into a sawtooth — slow
+dry-down, sharp recovery, repeat. A flattening curve means water isn't reaching the probe (empty
+reservoir, slipped tubing); a sawtooth that's suddenly twice as fast usually means the sensor has
+shifted in the pot.
 
 ## Add the automation
 
-One automation runs the whole thing. It has two entry points — a live reading and a scheduled check
-— and `if-variable` conditions route each down the right branch. Every condition node has a **yes**
-and a **no** output, which is what lets a single flow express water, stop, and watch without three
-separate rules drifting out of sync. Build it in the automation editor.
+One automation runs the whole thing — two triggers routed by `if-variable` conditions. Build it in
+the automation editor.
 
-**Trigger 1 — a new `soil_moisture` reading.** It flows into a condition that branches on the value:
+**Trigger 1 — a new `soil_moisture` reading:**
 
-- **If `soil_moisture` is below 30** (the yes branch) → set `pump` to `on`, then send a Telegram
-  message such as "Soil at {{value}}% — watering now."
-- **Otherwise** (the no branch) → a second condition: **if `soil_moisture` is above 60** → set
-  `pump` to `off`.
-- **Between 30 and 60**, both conditions are false and nothing happens. That gap is the hysteresis
-  dead band — turning on and turning off are 30 points apart, so the pump can't chatter.
+- **Below 30** → set `pump` to `on`, then send a Telegram message like "Soil at {{value}}% —
+  watering now."
+- **Above 60** → set `pump` to `off`.
+- **Between 30 and 60**, nothing happens — that gap is the hysteresis dead band.
 
-**Trigger 2 — a schedule (say, twice a day).** It flows into one condition:
+**Trigger 2 — a schedule (say, twice a day):**
 
 - **If `soil_moisture` is still below 30** → send a Telegram warning to check the reservoir. Soil
-  that stays dry after watering usually means an empty reservoir or slipped tubing — something more
-  pumping won't fix.
+  that stays dry after watering usually means an empty tank or slipped tubing.
 
-nodrix evaluates the whole flow at the edge and runs the pump commands and messages itself. To
-alert on Slack, Discord, or SMS instead, swap the integration; the conditions don't change. And
-because the firmware emits a `watered` event on every pour, you can branch off that event later
-without touching the board.
+Swap the integration for Slack, Discord, or SMS without touching the conditions. And because the
+firmware emits a `watered` event on every pour, you can branch off that event later without touching
+the board.
 
 ## Reliability and failure modes
 
-A self-watering system fails unattended, so two cases are worth designing for:
+A self-watering system fails unattended, so design for two cases:
 
-- **The cloud is unreachable.** No command arrives, so the pump simply doesn't run — the safe
-  default is "off," and the capped burst means any in-flight pour still finishes on its own. If
-  watering must survive an outage, add a local fallback that runs a short burst on a low reading
-  without the cloud.
-- **The reservoir runs dry.** Pumping air does nothing and can damage some pumps. The scheduled
-  reservoir check catches moisture staying low despite watering, and the flattened chart confirms it.
+- **The cloud is unreachable.** No command arrives, so the pump stays off — the safe default — and
+  any in-flight burst finishes on its own. If watering must survive an outage, add a local fallback
+  that runs a short burst on a low reading without the cloud.
+- **The reservoir runs dry.** Pumping air does nothing and can damage some pumps. The scheduled check
+  catches moisture staying low despite watering, and the flat chart confirms it.
 
 ## Going further
 
@@ -289,11 +260,11 @@ A self-watering system fails unattended, so two cases are worth designing for:
   single cell lasts months — see [ESP32 battery life](/guides/esp32-deep-sleep-battery).
 - **Add plants by repeating.** Send `soil_moisture_2`, `soil_moisture_3`, and so on; each
   auto-creates its own variable. Add a gauge per plant and duplicate the automation — no firmware
-  change, because the device contract never assumed a single plant.
-- **Dose by volume.** Replace the fixed burst with a measured one (a known flow rate × time, or a
-  flow sensor) so each watering delivers a repeatable amount regardless of head height.
-- **React to the `watered` event.** Keep a watering log, post a daily "watered N times" summary, or
-  escalate if waterings spike — all as event-triggered automations, none of it on the board.
+  change.
+- **Dose by volume.** Replace the fixed burst with a measured one (flow rate × time, or a flow
+  sensor) so each watering delivers a repeatable amount.
+- **React to the `watered` event.** Keep a watering log, post a daily summary, or escalate if
+  waterings spike — all as event-triggered automations, none of it on the board.
 
 ## Notes
 

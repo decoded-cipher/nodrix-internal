@@ -102,8 +102,8 @@ the relay switches.
 
 ## The firmware
 
-One socket carries the whole house. Toggle states come *down* it the instant you tap the dashboard
-or a scene fires; each relay's real state goes back *up* it so the controls never lie. The
+One socket carries the whole house: toggle states come down it the instant you tap the dashboard or
+a scene fires, and each relay's real state goes back up so the controls never lie. The
 [nodrix Arduino library](https://github.com/decoded-cipher/nodrix-sdk) holds that socket, acks each
 command, and reconnects on its own, so the sketch is just four relays and their handlers.
 
@@ -144,14 +144,13 @@ void loop() {
 }
 ```
 
-A few things worth understanding rather than copying:
+Worth understanding rather than copying:
 
-- **The echo keeps controls honest.** Sending the state back inside each handler means a toggle
-  shows the relay's true position — so a scene, a schedule, and a manual tap can't leave the
-  dashboard out of sync with the wall.
-- **Handlers are idempotent.** Setting a pin to a definite on/off is safe to receive twice, which is
-  exactly what at-least-once delivery can do across a reconnect. There's no toggle-flip that a
-  duplicate could reverse.
+- **The echo keeps controls honest.** Reporting state back inside each handler means a toggle shows
+  the relay's true position — a scene, a schedule, or a manual tap can't leave the dashboard out of
+  sync with the wall.
+- **Handlers are idempotent.** Setting a pin to a definite on/off is safe to receive twice, which
+  at-least-once delivery can do across a reconnect — there's no toggle to flip the wrong way.
 - **State survives a reboot.** On reconnect the library re-applies the last known values, so the
   house comes back the way you left it after a power blip.
 - **TLS is skipped for the first run.** `Nodrix.begin()` connects encrypted but unverified. For
@@ -171,9 +170,9 @@ Add the controls in the dashboard editor, each bound to a variable:
 | Value | `light_porch` | show whether the porch light is on |
 
 Each toggle writes its variable, the library delivers it to the board, and the relay's echoed state
-flows back to settle the toggle — so the dashboard mirrors the house whether the change came from
-your thumb, a schedule, or a scene. The controls update live over a hibernating WebSocket, so
-nothing polls and an idle house costs almost nothing to keep connected.
+settles the toggle — so the dashboard mirrors the house whether the change came from your thumb, a
+schedule, or a scene. Controls update live over a hibernating WebSocket, so nothing polls and an idle
+house costs almost nothing to keep connected.
 
 ## Automations that run without you
 
@@ -200,19 +199,17 @@ weekdays" condition — and none of it touches the firmware.
 
 ## Control it from anywhere, privately
 
-The ESP32 opens the connection **outward** to nodrix, so there's nothing to expose: no port
-forwarding, no dynamic-DNS, no VPN, and it works behind the strictest home router or cellular NAT.
-Port 443 is open everywhere, and the same dashboard that runs the house on your couch runs it from
-another country.
+The ESP32 opens the connection **outward** to nodrix, so there's nothing to expose — no port
+forwarding, no dynamic DNS, no VPN — and it works behind the strictest home router or cellular NAT.
+Port 443 is open everywhere, so the dashboard runs the house from the next room or another country.
 
-And it's yours. nodrix is single-tenant on **your own Cloudflare account**, so the device history,
-the scenes, and the schedules live in your tenancy — not a shared vendor cloud that can change its
-terms or read your patterns. One project token authorizes the whole thing; treat it as a secret and
-load it from config for anything permanent.
+It's also yours: nodrix is single-tenant on **your own Cloudflare account**, so the device history,
+scenes, and schedules stay in your tenancy, not a shared vendor cloud. One project token authorizes
+the whole project — treat it as a secret and load it from config for anything permanent.
 
 ## When the internet drops
 
-A smart home has to fail gracefully, so it's worth being clear about what happens:
+A smart home has to fail gracefully:
 
 - **Wall switches never stop working.** The relays sit alongside the existing switches, so the house
   is always operable by hand.

@@ -14,7 +14,7 @@ export const GET: APIRoute = ({ site }) => {
 - Open-source (MIT) IoT backend for Cloudflare; first stable release (v1.0).
 - Single-tenant: every deployment lives in the user's own Cloudflare account.
 - One-click "Deploy to Cloudflare" — provisions Workers, Durable Objects, D1, R2, and KV.
-- Devices send telemetry over plain HTTPS (POST /v1/telemetry) or a WebSocket (/v1/control/ws); variables auto-create on first sight. No MQTT broker, no SDK.
+- Devices send telemetry over plain HTTPS (POST /v1/telemetry) or a WebSocket (/v1/control/ws); variables auto-create on first sight. No MQTT broker and no SDK required — with an optional Arduino/ESP library that wraps the protocol.
 - Realtime dashboards built from drag-and-drop widgets over hibernating WebSockets.
 - Two-way control: toggles/sliders/buttons write values back to hardware.
 - Edge automations: a visual flow builder — one or more triggers (variable thresholds, schedules, sunrise/sunset, custom events) branch through conditions into actions (set variables, call an integration over HTTP/email/chat like Slack/Telegram/Discord, or emit events).
@@ -41,6 +41,7 @@ export const GET: APIRoute = ({ site }) => {
 
 ## Source
 - [GitHub repository](${repo})
+- [Arduino/ESP library](https://github.com/decoded-cipher/nodrix-sdk)
 - License: MIT
 `;
 

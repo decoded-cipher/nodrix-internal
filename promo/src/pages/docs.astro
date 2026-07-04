@@ -126,6 +126,30 @@ const jsonLd = {
           <code class="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[13px]">Authorization: Bearer &lt;project_token&gt;</code>
         </p>
 
+        <h3 class="mt-8 text-base font-semibold text-neutral-900">Arduino / ESP library</h3>
+        <p class="mt-2 text-sm leading-relaxed text-neutral-700">
+          On ESP32 and ESP8266, the
+          <a href="https://github.com/decoded-cipher/nodrix-sdk" class="font-medium text-accent-600 hover:text-accent-700">nodrix Arduino library</a>
+          wraps all of this — WiFi, TLS, JSON, control/ack, and reconnects — behind a handful of calls.
+          Install it from the Arduino Library Manager or PlatformIO. It speaks exactly the protocol
+          below, so you can hit the endpoints directly from any language just as easily.
+        </p>
+        <pre class="mt-3 overflow-x-auto rounded-xl border border-neutral-800 bg-neutral-900 p-4 text-xs leading-relaxed text-neutral-100 sm:text-[13px]"><code>{`#include <Nodrix.h>
+
+NODRIX_WRITE("relay") {
+  digitalWrite(RELAY_PIN, value.asBool());
+}
+
+void setup() {
+  pinMode(RELAY_PIN, OUTPUT);
+  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
+}
+
+void loop() {
+  Nodrix.run();
+  Nodrix.send("temperature", readTemp());
+}`}</code></pre>
+
         <h3 class="mt-8 text-base font-semibold text-neutral-900">Send telemetry</h3>
         <p class="mt-2 text-sm leading-relaxed text-neutral-700">
           POST one or many metrics. Keys become variables, auto-created on first sight. Send

@@ -21,7 +21,7 @@ Source: ${repo}
 - Runs entirely on Cloudflare primitives — nothing to host, nothing to maintain.
 
 ## Features
-1. Telemetry over HTTPS or WebSocket — Hardware POSTs JSON to the project, or opens a WebSocket (/v1/control/ws). Variables create themselves on first sight: no schema to declare, no MQTT broker to run, no SDK to install. Anything that can make an HTTPS request can talk to nodrix.
+1. Telemetry over HTTPS or WebSocket — Hardware POSTs JSON to the project, or opens a WebSocket (/v1/control/ws). Variables create themselves on first sight: no schema to declare, no MQTT broker to run, and no SDK required. Anything that can make an HTTPS request can talk to nodrix; on ESP32/ESP8266 an optional Arduino library wraps the whole protocol.
 2. Realtime dashboards, two-way — Drop widgets onto a grid, bind them to variables, watch values stream live over hibernating WebSockets that cost nothing while idle. Toggles, sliders, and buttons write back to hardware on the same channel; devices ack when applied.
 3. Automations without a server — A visual flow builder. Each automation is a graph: one or more triggers (variable threshold, a clock, sunrise/sunset, custom event, or manual run) flow through optional conditions (if-variable comparison that branches yes/no, time window) into actions (set a variable, call an integration, emit an event). Integrations cover HTTP service (with optional HMAC request signing), email, and chat (Slack, Telegram, Discord). All evaluated at the edge.
 4. A clean read API — Edge-cached latest state, recent time-series, and variable listings behind one bearer token. Plug in Grafana, a React app, or a Raspberry Pi screen.
@@ -37,6 +37,7 @@ Source: ${repo}
 ## Device protocol (overview)
 - Send telemetry: POST /v1/telemetry with header "Authorization: Bearer <project-token>" and a JSON body like { "metrics": { "temperature": 23.4, "humidity": 61 } }. Responds 204 No Content; variables are auto-created.
 - Read state: GET /v1/projects/:proj/state returns the latest value per variable, edge-cached.
+- Arduino/ESP library: an optional library for ESP32/ESP8266 wraps the protocol — handle control writes with NODRIX_WRITE("var"){…} and push telemetry with Nodrix.send(). Repo: https://github.com/decoded-cipher/nodrix-sdk
 
 ## Widgets (framework-agnostic Web Components)
 Display:
@@ -56,6 +57,7 @@ Cloudflare Workers, Durable Objects, D1, R2, and KV.
 
 ## Source & license
 - Repository: ${repo}
+- Arduino/ESP library: https://github.com/decoded-cipher/nodrix-sdk
 - License: MIT
 `;
 

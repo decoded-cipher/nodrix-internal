@@ -18,6 +18,8 @@ New to Cloudflare? The account is free, and the deploy asks for a card only to s
 Mint a project token (a bearer token) to authenticate device telemetry and read-API calls.
 
 ## Device protocol
+On ESP32/ESP8266, the [nodrix Arduino library](https://github.com/decoded-cipher/nodrix-sdk) wraps this protocol — WiFi, TLS, JSON, control/ack, reconnects — behind \`NODRIX_WRITE(...)\` and \`Nodrix.send(...)\`. It's optional; the raw protocol below works from any language.
+
 Send telemetry:
 
 \`\`\`

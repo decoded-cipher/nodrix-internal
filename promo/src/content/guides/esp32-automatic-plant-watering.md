@@ -5,7 +5,7 @@ category: project
 board: ESP32
 difficulty: beginner
 datePublished: 2026-06-08
-dateUpdated: 2026-06-08
+dateUpdated: 2026-07-04
 faqs:
   - q: "Why does the watering logic live in the cloud instead of on the ESP32?"
     a: "So you can change it without reflashing. Thresholds, burst length, alert channels, and the whole trigger-condition-action flow are edited in nodrix and take effect on the next reading. The board keeps one job — report a number, act on a flag — which is the part you don't want to be reprogramming every time you re-pot a plant or swap a sensor."
@@ -75,8 +75,8 @@ hourly because the sensor came loose. Split the system the other way instead:
   weeks because they pass current through wet soil.
 - A **5V pump** plus a **relay module or logic-level MOSFET**, tubing, and a small reservoir.
 - A **separate 5V supply** sized for the pump's stall current. Don't run the pump off the board.
-- The **Arduino IDE** with the ESP32 board package and the **ArduinoJson** and **arduinoWebSockets**
-  (by Markus Sattler) libraries.
+- The **Arduino IDE** with the ESP32 board package and the **Nodrix** library from the Library
+  Manager (it pulls in ArduinoJson and WebSockets).
 - A **nodrix instance** with a project and a project token.
 
 ## Reading the soil honestly
@@ -155,17 +155,14 @@ the next reading picks up the new rules.
 
 ## The firmware
 
-One WebSocket carries everything. Moisture and pump-state go *up* it; pump commands come *down* it
-the instant you flip the dashboard toggle or an automation fires, so "water now" is immediate
-rather than waiting for the next poll. Cloudflare hibernates the socket, so holding it open all day
-costs almost nothing while idle. Each reading averages several samples, each command runs one
-capped burst and is acked so it isn't repeated, and the board reports the pump state back so the
-dashboard always reflects reality.
+One socket carries everything. Moisture and pump-state go *up* it; pump commands come *down* it the
+instant you flip the dashboard toggle or an automation fires. The
+[nodrix Arduino library](https://github.com/decoded-cipher/nodrix-sdk) holds that socket, acks each
+command, and reconnects on its own, so the sketch is just your logic: read the sensor, run one
+capped burst per command, and report the pump state back so the dashboard reflects reality.
 
 ```cpp
-#include <WiFi.h>
-#include <WebSocketsClient.h>
-#include <ArduinoJson.h>
+#include <Nodrix.h>
 
 const char* WIFI_SSID = "your-ssid";
 const char* WIFI_PASS = "your-password";
@@ -178,84 +175,56 @@ const int DRY = 3200;               // raw ADC reading in dry air   (calibrate)
 const int WET = 1300;               // raw ADC reading submerged     (calibrate)
 const int BURST_MS = 5000;          // one capped watering pulse
 
-const unsigned long TELEMETRY_MS = 5UL * 60 * 1000;   // report moisture every 5 min
-unsigned long lastTelemetry = 0;
-String lastCmdId;                   // dedupe re-delivered commands
-
-WebSocketsClient ws;
-
 int readMoisture() {
   long sum = 0;
   for (int i = 0; i < 16; i++) { sum += analogRead(SENSOR_PIN); delay(10); }
   return constrain(map(sum / 16, DRY, WET, 0, 100), 0, 100);   // averaged, 0-100%
 }
 
-void reportPump(const char* state) {
-  String msg = String("{\"type\":\"telemetry\",\"metrics\":{\"pump\":\"") + state + "\"}}";
-  ws.sendTXT(msg);
-}
-
-// Cloud pushes { type:"control", id, variable, value }. Commands are at-least-once,
-// so skip one we've already run — but ack every delivery so the cloud stops resending.
-void onCommand(uint8_t* payload, size_t len) {
-  JsonDocument cmd;
-  if (deserializeJson(cmd, payload, len) || cmd["type"] != "control") return;
-
-  String id = cmd["id"].as<String>();
-  if (id != lastCmdId && cmd["variable"] == "pump" && cmd["value"] == "on") {
-    lastCmdId = id;
-    reportPump("on");
-    digitalWrite(PUMP_PIN, HIGH);   // active-LOW relay? invert this and the line below
-    delay(BURST_MS);                // short, capped burst — finishes even if Wi-Fi drops
-    digitalWrite(PUMP_PIN, LOW);
-    reportPump("off");
-    ws.sendTXT("{\"type\":\"event\",\"event\":\"watered\"}");
-  }
-  String ack = "{\"type\":\"ack\",\"ids\":[\"" + id + "\"]}";
-  ws.sendTXT(ack);
+// Runs whenever the cloud writes `pump`. On "on", pour one short, capped burst
+// and report the state back so the dashboard stays honest.
+NODRIX_WRITE("pump") {
+  if (!value.asBool()) { digitalWrite(PUMP_PIN, LOW); Nodrix.send("pump", false); return; }
+  Nodrix.send("pump", true);
+  digitalWrite(PUMP_PIN, HIGH);   // active-LOW relay? invert this and the line below
+  delay(BURST_MS);                // short, capped burst — finishes even if Wi-Fi drops
+  digitalWrite(PUMP_PIN, LOW);
+  Nodrix.send("pump", false);
+  Nodrix.event("watered");
 }
 
 void setup() {
   pinMode(PUMP_PIN, OUTPUT);
   digitalWrite(PUMP_PIN, LOW);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED) delay(250);
-
-  // One socket: telemetry/events up, commands down. Pending commands flush on connect.
-  ws.beginSSL(HOST, 443, String("/v1/control/ws?token=") + TOKEN);
-  ws.onEvent([](WStype_t type, uint8_t* payload, size_t len) {
-    if (type == WStype_TEXT) onCommand(payload, len);
-  });
-  ws.setReconnectInterval(5000);
+  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);   // one socket, both directions
 }
 
 void loop() {
-  ws.loop();                        // service the socket (pushes + reconnect)
-  if (ws.isConnected() && (lastTelemetry == 0 || millis() - lastTelemetry >= TELEMETRY_MS)) {
+  Nodrix.run();
+
+  static unsigned long lastTelemetry = 0;
+  if (millis() - lastTelemetry >= 5UL * 60 * 1000) {   // report moisture every 5 min
     lastTelemetry = millis();
-    String msg = "{\"type\":\"telemetry\",\"metrics\":{\"soil_moisture\":" + String(readMoisture()) + "}}";
-    ws.sendTXT(msg);
+    Nodrix.send("soil_moisture", readMoisture());
   }
 }
 ```
 
 A few things worth understanding rather than copying:
 
-- **At-least-once delivery.** nodrix keeps a command pending until the device acks it, and re-sends
-  anything undelivered the moment the socket reconnects. That guarantees a "water now" you sent
-  while the board was asleep still arrives — but it means the *same* command can arrive twice, so
-  the board dedupes by `id` and acks regardless. Idempotency on the device is what makes
-  at-least-once safe.
+- **The library keeps it reliable.** nodrix keeps a command pending until it's acked and re-sends
+  anything undelivered the moment the socket reconnects, so a "water now" you sent while the board
+  was offline still arrives. The library acks each delivery for you. Because a burst is short and
+  self-limiting, an occasional repeat just waters a little more — there's no latch to get stuck on.
 - **The burst is self-limiting.** It's a synchronous `digitalWrite` / `delay` / `digitalWrite`, so
   once a pulse starts it always ends, even if Wi-Fi drops in the middle. There's no path where the
   pump latches on because a "stop" message got lost.
-- **TLS is skipped for the first run.** `beginSSL` without a CA gets you connected quickly. For
-  production, pin a certificate — see [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud) —
-  and for a hardened command path (reconnect backoff, stricter parsing) see
-  [Receive commands on an ESP32](/guides/esp32-receive-commands).
+- **TLS is skipped for the first run.** `Nodrix.begin()` connects on the default — encrypted but
+  unverified. For production, pin a certificate with `Nodrix.setCACert()` — see
+  [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
 - **HTTP is equally valid.** If your device wakes briefly and sleeps rather than holding a socket
-  open, a plain `POST /v1/telemetry` reports the reading and `GET /v1/control` collects any pending
-  command — nodrix accepts both transports interchangeably.
+  open, `Nodrix.beginHTTP()` with `Nodrix.poll()` reports the reading and collects any pending
+  command per wake — same handler.
 
 ## Build the dashboard
 

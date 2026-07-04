@@ -5,7 +5,7 @@ category: hardware
 board: ESP32
 difficulty: intermediate
 datePublished: 2026-06-08
-dateUpdated: 2026-06-08
+dateUpdated: 2026-07-04
 faqs:
   - q: "How long can an ESP32 run on a battery while sending data?"
     a: "With deep sleep between readings, a single 18650 cell can last months. A ~3-second wake every 15 minutes spends almost all its time drawing microamps in sleep, not the ~120-160 mA of an active Wi-Fi radio — so the radio's brief bursts, not the idle time, set the lifetime."
@@ -115,38 +115,29 @@ and sleep on a timer. That's the entire life of a battery node.
 
 ```cpp
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
-#include <HTTPClient.h>
+#include <Nodrix.h>
 
 #define SLEEP_MINUTES 15
-const char* HOST  = "https://nodrix.you.workers.dev";
+const char* HOST  = "nodrix.you.workers.dev";   // bare host, no https://
 const char* TOKEN = "tok_your_project_token";
 
 void setup() {
-  fastConnect();
+  fastConnect();                                  // RTC-cached association (above)
   if (WiFi.status() == WL_CONNECTED) {
-    float t = readTemp();                         // your sensor
-
-    WiFiClientSecure client;
-    client.setInsecure();                         // dev only — pin a CA in production
-    HTTPClient https;
-    https.begin(client, String(HOST) + "/v1/telemetry");
-    https.addHeader("Content-Type", "application/json");
-    https.addHeader("Authorization", String("Bearer ") + TOKEN);
-    https.POST("{\"metrics\":{\"temperature\":" + String(t, 1) + "}}");  // -> 204
-    https.end();
-
-    pollControl();                                // apply queued commands while we're up
+    Nodrix.beginHTTP(HOST, TOKEN);                // reuses the live connection
+    Nodrix.send("temperature", readTemp());       // your sensor
+    Nodrix.flush();                               // POST the reading
+    Nodrix.poll();                                // apply queued commands while we're up
   }
   esp_sleep_enable_timer_wakeup((uint64_t)SLEEP_MINUTES * 60ULL * 1000000ULL);
-  esp_deep_sleep_start();                         // execution ends here; wakes into setup()
+  esp_deep_sleep_start();                          // execution ends here; wakes into setup()
 }
 
 void loop() {}
 ```
 
-`pollControl()` is the downlink — fetch `GET /v1/control`, apply, ack. It's worth doing every wake
-since the radio is already on; the full version is in
+`Nodrix.poll()` is the downlink — it fetches queued writes, runs your `NODRIX_WRITE` handlers, and
+acks. It's worth doing every wake since the radio is already on; see
 [Receive commands on an ESP32](/guides/esp32-receive-commands). A sleepy device can't be pushed to
 instantly, but commands queued in the cloud land on the next wake.
 

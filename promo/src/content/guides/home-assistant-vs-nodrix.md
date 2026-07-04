@@ -3,6 +3,7 @@ title: "Home Assistant vs nodrix: local smart-home hub or your own cloud IoT bac
 description: "Home Assistant vs nodrix — they solve different problems. HA is a local home-automation hub for off-the-shelf devices; nodrix is an open-source cloud IoT backend you deploy to your own Cloudflare for custom hardware, remote dashboards, and a read API. Here's how to choose, and how they pair."
 category: comparison
 datePublished: 2026-06-08
+dateUpdated: 2026-07-04
 faqs:
   - q: "Is nodrix a replacement for Home Assistant?"
     a: "Not really — they solve different problems. Home Assistant is a local hub for off-the-shelf smart-home devices (Zigbee, Z-Wave, Wi-Fi gear) with local control and a huge integration library. nodrix is a cloud backend for custom hardware: your ESP32/Pico sensors POST over HTTPS to a stack you deploy on your own Cloudflare account, and you get remote dashboards and a read API. Many people run both."
@@ -58,7 +59,7 @@ keep online or expose, because it runs at the edge.
 | Category | Local home-automation hub | Cloud IoT backend for custom hardware |
 | Runs on | A box at home (Pi / NUC / VM), always on | Cloudflare (Workers, Durable Objects, D1, R2) |
 | Best for | Off-the-shelf smart-home devices | Custom devices, telemetry, fleets, remote dashboards |
-| Integrations | Thousands of device integrations | Plain HTTPS/WebSocket — any device, no SDK |
+| Integrations | Thousands of device integrations | Plain HTTPS/WebSocket — any device; optional ESP library |
 | Remote access | Tunnel / VPN / Nabu Casa cloud | Public by default (it's already in the cloud) |
 | Data location | Your home machine | Your Cloudflare account (single-tenant) |
 | Automations | Local, very deep | Visual trigger → condition → action at the edge |

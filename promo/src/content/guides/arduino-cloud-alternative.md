@@ -3,9 +3,10 @@ title: "An Arduino Cloud alternative for any board — open-source, on your own 
 description: "Arduino Cloud is polished but tied to the Arduino ecosystem and a hosted freemium plan. nodrix is an open-source alternative for any board that speaks HTTPS — deployed to your own Cloudflare account, no per-device limits, no lock-in."
 category: comparison
 datePublished: 2026-06-08
+dateUpdated: 2026-07-04
 faqs:
   - q: "Is there an alternative to Arduino Cloud that isn't tied to Arduino boards?"
-    a: "Yes. nodrix is board-agnostic: anything that can make an HTTPS request — ESP32, ESP8266, Raspberry Pi Pico W, a Raspberry Pi, an Arduino, or a Python script — can send telemetry and receive commands. There's no required SDK, IDE, or board family. nodrix is open-source (MIT) and deploys to your own Cloudflare account."
+    a: "Yes. nodrix is board-agnostic: anything that can make an HTTPS request — ESP32, ESP8266, Raspberry Pi Pico W, a Raspberry Pi, an Arduino, or a Python script — can send telemetry and receive commands. There's no required SDK, IDE, or board family, though an optional open Arduino library gives ESP32/ESP8266 a few-line path if you want it. nodrix is open-source (MIT) and deploys to your own Cloudflare account."
   - q: "Is Arduino Cloud free?"
     a: "Arduino Cloud is freemium: the free plan caps things like the number of Things, compile time, and dashboards, and paid plans lift those limits. nodrix has no license cost and no per-device limit; you pay Cloudflare for the usage of your own deployment."
   - q: "What does Arduino Cloud do better than nodrix?"
@@ -58,7 +59,7 @@ lives on Arduino's cloud.
 | Model | Hosted freemium SaaS | Open-source; deploy to your own Cloudflare |
 | Where data lives | Arduino's cloud | Your Cloudflare account (single-tenant) |
 | Boards | Arduino-centric (best with official boards) | Any board that speaks HTTPS |
-| Device code | IDE-generated sync sketch | Plain HTTPS/WebSocket, any language |
+| Device code | IDE-generated sync sketch | Plain HTTPS/WebSocket (any language) + optional ESP library |
 | Pricing | Free plan with limits; paid tiers | No license cost; pay Cloudflare for usage |
 | Open source | No (platform) | MIT, full stack |
 | OTA updates | Yes | On the roadmap |
@@ -79,22 +80,31 @@ lives on Arduino's cloud.
   one backend for all of it.
 - You want **open source and ownership**: the stack and the data on your own Cloudflare account.
 - You don't want **per-device or plan limits**, and prefer costs that track real usage.
-- You're fine writing a few lines of HTTPS instead of using a generated sync sketch.
+- You want a **few-line device path** — an open Arduino library on ESP32/ESP8266, or plain HTTPS on
+  anything else — instead of an IDE-locked sync sketch.
 
 ## Pointing a board at nodrix
 
-There's no special SDK. On an ESP32, an ESP8266, or an Arduino UNO R4 WiFi, it's the standard
-WiFi + HTTPS pattern:
+No IDE lock-in. On an ESP32 or ESP8266, the optional nodrix library makes it a few lines:
 
 ```cpp
-// HTTPS POST https://nodrix.you.workers.dev/v1/telemetry
-// Authorization: Bearer tok_your_project_token
-// { "metrics": { "temperature": 23.4 } }   -> 204
+#include <Nodrix.h>
+
+void setup() {
+  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
+}
+
+void loop() {
+  Nodrix.run();
+  Nodrix.send("temperature", readTemp());
+}
 ```
 
-Commands come back over `GET /v1/control` (poll + ack) or the control WebSocket — the full firmware
-is in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud), and the same pattern works on any
-Wi-Fi-capable board.
+On any other Wi-Fi board — an Arduino UNO R4 WiFi, a Nano 33 IoT, a Pi — POST the same JSON to
+`/v1/telemetry` with the standard HTTP client; commands come back over `GET /v1/control` or the
+control WebSocket. The full firmware is in
+[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud), and the same open protocol works
+everywhere.
 
 ## The bottom line
 

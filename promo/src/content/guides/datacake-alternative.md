@@ -3,6 +3,7 @@ title: "A Datacake alternative without per-device pricing — open-source, on yo
 description: "Want a Datacake alternative that drops per-device pricing and keeps your data in your own tenancy? nodrix is open-source IoT you deploy to your own Cloudflare account — low-effort dashboards, automations, and a read API, billed as Cloudflare usage."
 category: comparison
 datePublished: 2026-06-08
+dateUpdated: 2026-07-04
 faqs:
   - q: "Is there an open-source alternative to Datacake?"
     a: "Yes. nodrix is open-source (MIT) and you deploy it to your own Cloudflare account instead of paying per device on a hosted plan. Datacake is a low-code SaaS billed by device; nodrix has no per-device license and your data stays in your own tenancy."
@@ -54,7 +55,7 @@ telemetry sits on Datacake's infrastructure rather than your own.
 | LoRaWAN / TTN | Turnkey integration | Via gateway/network-server webhook to /v1/telemetry |
 | Dashboards | Low-code builder | Drag-and-drop, embeddable Web Components |
 | Rules / automation | Rule engine | Visual trigger → condition → action at the edge |
-| Device connection | HTTP / MQTT / LoRaWAN | Plain HTTPS + WebSocket, no SDK |
+| Device connection | HTTP / MQTT / LoRaWAN | Plain HTTPS/WebSocket + optional open library |
 | Data access | API | Read API: latest state + time-series behind one token |
 
 ## When Datacake is the better choice
@@ -69,8 +70,8 @@ If that's you, Datacake is a strong, purpose-built answer.
 
 - You want to **drop per-device pricing** for costs that track actual Cloudflare usage.
 - You want **open source and ownership** — your telemetry in your account, not a third-party cloud.
-- Your devices speak **plain HTTPS/WebSocket** (or forward LoRaWAN payloads via webhook) and you
-  don't want a vendor SDK.
+- Your devices speak **plain HTTPS/WebSocket** (or forward LoRaWAN payloads via webhook), and you
+  want a device library without the lock-in — or none at all.
 - You want a **read API** for Grafana or your own app, plus **edge automations** you fully control.
 
 ## Moving a device across

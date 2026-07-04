@@ -3,13 +3,14 @@ title: "The open-source Adafruit IO alternative you host on your own Cloudflare 
 description: "Looking for an Adafruit IO alternative without rate caps or data-retention limits? nodrix is open-source IoT you deploy to your own Cloudflare account — plain HTTPS/WebSocket, dashboards, automations, and a read API, with your telemetry in your own tenancy."
 category: comparison
 datePublished: 2026-06-08
+dateUpdated: 2026-07-04
 faqs:
   - q: "Is there an open-source alternative to Adafruit IO?"
     a: "Yes. nodrix is an open-source (MIT) IoT backend you deploy to your own Cloudflare account instead of signing up for a hosted feed service. Adafruit's client libraries are open source, but Adafruit IO itself is a hosted cloud — your feeds, dashboards, and history live on Adafruit's servers. With nodrix the whole stack lives in your tenancy."
   - q: "What are the Adafruit IO free tier limits?"
     a: "The free tier caps how fast you can publish (a data-rate limit), how long history is retained, and how many feeds, dashboards, and actions you get; IO+ raises those for a yearly fee. People usually look for an alternative when they hit the data-rate or retention ceiling, or want their data off a third-party cloud."
   - q: "Do I need the Adafruit IO Arduino library to use nodrix?"
-    a: "No. nodrix has no SDK. A device sends a reading with a plain HTTPS POST to /v1/telemetry and reads commands back from /v1/control — the same WiFiClientSecure + HTTPClient you'd already have on an ESP32. There's nothing Adafruit-specific to swap in."
+    a: "You don't need Adafruit's library, and you're not locked to a nodrix one either. An optional open Arduino library removes the boilerplate — NODRIX_WRITE for commands, Nodrix.send for readings — and underneath it's plain HTTPS/WebSocket, so any board or language can POST to /v1/telemetry directly. Nothing is tied to a vendor protocol the way an Adafruit-specific library is."
   - q: "Does nodrix include an MQTT broker like Adafruit IO?"
     a: "Adafruit IO bundles an MQTT broker, which is genuinely convenient for always-on, sub-second messaging. nodrix is HTTPS-first with a WebSocket path for instant control; for periodic telemetry and dashboards that's simpler, but if you specifically need a hosted MQTT broker, factor that in."
   - q: "How do I move a feed from Adafruit IO to nodrix?"
@@ -60,7 +61,7 @@ outgrows the box.
 | Pricing | Free tier; IO+ yearly for higher limits | No license cost; you pay Cloudflare for usage |
 | Publish rate | Rate-limited on the free tier | No platform-imposed publish floor |
 | History retention | Capped by tier | Your own D1/R2 — you decide |
-| Device connection | MQTT + REST, Adafruit IO libraries | Plain HTTPS + WebSocket, no SDK |
+| Device connection | MQTT + REST, Adafruit IO libraries | Plain HTTPS/WebSocket + optional open library |
 | Open source | Client libraries yes; platform hosted | MIT, full stack |
 | Automations | Actions / triggers | Visual trigger → condition → action, run at the edge |
 | Data access | REST API | Read API: latest state + time-series behind one token |
@@ -82,8 +83,8 @@ If that's you, Adafruit IO is a great answer and the ownership trade isn't worth
   own Cloudflare usage.
 - You want **open source and ownership** — your telemetry in your account, never on a third-party
   cloud.
-- Your devices already speak **plain HTTPS/WebSocket** and you'd rather not depend on a vendor
-  library or broker.
+- You want a **device library's** convenience without the lock-in — an optional open Arduino
+  library over a protocol any board can speak, not a vendor library or broker.
 - You want a **clean read API** to pull data into Grafana or your own app, plus **edge automations**
   you fully control.
 
@@ -93,14 +94,21 @@ The device side is tiny. Wherever your firmware publishes to an Adafruit IO feed
 to nodrix instead — the metric key becomes a variable the first time it's seen:
 
 ```cpp
-// HTTPS POST https://nodrix.you.workers.dev/v1/telemetry
-// Authorization: Bearer tok_your_project_token
-// { "metrics": { "temperature": 23.4, "humidity": 61 } }   -> 204
+#include <Nodrix.h>
+
+void setup() {
+  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
+}
+
+void loop() {
+  Nodrix.run();
+  Nodrix.send("temperature", readTemp());   // was feed("temperature")->save(t)
+}
 ```
 
-Commands come back by polling `GET /v1/control` (or over the control WebSocket if the board stays
-awake) — the full firmware is in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud). From
-there you rebuild your blocks as nodrix widgets and recreate any IO actions as
+Commands come back through a `NODRIX_WRITE` handler — the library polls or holds the control socket
+and acks for you. The full firmware is in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
+From there you rebuild your blocks as nodrix widgets and recreate any IO actions as
 trigger-condition-action flows.
 
 ## The bottom line

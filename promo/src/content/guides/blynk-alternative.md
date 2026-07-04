@@ -3,6 +3,7 @@ title: "The open-source Blynk alternative that runs on your own Cloudflare accou
 description: "Looking for a Blynk alternative? nodrix is open-source IoT you deploy to your own Cloudflare account — no per-device pricing, no hosted cloud holding your data, plain HTTPS/WebSocket with dashboards, automations, and a read API."
 category: comparison
 datePublished: 2026-06-08
+dateUpdated: 2026-07-04
 faqs:
   - q: "Is there an open-source alternative to Blynk?"
     a: "Yes. nodrix is an open-source (MIT) IoT backend you deploy to your own Cloudflare account rather than signing up for a hosted service. Devices talk plain HTTPS or WebSocket, and the dashboards, automations, and data all live in your own tenancy. Blynk's client libraries are open source too, but its current platform (Blynk.IoT) is a hosted commercial service, not something you self-host."
@@ -13,7 +14,7 @@ faqs:
   - q: "Does nodrix have a mobile app like Blynk?"
     a: "A native mobile app is on the roadmap. Today, nodrix dashboards are responsive web and the widgets are framework-agnostic Web Components you can embed anywhere — including in your own app shell. If a first-class native app is essential right now, factor that in; otherwise, stay connected, as it's planned."
   - q: "How do I move an ESP32 from Blynk to nodrix?"
-    a: "Swap the Blynk virtual-pin writes for an HTTPS POST to /v1/telemetry (or a WebSocket frame), and read commands back by polling /v1/control or holding the control socket open. Then rebuild your widgets on a nodrix dashboard and recreate any Blynk automations as trigger-condition-action flows. See the ESP32-over-HTTPS guide for the device code."
+    a: "Swap Blynk's virtual-pin writes for Nodrix.send(), and Blynk's BLYNK_WRITE handlers for NODRIX_WRITE — the same few-line shape, but over an open protocol on your own Cloudflare instead of a vendor cloud. The optional nodrix Arduino library handles Wi-Fi, control, and acks; underneath it's plain HTTPS/WebSocket you can use directly. Then rebuild your widgets on a nodrix dashboard and recreate any Blynk automations as trigger-condition-action flows."
 related:
   - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
@@ -61,7 +62,7 @@ they go looking for an alternative.
 | Where data lives | Blynk's cloud | Your Cloudflare account (single-tenant) |
 | Pricing | Freemium; paid plans scale by devices/usage | No license cost; you pay Cloudflare for usage |
 | Open source | Client libraries yes; platform hosted | MIT, full stack |
-| Device connection | Blynk libraries / HTTPS API | Plain HTTPS + WebSocket, no SDK required |
+| Device connection | Blynk libraries (vendor protocol) | Open Arduino library + plain HTTPS/WebSocket |
 | Dashboards | Native mobile app + web | Responsive web, drag-and-drop |
 | Widgets | App widget set | Framework-agnostic Web Components, embeddable anywhere |
 | Automations | Automations + events | Visual trigger → condition → action, run at the edge |
@@ -83,24 +84,35 @@ If those are you, Blynk is a fine answer, and the ownership trade isn't worth it
 - You want **open source and ownership** — the stack on your own Cloudflare, your telemetry in your
   tenancy, your data never leaving your account.
 - You're allergic to **per-device pricing** and want costs that track actual Cloudflare usage.
-- Your devices already speak **plain HTTPS/WebSocket** and you don't want to depend on a vendor SDK
-  or a broker.
+- You want the few-line convenience of a **device library** — `NODRIX_WRITE`, `Nodrix.send` — but
+  over an **open protocol** you can drop anytime, not a vendor SDK or a broker.
 - You want a **clean read API** to plug telemetry into Grafana, a React app, or a Raspberry Pi
   screen, plus **edge automations** you fully control.
 
 ## Moving an ESP32 across
 
-The device side is small. Wherever your firmware writes a Blynk virtual pin, send a reading to
-nodrix instead:
+The device side is small, and the shape is familiar: Blynk's `BLYNK_WRITE` handler becomes
+`NODRIX_WRITE`, and `Blynk.virtualWrite` becomes `Nodrix.send` — over an open protocol running on
+your own Cloudflare, not Blynk's cloud.
 
 ```cpp
-// HTTPS POST https://nodrix.you.workers.dev/v1/telemetry
-// Authorization: Bearer tok_your_project_token
-// { "metrics": { "temperature": 23.4, "humidity": 61 } }   -> 204
+#include <Nodrix.h>
+
+NODRIX_WRITE("led") {                 // Blynk's BLYNK_WRITE(V1), minus the vendor cloud
+  digitalWrite(LED_PIN, value.asBool());
+}
+
+void setup() {
+  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
+}
+
+void loop() {
+  Nodrix.run();
+  Nodrix.send("temperature", readTemp());   // was Blynk.virtualWrite(V2, t)
+}
 ```
 
-Commands come back by polling `GET /v1/control` and acking what you apply, or by holding the
-control WebSocket open for instant writes — the full firmware is in
+The library holds the control socket (or polls) and acks for you — the full firmware is in
 [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud). From there you rebuild your widgets on a
 nodrix dashboard and recreate any Blynk automations as trigger-condition-action flows.
 

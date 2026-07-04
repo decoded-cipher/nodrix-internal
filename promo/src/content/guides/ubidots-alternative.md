@@ -3,6 +3,7 @@ title: "A Ubidots alternative that drops per-dot pricing — open-source, on you
 description: "Looking for a Ubidots alternative without per-dot or per-device pricing? nodrix is open-source IoT you deploy to your own Cloudflare account — dashboards, events, automations, and a read API, with costs that track Cloudflare usage instead of data points."
 category: comparison
 datePublished: 2026-06-08
+dateUpdated: 2026-07-04
 faqs:
   - q: "Is there an open-source alternative to Ubidots?"
     a: "Yes. nodrix is open-source (MIT) and you deploy it to your own Cloudflare account rather than paying for a hosted plan. Ubidots is a polished commercial platform billed by data points / devices; nodrix has no license cost and your bill is just your Cloudflare usage."
@@ -59,7 +60,7 @@ anyone who'd rather own the stack than rent it by the data point.
 | Dashboards | Polished, presentation-ready | Responsive web, drag-and-drop, embeddable |
 | Events / alerts | Mature events engine | Visual trigger → condition → action at the edge |
 | White-label / support | Yes (industrial tier) | Self-hosted; community + the repo |
-| Device connection | REST / MQTT / TCP-UDP | Plain HTTPS + WebSocket, no SDK |
+| Device connection | REST / MQTT / TCP-UDP | Plain HTTPS/WebSocket + optional open library |
 | Data access | REST API | Read API: latest state + time-series behind one token |
 
 ## When Ubidots is the better choice
@@ -76,7 +77,8 @@ If that's you, Ubidots earns its price and the ownership trade isn't worth it.
 - You're **allergic to per-dot / per-device pricing** and want costs that track actual Cloudflare
   usage.
 - You want **open source and ownership** — your telemetry in your account, not a third-party cloud.
-- Your devices speak **plain HTTPS/WebSocket** and you don't want a vendor SDK.
+- Your devices speak **plain HTTPS/WebSocket** and you want a device library without the lock-in —
+  or none at all.
 - You want a **read API** to plug data into Grafana or your own app, plus **edge automations** you
   fully control.
 

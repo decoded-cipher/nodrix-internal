@@ -1,22 +1,22 @@
 ---
 title: "Receive commands on an ESP32 from the cloud (the downlink, in depth)"
-description: "How to get data back to an ESP32 over HTTP: poll for control writes and ack them, or hold a control WebSocket open for instant updates. The downlink most IoT tutorials skip."
+description: "How to get data back to an ESP32: handle control writes with the nodrix Arduino library over an always-on WebSocket, or poll on each wake for battery devices. The downlink most IoT tutorials skip."
 category: hardware
 board: ESP32
 difficulty: intermediate
 datePublished: 2026-06-08
-dateUpdated: 2026-06-08
+dateUpdated: 2026-07-04
 faqs:
   - q: "Can you push data to an ESP32 over plain HTTP?"
-    a: "Not push, exactly — the device pulls. It polls a control endpoint on an interval and applies any queued writes, which gives near-real-time control without a broker. For instant updates while the board is awake, hold a WebSocket open and the cloud pushes down it."
+    a: "Not push, exactly — the device pulls. It polls a control endpoint on an interval and applies any queued writes, which gives near-real-time control without a broker. For instant updates while the board is awake, hold a WebSocket open and the cloud pushes down it. The library does either for you."
   - q: "How responsive is HTTP polling?"
     a: "As responsive as your interval. Poll every 2-5 seconds and a dashboard toggle reaches the board in seconds; poll once per wake and a sleepy sensor picks up commands when it next reports. The trade is request volume and battery, not capability."
   - q: "What happens to a command sent while my device is offline or asleep?"
     a: "It waits. Control writes are queued and delivered at-least-once: the cloud holds a write until the device acknowledges it, and re-delivers anything outstanding the moment the device reconnects or next polls. Nothing is lost across a nap or a Wi-Fi blip."
   - q: "Why do I have to acknowledge commands?"
-    a: "Acking is how the cloud knows a write landed so it can stop re-sending it. Without an ack the same command keeps coming back. Because delivery is at-least-once, ack every delivery — even a duplicate — and dedupe on the device by command id."
+    a: "You don't, by hand — the library acks each write it delivers to your handler. Acking is how the cloud knows a write landed so it can stop re-sending it; without it the same command keeps coming back. Because delivery is at-least-once, every delivery is acked (even a duplicate), so keep your handler idempotent."
   - q: "Should I poll or use the WebSocket?"
-    a: "Poll for periodic or battery devices that wake, report, and sleep — there's no session to keep alive. Use the control WebSocket for always-on controllers that need zero-latency writes; on Cloudflare the socket hibernates, so an idle always-open connection costs almost nothing."
+    a: "Use the always-on WebSocket (Nodrix.begin) for controllers that need zero-latency writes — on Cloudflare the socket hibernates, so an idle connection costs almost nothing. Use HTTP polling (Nodrix.beginHTTP, then poll each wake) for battery devices that wake, report, and sleep — there's no session to keep alive."
 related:
   - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
@@ -34,176 +34,100 @@ related:
 
 Sending a reading **up** is the easy half. The half that trips people up is getting a command
 back **down**: HTTP is request/response, so how does the cloud tell a device behind home Wi-Fi to
-flip a relay or change a setpoint? It doesn't, directly. The device asks. On each cycle it fetches
-any pending **control writes**, applies them, and acknowledges the ones it handled so they aren't
-sent again. That single idea — a pull, not a push — is the whole downlink, and it works without a
-broker, a static IP, or any inbound connection to the device.
+flip a relay or change a setpoint? It doesn't, directly. The device asks. It fetches any pending
+**control writes**, applies them, and acknowledges the ones it handled so they aren't sent again — a
+pull, not a push, with no broker, static IP, or inbound connection.
 
-This guide covers both ways to do it: HTTP **polling** (right for periodic and battery devices)
-and a **control WebSocket** (right for always-on controllers that need instant writes), plus the
-parts most tutorials skip — at-least-once delivery, idempotency, and acking.
+On an ESP32 or ESP8266 the [nodrix Arduino library](https://github.com/decoded-cipher/nodrix-sdk)
+runs that whole loop for you: fetch, apply, ack, reconnect. You write a handler per variable and the
+library calls it whenever the cloud writes that variable. This guide shows that, then explains what
+it does underneath — at-least-once delivery, idempotency, and acking.
 
-## Poll or socket: pick by how the device lives
+## Two modes, matched to how the device lives
 
-| | HTTP polling | Control WebSocket |
+The library connects one of two ways. Both share the same handlers and the same token, so you can
+start with one and switch later without touching the cloud side.
+
+| | `begin()` — WebSocket | `beginHTTP()` — poll |
 |---|---|---|
-| Latency | your poll interval (seconds) | instant |
-| Connection | none held; one request per check | one socket held open |
-| Best for | sleepy / periodic devices | always-on controllers |
-| Battery | excellent (sleep between polls) | poor unless mains-powered |
-| Cost when idle | one request per interval | ~zero (Cloudflare hibernates it) |
+| Latency | instant | your poll interval (seconds) |
+| Connection | one socket held open | none held; one request per check |
+| Best for | always-on controllers | sleepy / periodic devices |
+| Battery | poor unless mains-powered | excellent (sleep between polls) |
+| Cost when idle | ~zero (Cloudflare hibernates it) | one request per interval |
 
-Both ride the same model and the same auth, so you can start with polling and switch to the socket
-later without changing the cloud side.
+## Handle a control write
 
-## The mental model: a queue of control writes
-
-A "command" is a **control write** — a pending instruction to set a variable: *set `relay` to
-`on`*. When a dashboard toggle moves or an automation fires, the cloud appends a write to a
-per-device queue. Each write has an `id`, a `variable`, and a `value`. The device drains the queue,
-acts on each write, and acks the ids it handled. Delivery is **at-least-once**: a write stays in
-the queue until it's acked, and is re-delivered if the device never confirmed it. That guarantee is
-what makes the downlink reliable over flaky Wi-Fi — and it's also why the device must be ready to
-see the *same* command twice.
-
-## Option A — poll for control writes (HTTP)
-
-Two endpoints: `GET /v1/control` returns the pending writes; `POST /v1/control/ack` clears the ones
-you handled.
+A "command" is a **control write** — a pending instruction to set a variable: *`relay` to `on`*.
+Register a handler for the variable and the library runs it on every write, whether it came from a
+dashboard toggle, an automation, or the API:
 
 ```cpp
-const char* HOST  = "https://nodrix.you.workers.dev";
-const char* TOKEN = "tok_your_project_token";
+#include <Nodrix.h>
 
-String lastAppliedId;   // dedupe re-delivered writes (idempotency)
-
-void pollControl() {
-  WiFiClientSecure client;
-  client.setInsecure();                          // dev only — pin a CA in production
-
-  HTTPClient https;
-  https.begin(client, String(HOST) + "/v1/control");
-  https.addHeader("Authorization", String("Bearer ") + TOKEN);
-
-  if (https.GET() != 200) { https.end(); return; }
-
-  JsonDocument doc;
-  deserializeJson(doc, https.getString());
-  // { "control": [ { "id": "ctl_x", "variable": "relay", "value": "on" } ] }
-  https.end();
-
-  String ids = "[";
-  bool first = true;
-  for (JsonObject w : doc["control"].as<JsonArray>()) {
-    const char* id  = w["id"];
-    const char* var = w["variable"];
-    const char* val = w["value"];
-
-    if (String(id) != lastAppliedId && strcmp(var, "relay") == 0) {
-      digitalWrite(RELAY_PIN, strcmp(val, "on") == 0 ? HIGH : LOW);
-      lastAppliedId = id;                         // remember what we ran
-    }
-    if (!first) ids += ',';
-    ids += '"'; ids += id; ids += '"';            // ack every delivery, even a dup
-    first = false;
-  }
-  ids += "]";
-
-  if (ids != "[]") {
-    HTTPClient ack;
-    ack.begin(client, String(HOST) + "/v1/control/ack");
-    ack.addHeader("Content-Type", "application/json");
-    ack.addHeader("Authorization", String("Bearer ") + TOKEN);
-    ack.POST("{\"ids\":" + ids + "}");            // -> { "acked": 1 }
-    ack.end();
-  }
-}
-```
-
-Two things to notice. First, the device **acks every id it received**, but only **acts** on writes
-it hasn't already applied — that split is what makes a re-delivered command safe. Second, acking is
-not optional: skip it and the cloud assumes the write never landed and keeps returning it on every
-poll.
-
-### Choosing a poll interval
-
-The interval is a straight latency-versus-cost dial:
-
-- **Always awake, want it snappy:** poll every 2-5 seconds. A toggle reaches the board in seconds.
-- **Battery / deep sleep:** poll once per wake, right after you send telemetry — the board is
-  already connected, so the extra request is nearly free. Commands simply apply on the next wake.
-- **In between:** back off when idle. Poll fast for a minute after activity, then slow down.
-
-## Option B — the control WebSocket (instant)
-
-When the board stays awake and you want a write to land the moment a widget moves, open the control
-socket instead of polling. The cloud pushes each write down it as it happens, and flushes anything
-still pending the instant you connect — so a command queued while you were briefly disconnected
-arrives on reconnect.
-
-```cpp
-#include <WebSocketsClient.h>
-#include <ArduinoJson.h>
-
-WebSocketsClient ws;
-String lastAppliedId;
-
-// Server frame: { "type":"control", "id", "variable", "value" }. At-least-once,
-// so skip one we've already run — then ack every delivery so it stops resending.
-void onMessage(uint8_t* payload, size_t len) {
-  JsonDocument cmd;
-  if (deserializeJson(cmd, payload, len) || cmd["type"] != "control") return;
-
-  String id = cmd["id"].as<String>();
-  if (id != lastAppliedId && cmd["variable"] == "relay") {
-    digitalWrite(RELAY_PIN, cmd["value"] == "on" ? HIGH : LOW);
-    lastAppliedId = id;
-  }
-  String ack = "{\"type\":\"ack\",\"ids\":[\"" + id + "\"]}";
-  ws.sendTXT(ack);
+NODRIX_WRITE("relay") {
+  digitalWrite(RELAY_PIN, value.asBool());
 }
 
 void setup() {
-  // ... Wi-Fi up first ...
-  // Token goes in the query string — a WS upgrade can't set Authorization headers.
-  ws.beginSSL("nodrix.you.workers.dev", 443, "/v1/control/ws?token=tok_your_project_token");
-  ws.onEvent([](WStype_t type, uint8_t* payload, size_t len) {
-    if (type == WStype_TEXT) onMessage(payload, len);
-  });
-  ws.setReconnectInterval(5000);   // auto-reconnect; pending writes flush on connect
+  pinMode(RELAY_PIN, OUTPUT);
+  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);   // always-on WebSocket
 }
 
 void loop() {
-  ws.loop();                       // service pushes + reconnect; nothing to poll
+  Nodrix.run();   // control in, telemetry out, acks, reconnect
 }
 ```
 
-The socket is bidirectional, so the same connection also carries telemetry and events up if you
-want it to — send `{"type":"telemetry","metrics":{...}}` or `{"type":"event","event":"..."}`. And
-because Cloudflare hibernates the connection, holding it open all day costs almost nothing while
-idle; you're not paying for an always-on server.
+`value` coerces the wire value for you — `asBool()`, `asInt()`, `asFloat()`, `asString()` — so a
+toggle that sends `"on"` and a slider that sends `42` both just work.
 
-## Make it robust
+## Battery / deep sleep: poll on each wake
 
-The happy path is short; these are the details that separate a demo from a controller you'd leave
-running:
+A sleepy device doesn't hold a socket. Switch to HTTP mode and drain the queue once per wake, right
+after you report — the board is already connected, so the extra request is nearly free:
 
-- **Be idempotent.** At-least-once means duplicates. Dedupe by `id` (or by desired end-state) so a
-  re-delivered "open valve" doesn't double-actuate. Always ack, even the duplicate.
-- **Reconnect with backoff.** On the socket, `setReconnectInterval` handles the basics; for polling,
-  retry a failed `GET` a couple of times with a growing delay rather than hammering.
-- **Parse defensively.** Treat the payload as untrusted: check the message `type`, the `variable`,
-  and the `value` before acting. Ignore anything you don't recognize.
-- **Bound every wait.** Never block forever on a request or a socket — cap it so a bad network
-  doesn't hang the board (and, on battery, doesn't drain the cell).
-- **Cap the action.** For anything physical, prefer a self-limiting action (a timed pulse) over a
-  latch, so a missed "off" can't leave a pump or heater running.
+```cpp
+void setup() {
+  Nodrix.beginHTTP(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
+  Nodrix.send("soil", readSoil());
+  Nodrix.flush();   // POST telemetry
+  Nodrix.poll();    // fetch + apply queued writes, then ack
+
+  esp_sleep_enable_timer_wakeup(15ULL * 60 * 1000000);
+  esp_deep_sleep_start();
+}
+```
+
+Same handlers, same acks — a command simply applies on the next wake instead of instantly.
+
+## What the library handles for you
+
+The downlink has a few sharp edges, and they're the reason to use the library rather than hand-roll
+it:
+
+- **At-least-once delivery.** A control write stays queued until it's acked and re-delivers on the
+  next connect or poll, so nothing is lost across a nap or a Wi-Fi blip. The library acks every write
+  it hands your code.
+- **Reconnect and catch-up.** On the socket it reconnects on its own and flushes anything queued
+  while you were gone.
+- **One connection, both directions.** Telemetry, events, and acks share the socket with control —
+  `Nodrix.send()` and `Nodrix.event()` go up the same pipe.
+
+## Still your job
+
+- **Keep handlers idempotent.** At-least-once means you can see the same command twice. Setting a pin
+  is naturally safe; for anything that isn't, act on the desired end-state rather than a toggle.
+- **Cap physical actions.** Prefer a self-limiting action — a timed pulse over a latch — so a missed
+  "off" can't leave a pump or heater running.
 
 ## Notes
 
 - **No broker, no inbound connection.** The device only makes outbound HTTPS/WSS requests, so it
   works behind home routers, captive portals, and cellular NAT — port 443 is open everywhere.
 - **One token, one project.** The same project token authorizes telemetry, control, and the socket;
-  treat it as a secret and load it from NVS or config for anything real.
-- **It runs on your account.** The control queue and dashboard live in a nodrix instance on your
-  own Cloudflare account — single-tenant, nothing leaving your tenancy.
+  treat it as a secret and load it from config for anything real.
+- **Install it.** Arduino Library Manager or PlatformIO; source at
+  [github.com/decoded-cipher/nodrix-sdk](https://github.com/decoded-cipher/nodrix-sdk).
+- **It runs on your account.** The control queue and dashboard live in a nodrix instance on your own
+  Cloudflare account — single-tenant, nothing leaving your tenancy.

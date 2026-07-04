@@ -179,6 +179,8 @@ under a second. Bring Wi-Fi up yourself, then hand the live connection to the li
 sees you're already connected and skips its own connect.
 
 ```cpp
+#include <esp_sleep.h>   // deep-sleep API
+
 RTC_DATA_ATTR bool    rtcValid = false;
 RTC_DATA_ATTR uint8_t rtcBssid[6];
 RTC_DATA_ATTR int32_t rtcChannel;

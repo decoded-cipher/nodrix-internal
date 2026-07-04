@@ -116,6 +116,7 @@ and sleep on a timer. That's the entire life of a battery node.
 ```cpp
 #include <WiFi.h>
 #include <Nodrix.h>
+#include <esp_sleep.h>
 
 #define SLEEP_MINUTES 15
 const char* HOST  = "nodrix.you.workers.dev";   // bare host, no https://

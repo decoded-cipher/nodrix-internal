@@ -88,6 +88,8 @@ A sleepy device doesn't hold a socket. Switch to HTTP mode and drain the queue o
 after you report — the board is already connected, so the extra request is nearly free:
 
 ```cpp
+#include <esp_sleep.h>   // deep-sleep API
+
 void setup() {
   Nodrix.beginHTTP(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
   Nodrix.send("soil", readSoil());

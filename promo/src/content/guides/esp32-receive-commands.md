@@ -159,7 +159,8 @@ void onMessage(uint8_t* payload, size_t len) {
     digitalWrite(RELAY_PIN, cmd["value"] == "on" ? HIGH : LOW);
     lastAppliedId = id;
   }
-  ws.sendTXT("{\"type\":\"ack\",\"ids\":[\"" + id + "\"]}");
+  String ack = "{\"type\":\"ack\",\"ids\":[\"" + id + "\"]}";
+  ws.sendTXT(ack);
 }
 
 void setup() {

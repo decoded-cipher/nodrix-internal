@@ -191,7 +191,8 @@ int readMoisture() {
 }
 
 void reportPump(const char* state) {
-  ws.sendTXT(String("{\"type\":\"telemetry\",\"metrics\":{\"pump\":\"") + state + "\"}}");
+  String msg = String("{\"type\":\"telemetry\",\"metrics\":{\"pump\":\"") + state + "\"}}";
+  ws.sendTXT(msg);
 }
 
 // Cloud pushes { type:"control", id, variable, value }. Commands are at-least-once,
@@ -210,7 +211,8 @@ void onCommand(uint8_t* payload, size_t len) {
     reportPump("off");
     ws.sendTXT("{\"type\":\"event\",\"event\":\"watered\"}");
   }
-  ws.sendTXT("{\"type\":\"ack\",\"ids\":[\"" + id + "\"]}");
+  String ack = "{\"type\":\"ack\",\"ids\":[\"" + id + "\"]}";
+  ws.sendTXT(ack);
 }
 
 void setup() {
@@ -231,7 +233,8 @@ void loop() {
   ws.loop();                        // service the socket (pushes + reconnect)
   if (ws.isConnected() && (lastTelemetry == 0 || millis() - lastTelemetry >= TELEMETRY_MS)) {
     lastTelemetry = millis();
-    ws.sendTXT("{\"type\":\"telemetry\",\"metrics\":{\"soil_moisture\":" + String(readMoisture()) + "}}");
+    String msg = "{\"type\":\"telemetry\",\"metrics\":{\"soil_moisture\":" + String(readMoisture()) + "}}";
+    ws.sendTXT(msg);
   }
 }
 ```

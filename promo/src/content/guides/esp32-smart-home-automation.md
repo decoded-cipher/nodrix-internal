@@ -149,14 +149,13 @@ Worth understanding rather than copying:
 
 - **The echo keeps controls honest.** Reporting state back inside each handler means a toggle shows
   the relay's true position — a scene, a schedule, or a manual tap can't leave the dashboard out of
-  sync with the wall.
-- **Handlers are idempotent.** Setting a pin to a definite on/off is safe to receive twice, which
-  at-least-once delivery can do across a reconnect — there's no toggle to flip the wrong way.
-- **State survives a reboot.** On reconnect the library re-applies the last known values, so the
-  house comes back the way you left it after a power blip.
-- **TLS is skipped for the first run.** `Nodrix.begin()` connects encrypted but unverified. For
-  production, pin a certificate with `Nodrix.setCACert()` — see
-  [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
+  sync with the wall. Because a handler just sets a pin, a duplicate delivery across a reconnect is
+  harmless, and the library re-applies the last known states so the house comes back the way you left
+  it after a power blip.
+- **The rest is the library's job.** At-least-once delivery, acking, reconnects, and — for
+  production — `Nodrix.setCACert()` TLS pinning all sit below your handlers; the
+  [downlink](/guides/esp32-receive-commands) and [HTTPS firmware](/guides/esp32-https-cloud) guides
+  cover them in full.
 
 ## Build the dashboard
 

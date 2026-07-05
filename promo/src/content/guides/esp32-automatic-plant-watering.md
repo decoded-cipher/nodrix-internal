@@ -140,9 +140,9 @@ dashboard without reflashing.
 ## The firmware
 
 One socket carries everything: moisture goes up, pump commands come down. The
-[nodrix Arduino library](https://github.com/decoded-cipher/nodrix-sdk) holds that socket, acks each
-command, and reconnects on its own, so the sketch is just your logic — read the sensor, run one
-capped burst per command, report the pump state back.
+[nodrix Arduino library](https://github.com/decoded-cipher/nodrix-sdk) owns the socket, the acks, and
+the reconnects, so the sketch is only your logic — read the sensor, run one capped burst per command,
+and report the pump state back.
 
 ```cpp
 #include <Nodrix.h>
@@ -193,15 +193,14 @@ void loop() {
 Worth understanding rather than copying:
 
 - **The burst is self-limiting.** It's a synchronous `digitalWrite` / `delay` / `digitalWrite`, so a
-  pulse always ends even if Wi-Fi drops mid-pour — there's no path that latches the pump on.
-- **Delivery is at-least-once.** The cloud holds a command until it's acked and re-sends on
-  reconnect, so a "water now" sent while the board was offline still arrives. The library acks for
-  you; because a burst is short, an occasional repeat just waters a little more.
-- **TLS is skipped for the first run.** `Nodrix.begin()` connects encrypted but unverified. For
-  production, pin a certificate with `Nodrix.setCACert()` — see
-  [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
+  pulse always ends even if Wi-Fi drops mid-pour — there's no path that latches the pump on. And
+  because a command is delivered at-least-once, a "water now" sent while the board was offline still
+  arrives on reconnect; a short burst repeating now and then just waters a little more.
 - **HTTP works too.** For a wake-report-sleep node, `Nodrix.beginHTTP()` with `Nodrix.poll()` reports
   the reading and collects any pending command per wake — same handler.
+- **Pin TLS before you ship.** `Nodrix.begin()` connects encrypted but unverified for the first run;
+  add `Nodrix.setCACert()` for production, covered in
+  [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
 
 ## Build the dashboard
 

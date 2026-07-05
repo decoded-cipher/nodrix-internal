@@ -173,28 +173,14 @@ but ninety-plus lines you *don't* write in every sketch, for every variable, on 
 
 ## Why each piece is in the library
 
-We didn't hide things to be clever — each one prevents a specific failure you'd rather never meet:
-
-- **Typed-value coercion.** Control values arrive typed: a toggle sends a boolean, a slider a number,
-  a select a string. Hand-rolled string-matching silently misses two of the three — it's the bug in
-  both sketches above.
-- **Automatic acks.** Delivery is at-least-once, so an un-acked write isn't done, it's *pending*, and
-  it comes back on every reconnect. Forgetting the ack is the most common way a device misbehaves.
-- **Control-variable seeding.** The cloud won't queue a write to a variable it has never seen, so an
-  un-seeded handler simply never fires on a fresh project — an evening lost wondering why.
-- **Reconnect and heartbeat.** Sockets drop, and a dead one can look alive for a long time. The
-  library reconnects itself and rides protocol heartbeats so a silent link gets noticed.
-- **Multiple WiFi networks, with failover.** This one is essential, not a nicety. A device that lives
-  on a network *will* lose it — a router reboots, the signal dips, a board roams between the house and
-  the workshop AP. A single hardcoded `WiFi.begin(SSID, PASS)` with no failover just goes dark and
-  stays dark. `addAP()` takes several networks and the library fails over between them mid-session, so
-  months of uptime survive a flaky connection.
-- **Telemetry batching.** Ten `send()` calls shouldn't be ten frames, and one over-long value
-  shouldn't get the whole batch rejected. The library coalesces and clamps before it sends.
-
-None of these are exotic. They're the corners you only find after the device has run for a week —
-which is exactly why they belong in the library, written once, instead of in every sketch. The
-[reference docs](/products/arduino-library) show how each is used.
+None of what it absorbs is exotic — typed-value coercion, automatic acks, control-variable seeding,
+reconnect and heartbeat, multi-WiFi failover, telemetry batching. They're the corners you only find
+after the device has run for a week: the ack you forgot, so the cloud re-delivers the write forever;
+the variable the cloud won't accept until it's been seen once; the second WiFi network a roaming
+board needs when the router reboots. Each is small on its own and collectively the difference between
+a demo and something that survives a month unattended — which is why they belong in the library,
+written once, instead of rediscovered in every sketch. The
+[reference docs](/products/arduino-library) show what each one does.
 
 ## Why it's C++ only, and stays optional
 

@@ -85,30 +85,15 @@ lives on Arduino's cloud.
 
 ## Pointing a board at nodrix
 
-No IDE lock-in. On an ESP32 or ESP8266, the optional nodrix library makes it a few lines:
+No IDE lock-in, and no generated sync sketch. On an ESP32 or ESP8266 the optional nodrix library
+makes it a few lines — `NODRIX_WRITE` for commands, `Nodrix.send()` for readings; the full firmware
+is in [Connect an ESP32 over HTTPS](/guides/esp32-https-cloud).
 
-```cpp
-#include <Nodrix.h>
-#include <DHT.h>
-
-DHT dht(4, DHT11);
-
-void setup() {
-  dht.begin();
-  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
-}
-
-void loop() {
-  Nodrix.run();
-  Nodrix.send("temperature", dht.readTemperature());
-}
-```
-
-On any other Wi-Fi board — an Arduino UNO R4 WiFi, a Nano 33 IoT, a Pi — POST the same JSON to
-`/v1/telemetry` with the standard HTTP client; commands come back over `GET /v1/control` or the
-control WebSocket. The full firmware is in
-[Connect an ESP32 over HTTPS](/guides/esp32-https-cloud), and the same open protocol works
-everywhere.
+The part Arduino Cloud can't match is everything else. Any board that speaks HTTPS talks to nodrix
+directly, no library or particular board family required: POST a reading to `/v1/telemetry` with the
+standard HTTP client, and pull commands back over `GET /v1/control` or the control WebSocket. An
+Arduino UNO R4 WiFi, a Nano 33 IoT, a Pico W, or a Python script on a Pi all speak the same open
+protocol — one backend, every board.
 
 ## The bottom line
 

@@ -7,6 +7,8 @@ const STATIC_LASTMOD = '2026-06-17';
 // Static top-level pages. Add new ones here.
 const staticRoutes: { path: string; priority: string }[] = [
   { path: '', priority: '1.0' },
+  { path: 'products', priority: '0.8' },
+  { path: 'products/arduino-library', priority: '0.9' },
   { path: 'docs', priority: '0.8' },
   { path: 'widgets', priority: '0.8' },
   { path: 'guides', priority: '0.8' },

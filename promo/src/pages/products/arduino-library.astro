@@ -1,0 +1,622 @@
+---
+import Site from '../../layouts/Site.astro';
+import Waves from '../../components/Waves.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Faq from '../../components/Faq.astro';
+import RelatedLinks from '../../components/RelatedLinks.astro';
+import { breadcrumb, faqPage, jsonLdGraph } from '../../lib/seo';
+
+const repoUrl = 'https://github.com/decoded-cipher/nodrix-sdk';
+const releaseUrl = `${repoUrl}/releases/tag/v0.1.0`;
+const pioUrl = 'https://registry.platformio.org/libraries/decoded-cipher/Nodrix';
+const arduinoUrl = 'https://www.arduino.cc/reference/en/libraries/nodrix/';
+const version = '0.1.0';
+
+const title = 'Nodrix Arduino library for ESP32 & ESP8266';
+const description =
+  'The Nodrix Arduino library connects ESP32 and ESP8266 hardware to your own IoT cloud in a few lines — NODRIX_WRITE control handlers with typed values, one-call telemetry, WebSocket and HTTP transports, at-least-once delivery, multi-WiFi failover, and TLS pinning.';
+const ogPath = '/og/arduino-library.png';
+
+const channels = [
+  {
+    name: 'Arduino IDE',
+    channel: 'Library Manager',
+    logo: '/logos/arduino.svg',
+    link: arduinoUrl,
+    linkLabel: 'Arduino reference',
+    blurb: 'Search the Library Manager and click Install — the dependencies come with it.',
+    command: 'Nodrix',
+    search: true,
+  },
+  {
+    name: 'PlatformIO',
+    channel: 'Registry',
+    logo: '/logos/platformio.svg',
+    link: pioUrl,
+    linkLabel: 'Registry page',
+    blurb: 'Add one line to your `platformio.ini`:',
+    command: 'lib_deps = decoded-cipher/Nodrix',
+    search: false,
+  },
+  {
+    name: 'GitHub',
+    channel: 'Source',
+    logo: '/logos/github.svg',
+    link: releaseUrl,
+    linkLabel: `Release v${version}`,
+    blurb: 'Or pin any tagged release straight from the repo:',
+    command: `lib_deps = https://github.com/decoded-cipher/nodrix-sdk.git#v${version}`,
+    search: false,
+  },
+];
+
+const features = [
+  { name: 'Blynk-style handlers', desc: 'NODRIX_WRITE("var") { … } runs when the cloud writes a variable. Self-registering — no dispatch table, no wiring in setup().', icon: 'M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1 M16 3h1a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0-2 2v5a2 2 0 0 1-2 2h-1' },
+  { name: 'Typed control values', desc: 'value coerces the wire type, so a boolean toggle, a numeric slider, and a string select all just work — no fragile string matching.', icon: 'M8 3 4 7l4 4 M4 7h16 M16 21l4-4-4-4 M20 17H4' },
+  { name: 'One-call telemetry', desc: 'Nodrix.send() stages a metric; the library coalesces many into one frame and enforces the wire limits before sending.', icon: 'm4 14 5-5 4 4 7-7 M21 14V6h-8' },
+  { name: 'Two transports', desc: 'An always-on WebSocket for instant control, or HTTP polling for battery deep-sleep nodes. Same handlers, one-line switch.', icon: 'M6 3v12 M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M15 6a9 9 0 0 1-9 9' },
+  { name: 'At-least-once + auto-ack', desc: 'The library acks every write so the cloud stops re-sending it, and nothing is lost across a nap or a WiFi blip.', icon: 'M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4 12 14.01l-3-3' },
+  { name: 'Control-variable seeding', desc: 'It seeds each handled variable so the cloud will queue writes to it, and re-echoes real state on reconnect instead of clobbering it.', icon: 'M7 20h10 M10 20c5.5-2.5.8-6.4 3-10 M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z' },
+  { name: 'Multiple WiFi networks', desc: 'addAP() registers fallbacks; the strongest reachable one is used and the device fails over between them mid-session.', icon: 'M5 13a10 10 0 0 1 14 0 M8.5 16.5a5 5 0 0 1 7 0 M2 8.82a15 15 0 0 1 20 0 M12 20h.01' },
+  { name: 'Reconnect + heartbeat', desc: 'The socket reconnects on its own and rides protocol heartbeats, so a silent link gets noticed instead of hanging.', icon: 'M22 12h-4l-3 9L9 3l-3 9H2' },
+  { name: 'Optional TLS pinning', desc: 'Encrypted-but-unverified by default for a fast first run; pin a root CA (ESP32) or a fingerprint (ESP8266) when you ship.', icon: 'M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z M9 12l2 2 4-4' },
+];
+
+const reliability = [
+  { title: 'At-least-once delivery', body: "A control write stays queued until it's acknowledged and re-delivers on the next connect or poll, so nothing is lost across a nap or a WiFi blip.", icon: 'm17 2 4 4-4 4 M3 11v-1a4 4 0 0 1 4-4h14 M7 22l-4-4 4-4 M21 13v1a4 4 0 0 1-4 4H3' },
+  { title: 'Automatic acks', body: 'The library acknowledges every write it hands your code, so the cloud stops re-sending it. Forgetting the ack is the most common hand-rolled bug.', icon: 'M20 6 9 17l-5-5' },
+  { title: 'Control-variable seeding', body: 'The cloud only queues writes to a variable it has seen. The library seeds each registered handler on connect, and re-echoes the last known state on reconnect rather than clobbering it.', icon: 'M7 20h10 M10 20c5.5-2.5.8-6.4 3-10 M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z' },
+  { title: 'Reconnect & heartbeat', body: 'On the WebSocket it reconnects on its own and rides protocol heartbeats for liveness; run() and poll() also re-run WiFi failover if the connection drops.', icon: 'M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8 M21 3v5h-5 M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16 M8 16H3v5' },
+];
+
+const values = [
+  { m: 'value.asBool()', r: 'true for true, any non-zero number, or "on"/"1"/"true"/"yes"' },
+  { m: 'value.asInt() / asLong()', r: 'integer (parses numeric strings)' },
+  { m: 'value.asFloat() / asDouble()', r: 'number' },
+  { m: 'value.asString()', r: 'the raw string' },
+  { m: 'value.isNull()', r: 'no value' },
+];
+
+const api = [
+  { s: 'addAP(ssid, pass)', d: 'Register a WiFi network before begin()' },
+  { s: 'begin(ssid, pass, host, token[, port])', d: 'Connect over WebSocket' },
+  { s: 'begin(host, token[, port])', d: 'WebSocket, using the addAP() networks' },
+  { s: 'beginHTTP(ssid, pass, host, token[, port])', d: 'HTTP mode' },
+  { s: 'beginHTTP(host, token[, port])', d: 'HTTP mode, using the addAP() networks' },
+  { s: 'run()', d: 'WebSocket: pump the socket and flush telemetry; call every loop()' },
+  { s: 'poll()', d: 'HTTP: send readings, fetch and apply control; call on wake' },
+  { s: 'send(var, value)', d: 'Stage a metric (bool/int/long/float/double/const char*/String)' },
+  { s: 'flush()', d: 'Transmit staged metrics now' },
+  { s: 'event(name) / event(name, payload)', d: 'Fire a server-side event' },
+  { s: 'connected()', d: 'Whether the link is up' },
+  { s: 'onConnect(cb) / onDisconnect(cb)', d: 'Connection callbacks' },
+  { s: 'setInsecure()', d: 'Skip certificate validation (default)' },
+  { s: 'setCACert(pem)', d: 'Pin a root CA (ESP32)' },
+  { s: 'setFingerprint(fp)', d: 'Pin a SHA-1 fingerprint (ESP8266 HTTP)' },
+  { s: 'setDebug(on)', d: 'Log connection and protocol activity to Serial' },
+  { s: 'NODRIX_WRITE("var") { … }', d: 'Handle a cloud write; value is in scope' },
+];
+
+const examples = [
+  { name: 'LedControl', href: `${repoUrl}/tree/master/examples/LedControl`, desc: 'Toggle the on-board LED from a dashboard.' },
+  { name: 'HomeLights', href: `${repoUrl}/tree/master/examples/HomeLights`, desc: 'Two independently controlled lights or relays.' },
+  { name: 'MultiWiFi', href: `${repoUrl}/tree/master/examples/MultiWiFi`, desc: 'Connect through several networks with failover.' },
+  { name: 'SensorTelemetry', href: `${repoUrl}/tree/master/examples/SensorTelemetry`, desc: 'DHT11 temperature/humidity over a cert-pinned socket.' },
+  { name: 'DeepSleepSensor', href: `${repoUrl}/tree/master/examples/DeepSleepSensor`, desc: 'HTTP mode: read a DHT11, report, apply control, deep sleep.' },
+];
+
+const faqs = [
+  { q: 'Which boards does the Nodrix Arduino library support?', a: 'Every ESP32 — the original plus the S2, S3, C3, C6, and H2 variants — and ESP8266. That covers common DevKits, the XIAO ESP32-C3/S3, Arduino Nano ESP32, Seeed ESP32 boards, NodeMCU, and Wemos D1 mini. Boards that reach WiFi through a coprocessor (Raspberry Pi Pico W, Arduino UNO R4 WiFi, WiFiNINA) and cellular modules aren’t supported yet — those talk to nodrix over plain HTTPS instead.' },
+  { q: 'How do I install the Nodrix Arduino library?', a: 'In the Arduino IDE, search "Nodrix" in the Library Manager and install it (it pulls in ArduinoJson and WebSockets). In PlatformIO, add decoded-cipher/Nodrix to lib_deps. Then include it with #include <Nodrix.h>.' },
+  { q: 'Do I have to use the library to connect an ESP32 to nodrix?', a: 'No. The device protocol is plain HTTPS and WebSocket with JSON, so any board or language can talk to nodrix directly. The library is optional — it exists to remove the WiFi, TLS, JSON, ack, and reconnect boilerplate on ESP32/ESP8266, where hand-writing it is the most painful.' },
+  { q: 'Should I use the WebSocket or HTTP transport?', a: 'Use the always-on WebSocket (Nodrix.begin) for mains-powered controllers that need instant control — the socket hibernates on Cloudflare, so an idle connection costs almost nothing. Use HTTP polling (Nodrix.beginHTTP, then Nodrix.poll() each wake) for battery devices that wake, report, and deep-sleep. The same NODRIX_WRITE handlers work in both modes.' },
+  { q: 'What happens to a command sent while the device is offline or asleep?', a: 'It waits. Control delivery is at-least-once: the cloud holds a write until the device acknowledges it and re-delivers anything outstanding on the next connect or poll. The library acks every write it delivers, reconnects on its own, and seeds control variables so the cloud will queue writes to them — so a command sent during a nap still lands.' },
+  { q: 'How do I turn on TLS certificate validation?', a: 'By default the library connects encrypted but unverified — the fastest path to a first working device. To pin, call Nodrix.setCACert(pem) before begin() on ESP32 (WebSocket and HTTP), or Nodrix.setFingerprint(fp) on ESP8266 in HTTP mode. The repo README includes the openssl command to fetch your host’s root CA.' },
+];
+
+const related = [
+  { href: '/blog/announcing-nodrix-arduino-library', label: 'Why we built the library', desc: 'The story and the thinking behind it.' },
+  { href: '/guides/esp32-receive-commands', label: 'Receive commands on an ESP32', desc: 'The downlink the library runs for you, in depth.' },
+  { href: '/guides/esp32-smart-home-automation', label: 'Build a DIY smart home', desc: 'A complete project on top of the library.' },
+  { href: '/docs#protocol', label: 'Device protocol', desc: 'The plain HTTPS/WebSocket contract underneath.' },
+];
+
+const quickstart = `#include <Nodrix.h>
+#include "secret.h"
+
+const int LED_PIN = 2;
+
+NODRIX_WRITE("led") {                 // cloud writes "led" -> this runs
+  digitalWrite(LED_PIN, value.asBool() ? HIGH : LOW);
+  Nodrix.send("led", value.asBool()); // report real state back
+}
+
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
+}
+
+void loop() {
+  Nodrix.run();
+}`;
+
+const configSnippet = `#define WIFI_SSID "your-wifi"
+#define WIFI_PASS "your-password"
+#define HOST      "yourproject.workers.dev"   // Nodrix host, no https://
+#define TOKEN     "your-project-token"         // Settings -> Tokens`;
+
+const multiWifiSnippet = `Nodrix.addAP("home-ssid", "home-pass");
+Nodrix.addAP("workshop-ssid", "workshop-pass");
+Nodrix.begin(HOST, TOKEN);   // no ssid/pass — uses the list above`;
+
+const telemetrySnippet = `Nodrix.send("temperature", 22.5);
+Nodrix.send("online", true);
+Nodrix.send("status", "ok");`;
+
+const httpSnippet = `void setup() {
+  Nodrix.beginHTTP(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
+  Nodrix.send("soil", analogRead(34));
+  Nodrix.flush();   // POST telemetry
+  Nodrix.poll();    // fetch + apply queued control, then ack
+  // ... then esp_deep_sleep_start()
+}`;
+
+const tlsSnippet = `openssl s_client -showcerts -servername yourproject.workers.dev \\
+  -connect yourproject.workers.dev:443 </dev/null 2>/dev/null \\
+| awk '/BEGIN CERTIFICATE/{c++; b=""} {b=b $0 ORS} /END CERTIFICATE/{last=b} END{printf "\\n%s", last}'`;
+
+const site = Astro.site!;
+const path = '/products/arduino-library';
+const jsonLd = jsonLdGraph(
+  {
+    '@type': 'SoftwareSourceCode',
+    name: 'Nodrix Arduino library',
+    description,
+    codeRepository: repoUrl,
+    programmingLanguage: 'C++',
+    runtimePlatform: 'Arduino',
+    license: 'https://opensource.org/licenses/MIT',
+    url: new URL(path, site).href,
+    image: new URL(ogPath, site).href,
+    author: { '@type': 'Organization', name: 'nodrix', url: site.href },
+    isPartOf: { '@id': new URL('#website', site).href },
+  },
+  breadcrumb(site, [
+    { name: 'Home', path: '/' },
+    { name: 'Products', path: '/products' },
+    { name: 'Arduino library', path },
+  ]),
+  faqPage(faqs),
+);
+
+const codeClass =
+  'min-w-0 overflow-x-auto rounded-xl border border-neutral-800 bg-neutral-900 p-4 text-xs leading-relaxed text-neutral-100 sm:text-[13px]';
+const h2 = 'mt-2 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl';
+const tile = 'flex h-11 w-11 items-center justify-center rounded-xl bg-accent-50 text-accent-600 ring-1 ring-inset ring-accent-100';
+const svgAttrs = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' };
+---
+
+<Site title={`${title} | nodrix`} description={description} type="article" image={ogPath}>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json" set:html={jsonLd} />
+  </Fragment>
+
+  <main data-doc>
+    <!-- Hero -->
+    <section class="hero-glow relative overflow-hidden border-b border-neutral-200/70">
+      <Waves />
+      <div class="relative mx-auto max-w-4xl px-5 py-16 sm:px-6 sm:py-24">
+        <nav class="text-sm text-neutral-500" aria-label="Breadcrumb">
+          <a href="/products" class="font-semibold text-accent-600 hover:text-accent-700">Products</a>
+          <span class="mx-1.5 text-neutral-300">/</span>
+          <span>Arduino library</span>
+        </nav>
+        <span class="mt-4 block text-sm font-semibold text-accent-600">Arduino Library</span>
+        <h1 class="mt-2 text-balance text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl">
+          Your ESP32, on Nodrix in a few lines.
+        </h1>
+        <p class="mt-5 max-w-2xl text-pretty text-base leading-relaxed text-neutral-600 sm:text-lg">
+          An optional Arduino library for <strong>ESP32 and ESP8266</strong>. It hides WiFi, TLS, the
+          WebSocket/HTTP transport, JSON, and the nodrix control/telemetry protocol behind a tiny API —
+          so a sketch is mostly your own device logic, not plumbing.
+        </p>
+
+        <div class="mt-6 flex flex-wrap items-center gap-2">
+          <span class="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-600">v{version}</span>
+          <span class="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-600">MIT licensed</span>
+          <span class="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-600">ESP32 · ESP8266</span>
+          <span class="rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-600">C++ / Arduino</span>
+        </div>
+
+        <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+          <a
+            href={repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-neutral-900 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.4.5 0 5.9 0 12.5c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 24 12.5C24 5.9 18.6.5 12 .5Z"/></svg>
+            View on GitHub
+          </a>
+          <a
+            href="#install"
+            class="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white px-6 py-3.5 text-base font-semibold text-neutral-800 transition-colors hover:bg-neutral-100"
+          >
+            Install
+            <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Install -->
+    <section id="install" class="scroll-mt-20 border-b border-neutral-200/70 bg-neutral-50">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Get started</span>
+        <h2 class={h2}>Install it</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          Pick a channel. It's in the Arduino IDE Library Manager and the PlatformIO registry, or you can
+          pull it straight from GitHub. Either way it brings <strong>ArduinoJson</strong> (v7) and
+          <strong> WebSockets</strong> by Markus Sattler along with it.
+        </p>
+
+        <div class="mt-8 grid gap-4 md:grid-cols-3">
+          {channels.map((ch) => (
+            <article class="flex min-w-0 flex-col rounded-2xl border border-neutral-200 bg-white p-6 transition-shadow hover:shadow-md">
+              <div class="flex items-center gap-4">
+                <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-b from-white to-neutral-100 ring-1 ring-inset ring-neutral-200/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-2px_5px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.04)]">
+                  <img src={ch.logo} alt={`${ch.name} logo`} width="36" height="36" class="h-9 w-9" />
+                </div>
+                <div class="min-w-0">
+                  <h3 class="text-base font-bold text-neutral-900">{ch.name}</h3>
+                  <p class="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">{ch.channel}</p>
+                </div>
+              </div>
+              <p class="mt-4 flex-1 text-sm leading-relaxed text-neutral-600">
+                {ch.blurb.split('`').map((part, i) => (i % 2 === 1
+                  ? <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">{part}</code>
+                  : part))}
+              </p>
+              <div class="relative mt-4 rounded-lg bg-neutral-900">
+                <div class="flex items-center gap-2 overflow-x-auto py-2.5 pl-3 pr-11">
+                  {ch.search && (
+                    <svg class="h-4 w-4 shrink-0 text-neutral-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+                  )}
+                  <code class="whitespace-nowrap font-mono text-xs text-neutral-100">{ch.command}</code>
+                </div>
+                <button
+                  type="button"
+                  data-copy={ch.command}
+                  aria-label="Copy to clipboard"
+                  class="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md border border-white/10 bg-white/5 text-neutral-400 transition-colors hover:bg-white/10 hover:text-neutral-200"
+                >
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></svg>
+                </button>
+              </div>
+              <a href={ch.link} target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-accent-600 hover:text-accent-700">
+                {ch.linkLabel}
+                <span aria-hidden="true">→</span>
+              </a>
+            </article>
+          ))}
+        </div>
+
+        <p class="mt-8 text-sm text-neutral-600">Then pull it into your sketch with a single header:</p>
+        <pre class={`mt-2 ${codeClass}`}><code>{`#include <Nodrix.h>`}</code></pre>
+      </div>
+    </section>
+
+    <!-- Quickstart -->
+    <section class="border-b border-neutral-200/70 bg-white">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Quickstart</span>
+        <h2 class={h2}>The whole program</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          Hand-written, driving one LED from the cloud is about ninety lines of WiFi, TLS, JSON parsing,
+          acking, and reconnect handling. With the library it's this — bind a dashboard toggle to
+          <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">led</code> and it works end to end:
+        </p>
+        <div class="mt-6 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 shadow-xl shadow-neutral-900/10">
+          <div class="flex items-center gap-2 border-b border-neutral-800 px-4 py-2.5">
+            <span class="h-2.5 w-2.5 rounded-full bg-neutral-700"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-neutral-700"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-neutral-700"></span>
+            <span class="ml-2 text-xs font-medium text-neutral-500">LedControl.ino</span>
+          </div>
+          <pre data-nocopy class="min-w-0 overflow-x-auto p-4 text-xs leading-relaxed text-neutral-100 sm:text-[13px]"><code>{quickstart}</code></pre>
+        </div>
+        <p class="mt-4 text-sm text-neutral-500">Everything below is what the library does underneath.</p>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="border-b border-neutral-200/70 bg-neutral-50">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Under the hood</span>
+        <h2 class={h2}>What it handles for you</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          Everything that isn't specific to your project — the transport, the protocol, and its sharp
+          edges — lives below the API.
+        </p>
+        <div class="mt-10 grid gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((f) => (
+            <div class="group bg-white p-6 transition-colors hover:bg-neutral-50/70">
+              <div class={tile}>
+                <svg class="h-5 w-5" {...svgAttrs}><path d={f.icon} /></svg>
+              </div>
+              <h3 class="mt-5 text-base font-semibold text-neutral-900">{f.name}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-neutral-600">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Receiving control -->
+    <section class="border-b border-neutral-200/70 bg-white">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Control</span>
+        <h2 class={h2}>Receiving control</h2>
+        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">NODRIX_WRITE("var") &#123; … &#125;</code>
+          registers a handler for a variable. When a dashboard widget, an automation, or the API writes
+          it, the block runs with a <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">value</code>
+          in scope. Registration happens before <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">setup()</code>,
+          so a handler is a single self-contained block anywhere in the sketch — no dispatch table.
+        </p>
+        <p class="mt-4 max-w-3xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          The <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">value</code> is a
+          <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">NodrixValue</code> that
+          coerces the wire type, so a toggle sending <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">true</code>,
+          a slider sending <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">42</code>,
+          and a select sending <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">"on"</code> all just work:
+        </p>
+        <div class="mt-5 overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+          <table class="w-full text-sm">
+            <thead class="bg-neutral-50 text-left text-neutral-500">
+              <tr><th class="px-4 py-2.5 font-semibold">Method</th><th class="px-4 py-2.5 font-semibold">Returns</th></tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-100">
+              {values.map((v) => (
+                <tr>
+                  <td class="whitespace-nowrap px-4 py-2.5"><code class="font-mono text-[13px] text-neutral-900">{v.m}</code></td>
+                  <td class="px-4 py-2.5 text-neutral-600">{v.r}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-4 max-w-3xl text-sm leading-relaxed text-neutral-600">
+          Acknowledgements are automatic — the library acks every write it delivers, so the cloud stops
+          re-sending it. Because delivery is at-least-once, a handler can run more than once for the same
+          command across a reconnect, so keep it idempotent. Setting a pin to a definite state is naturally safe.
+        </p>
+      </div>
+    </section>
+
+    <!-- Sending telemetry -->
+    <section class="border-b border-neutral-200/70 bg-neutral-50">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Telemetry</span>
+        <h2 class={h2}>Sending telemetry</h2>
+        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">send()</code> reports a
+          reading; overloads cover every common type.
+        </p>
+        <pre class={`mt-5 ${codeClass}`}><code>{telemetrySnippet}</code></pre>
+        <p class="mt-4 max-w-3xl text-sm leading-relaxed text-neutral-600">
+          Calls <strong>stage</strong> a metric rather than transmitting immediately; the library coalesces
+          them into a single frame on the next <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">run()</code>
+          (WebSocket) or <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">flush()</code>/<code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">poll()</code>
+          (HTTP), so ten calls become one payload. The buffer also enforces the wire limits — it batches
+          within the per-frame cap, drops over-long keys, and clamps oversized strings — so one bad reading
+          can't get the whole batch rejected.
+        </p>
+      </div>
+    </section>
+
+    <!-- Transports -->
+    <section class="border-b border-neutral-200/70 bg-white">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Transports</span>
+        <h2 class={h2}>Two transports, same handlers</h2>
+        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          A device lives one of two ways, and the library matches both without changing your handlers — a
+          one-line switch between <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">begin()</code> and
+          <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">beginHTTP()</code>.
+        </p>
+        <div class="mt-5 overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+          <table class="w-full text-sm">
+            <thead class="bg-neutral-50 text-left text-neutral-500">
+              <tr>
+                <th class="px-4 py-2.5 font-semibold"></th>
+                <th class="px-4 py-2.5 font-semibold">begin() — WebSocket</th>
+                <th class="px-4 py-2.5 font-semibold">beginHTTP() — polling</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-100 text-neutral-600">
+              <tr><td class="whitespace-nowrap px-4 py-2.5 font-medium text-neutral-900">Latency</td><td class="px-4 py-2.5">instant</td><td class="px-4 py-2.5">your poll interval</td></tr>
+              <tr><td class="whitespace-nowrap px-4 py-2.5 font-medium text-neutral-900">Connection</td><td class="px-4 py-2.5">one socket held open</td><td class="px-4 py-2.5">none; one request per check</td></tr>
+              <tr><td class="whitespace-nowrap px-4 py-2.5 font-medium text-neutral-900">Best for</td><td class="px-4 py-2.5">always-on controllers</td><td class="px-4 py-2.5">battery / deep-sleep nodes</td></tr>
+              <tr><td class="whitespace-nowrap px-4 py-2.5 font-medium text-neutral-900">Loop call</td><td class="px-4 py-2.5"><code class="font-mono text-[13px]">run()</code> every loop()</td><td class="px-4 py-2.5"><code class="font-mono text-[13px]">poll()</code> on each wake</td></tr>
+              <tr><td class="whitespace-nowrap px-4 py-2.5 font-medium text-neutral-900">Idle cost</td><td class="px-4 py-2.5">~zero (Cloudflare hibernates it)</td><td class="px-4 py-2.5">one request per interval</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-5 text-sm font-semibold text-neutral-900">HTTP wake cycle</p>
+        <pre class={`mt-2 ${codeClass}`}><code>{httpSnippet}</code></pre>
+      </div>
+    </section>
+
+    <!-- Reliability -->
+    <section class="border-b border-neutral-200/70 bg-neutral-50">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Reliability</span>
+        <h2 class={h2}>The reliability the protocol needs</h2>
+        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          The protocol's sharp edges are the reason to use the library rather than hand-roll it — and they
+          all live below the API.
+        </p>
+        <div class="mt-8 grid gap-4 sm:grid-cols-2">
+          {reliability.map((r) => (
+            <div class="rounded-2xl border border-neutral-200 bg-white p-5">
+              <div class={tile}>
+                <svg class="h-5 w-5" {...svgAttrs}><path d={r.icon} /></svg>
+              </div>
+              <h3 class="mt-4 text-sm font-bold text-neutral-900">{r.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-neutral-600">{r.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- TLS -->
+    <section class="border-b border-neutral-200/70 bg-white">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Security</span>
+        <h2 class={h2}>TLS pinning</h2>
+        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          By default the library connects encrypted but unverified — the shortest path to a first working
+          device. To pin, call <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">setCACert(pem)</code>
+          (ESP32, WebSocket and HTTP) or <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">setFingerprint(fp)</code>
+          (ESP8266, HTTP) before <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">begin()</code>.
+          Pin the <strong>root CA</strong>, not the leaf — the leaf rotates every ~90 days, the root does not.
+          Your host serves its root as the last block of the chain:
+        </p>
+        <pre class={`mt-5 ${codeClass}`}><code>{tlsSnippet}</code></pre>
+        <p class="mt-4 max-w-3xl text-sm leading-relaxed text-neutral-600">
+          For Cloudflare <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">*.workers.dev</code>
+          that returns GTS Root R4. One limitation: on ESP8266 the WebSocket transport is always unvalidated —
+          use an ESP32, or ESP8266 in HTTP mode with a fingerprint.
+        </p>
+      </div>
+    </section>
+
+    <!-- Boards -->
+    <section class="border-b border-neutral-200/70 bg-neutral-50">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Hardware</span>
+        <h2 class={h2}>Supported boards</h2>
+        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          Any <strong>ESP32</strong> — the original plus the <strong>S2, S3, C3, C6, and H2</strong>
+          variants — or <strong>ESP8266</strong>. That covers common DevKits, the XIAO ESP32-C3/S3, Arduino
+          Nano ESP32, Seeed ESP32 boards, NodeMCU, and the Wemos D1 mini.
+        </p>
+        <p class="mt-4 max-w-3xl text-sm leading-relaxed text-neutral-600">
+          Boards that reach WiFi through a coprocessor (Raspberry Pi Pico W, Arduino UNO R4 WiFi, WiFiNINA)
+          and cellular modules aren't supported yet — point those at nodrix over plain HTTPS instead.
+        </p>
+      </div>
+    </section>
+
+    <!-- Examples -->
+    <section class="border-b border-neutral-200/70 bg-white">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Examples</span>
+        <h2 class={h2}>Worked examples</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          Five runnable sketches ship with the repository. The two DHT11 examples also need the
+          <strong> DHT sensor library</strong> by Adafruit.
+        </p>
+        <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {examples.map((e) => (
+            <a href={e.href} target="_blank" rel="noopener noreferrer" class="group flex min-w-0 flex-col rounded-2xl border border-neutral-200 bg-white p-5 transition-shadow hover:shadow-md">
+              <div class="flex items-center justify-between">
+                <code class="font-mono text-sm font-bold text-neutral-900">{e.name}</code>
+                <span aria-hidden="true" class="text-accent-400 transition-transform group-hover:translate-x-0.5">→</span>
+              </div>
+              <p class="mt-2 text-sm leading-relaxed text-neutral-600">{e.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- API reference -->
+    <section class="border-b border-neutral-200/70 bg-neutral-50">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Reference</span>
+        <h2 class={h2}>API reference</h2>
+        <div class="mt-6 overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+          <table class="w-full text-sm">
+            <tbody class="divide-y divide-neutral-100">
+              {api.map((a) => (
+                <tr>
+                  <td class="whitespace-nowrap px-4 py-2.5"><code class="font-mono text-[13px] text-neutral-900">{a.s}</code></td>
+                  <td class="px-4 py-2.5 text-neutral-600">{a.d}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-6 text-sm text-neutral-600">
+          Full configuration — a <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">secret.h</code>
+          for credentials and <code class="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]">addAP()</code>
+          for multiple networks:
+        </p>
+        <div class="mt-3 grid gap-3 lg:grid-cols-2">
+          <pre class={codeClass}><code>{configSnippet}</code></pre>
+          <pre class={codeClass}><code>{multiWifiSnippet}</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Faq items={faqs} />
+  <RelatedLinks links={related} />
+  <CtaBand title="Deploy the cloud your board talks to" subtitle="Nodrix is free and open source — deploy it to your own Cloudflare account, then point an ESP32 at it with this library." />
+
+  <script>
+    const COPY =
+      '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+    const DONE =
+      '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+    document.querySelectorAll('[data-doc] pre:not([data-nocopy])').forEach((pre) => {
+      const code = pre.querySelector('code');
+      if (!code) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'code-wrap';
+      pre.parentNode?.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy-btn';
+      btn.setAttribute('aria-label', 'Copy code');
+      btn.innerHTML = COPY;
+      btn.addEventListener('click', async () => {
+        const text = (code.textContent ?? '').replace(/\n$/, '');
+        try {
+          await navigator.clipboard.writeText(text);
+          btn.innerHTML = DONE;
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = COPY;
+            btn.classList.remove('copied');
+          }, 1600);
+        } catch {
+          /* clipboard unavailable */
+        }
+      });
+      wrap.appendChild(btn);
+    });
+
+    document.querySelectorAll('[data-copy]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(btn.getAttribute('data-copy') ?? '');
+          btn.innerHTML = DONE;
+          btn.style.color = '#34d399';
+          setTimeout(() => {
+            btn.innerHTML = COPY;
+            btn.style.color = '';
+          }, 1600);
+        } catch {
+          /* clipboard unavailable */
+        }
+      });
+    });
+  </script>
+</Site>

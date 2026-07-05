@@ -98,6 +98,7 @@
 .code-wrap {
   position: relative;
   margin: 1.25rem 0;
+  min-width: 0;
 }
 .code-wrap > pre {
   margin: 0;

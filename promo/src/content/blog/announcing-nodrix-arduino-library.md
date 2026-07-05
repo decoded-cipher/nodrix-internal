@@ -1,7 +1,8 @@
 ---
-title: "Why we built the Nodrix Arduino library"
-description: "Nodrix is deliberately SDK-free — and that's a feature everywhere except on a microcontroller. The story behind the optional Arduino library for ESP32 and ESP8266: the boilerplate it kills, the bug it fixes, and why it's C++ only."
-type: engineering
+title: "Announcing the Nodrix Arduino library"
+description: "The Nodrix Arduino library is out — v0.1.0 for ESP32 and ESP8266, in the Arduino Library Manager and PlatformIO. Why we built it: the ninety lines of WiFi, TLS, JSON, and ack plumbing it removes, the typed-value bug it fixes, and why it stays optional and C++ only."
+type: release
+version: "0.1.0"
 author:
   name: Arjun Krishna
   role: Maintainer
@@ -21,7 +22,7 @@ faqs:
   - q: "What was wrong with hand-writing the device code?"
     a: "It's easy to get subtly wrong. A naive sketch string-matches the JSON, which misses control values that arrive as a boolean or number rather than a string, and it often forgets to acknowledge the command — so the cloud re-delivers it forever. Even a careful hand-written version is ~90 lines where the real logic is three. The library handles the acking, reconnects, control-variable seeding, and typed-value coercion for you."
 related:
-  - href: "/docs/arduino-library"
+  - href: "/products/arduino-library"
     label: "Arduino library reference"
     desc: "Install, API, transports, TLS — the full docs."
   - href: "/guides/esp32-receive-commands"
@@ -32,15 +33,20 @@ related:
     desc: "The open HTTPS/WebSocket contract underneath."
 ---
 
+The Nodrix Arduino library is out — `0.1.0`, MIT-licensed, for ESP32 and ESP8266, available now in
+the Arduino Library Manager and the PlatformIO registry. It's optional, it sits on top of the same
+open device protocol, and it turns roughly ninety lines of WiFi, TLS, JSON, and reconnect plumbing
+into a handful. This post is why it exists.
+
 Nodrix has always been deliberately SDK-free. A device authenticates with a token and speaks plain
 HTTPS or WebSocket, so a Raspberry Pi, a server script, or anything that can make a request talks to
 it with no broker and nothing to install. That's a feature nearly everywhere — except on a
 microcontroller, where "just make an HTTPS request" quietly expands into WiFi management, a TLS
 socket, JSON parsing, protocol framing, acknowledgements, and reconnect handling.
 
-This is the story of the one place nodrix still felt like boilerplate, and the small Arduino library
-we wrote to fix it. If you just want the reference — install, API, transports, TLS — that lives in
-the [Arduino library docs](/docs/arduino-library). This post is the why.
+It's the story of the one place nodrix still felt like boilerplate, and the small library we wrote to
+fix it. If you just want the reference — install, API, transports, TLS — that lives in the
+[Arduino library docs](/products/arduino-library).
 
 ## The sketch that looks fine and isn't
 
@@ -188,7 +194,7 @@ We didn't hide things to be clever — each one prevents a specific failure you'
 
 None of these are exotic. They're the corners you only find after the device has run for a week —
 which is exactly why they belong in the library, written once, instead of in every sketch. The
-[reference docs](/docs/arduino-library) show how each is used.
+[reference docs](/products/arduino-library) show how each is used.
 
 ## Why it's C++ only, and stays optional
 
@@ -213,7 +219,7 @@ fastest way to feel the difference is to flash the
 [`LedControl`](https://github.com/decoded-cipher/nodrix-sdk/tree/master/examples/LedControl) example
 and bind a toggle to `led`.
 
-- **Reference:** [the Arduino library docs](/docs/arduino-library) — install, API, transports, TLS.
+- **Reference:** [the Arduino library docs](/products/arduino-library) — install, API, transports, TLS.
 - **Source & examples:** [github.com/decoded-cipher/nodrix-sdk](https://github.com/decoded-cipher/nodrix-sdk).
 
 The plumbing is finally somebody else's problem.

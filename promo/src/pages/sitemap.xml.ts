@@ -7,8 +7,7 @@ const STATIC_LASTMOD = '2026-06-17';
 // Static top-level pages. Add new ones here.
 const staticRoutes: { path: string; priority: string }[] = [
   { path: '', priority: '1.0' },
-  { path: 'products', priority: '0.8' },
-  { path: 'products/arduino-library', priority: '0.9' },
+  { path: 'products', priority: '0.9' },
   { path: 'docs', priority: '0.8' },
   { path: 'widgets', priority: '0.8' },
   { path: 'guides', priority: '0.8' },
@@ -18,6 +17,10 @@ const staticRoutes: { path: string; priority: string }[] = [
   { path: 'privacy', priority: '0.3' },
   { path: 'terms', priority: '0.3' },
 ];
+
+// Product pages, ranked above guides and blog. Add new products here.
+const productSlugs = ['arduino-library'];
+const productRoutes = productSlugs.map((slug) => ({ path: `products/${slug}`, priority: '0.9' }));
 
 export const GET: APIRoute = async ({ site }) => {
   // Only published guides belong in the sitemap — drafts render behind noindex.
@@ -38,6 +41,7 @@ export const GET: APIRoute = async ({ site }) => {
 
   const urls = [
     ...staticRoutes.map((r) => ({ ...r, lastmod: STATIC_LASTMOD })),
+    ...productRoutes.map((r) => ({ ...r, lastmod: STATIC_LASTMOD })),
     ...guideRoutes,
     ...blogRoutes,
     ...docRoutes,

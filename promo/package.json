@@ -11,6 +11,7 @@
     "typecheck": "astro check",
     "og:gen": "bun scripts/gen-og.ts",
     "og:site": "bun scripts/gen-site-og.ts",
+    "og:arduino": "bun scripts/gen-arduino-og.ts",
     "icons": "bun scripts/generate-icons.js"
   },
   "dependencies": {

@@ -83,6 +83,36 @@
   border: 1px solid var(--color-neutral-800);
 }
 
+/* Product page (data-doc, not .prose): render Shiki <Code> blocks as the site's dark
+   panel. Shiki supplies the token colors inline; we normalize the frame to the page. */
+[data-doc] .astro-code {
+  margin: 0;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-neutral-800);
+  padding: 1rem;
+  overflow-x: auto;
+  background: var(--color-neutral-900) !important;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.65;
+}
+[data-doc] .astro-code code {
+  font-family: inherit;
+}
+@media (min-width: 640px) {
+  [data-doc] .astro-code {
+    font-size: 0.8125rem;
+  }
+}
+/* Inside the quickstart window the frame already provides the chrome. */
+[data-doc] .code-window .astro-code {
+  border: 0;
+  border-radius: 0;
+}
+[data-doc] .tight-codes .code-wrap {
+  margin: 0;
+}
+
 /* Pin/terminal names in wiring tables — coral + mono so pin vs component reads at a glance. */
 .prose .pin {
   color: var(--color-accent-700);

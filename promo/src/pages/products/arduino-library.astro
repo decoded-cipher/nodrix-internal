@@ -40,6 +40,16 @@ const channels = [
     search: false,
   },
   {
+    name: 'ESP-IDF',
+    channel: 'Component Registry',
+    logo: '/logos/espressif.svg',
+    link: 'https://components.espressif.com/components/decoded-cipher/nodrix',
+    linkLabel: 'Registry page',
+    blurb: 'For ESP-IDF projects with arduino-esp32, add it from the ESP Component Registry:',
+    command: 'idf.py add-dependency "decoded-cipher/nodrix"',
+    search: false,
+  },
+  {
     name: 'GitHub',
     channel: 'Source',
     logo: '/logos/github.svg',
@@ -253,12 +263,12 @@ const svgAttrs = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', '
         <span class="text-sm font-semibold text-accent-600">Get started</span>
         <h2 class={h2}>Install it</h2>
         <p class="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
-          Pick a channel. It's in the Arduino IDE Library Manager and the PlatformIO registry, or you can
-          pull it straight from GitHub. Either way it brings <strong>ArduinoJson</strong> (v7) and
-          <strong> WebSockets</strong> by Markus Sattler along with it.
+          Pick a channel. It's in the Arduino IDE Library Manager, the PlatformIO registry, and the ESP
+          Component Registry, or you can pull it straight from GitHub. The Arduino and PlatformIO channels
+          bring <strong>ArduinoJson</strong> (v7) and <strong>WebSockets</strong> by Markus Sattler along with it.
         </p>
 
-        <div class="mt-8 grid gap-4 md:grid-cols-3">
+        <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {channels.map((ch) => (
             <article class="flex min-w-0 flex-col rounded-2xl border border-neutral-200 bg-white p-6 transition-shadow hover:shadow-md">
               <div class="flex items-center gap-4">

@@ -14,8 +14,7 @@ export interface Props {
 
 const { title, description, image = '/og.png', type = 'website', noindex = false } = Astro.props;
 
-// Analytics (prod-only, env-gated): Microsoft Clarity + Google Analytics 4.
-const clarityId = import.meta.env.PUBLIC_CLARITY_ID;
+// Analytics (prod-only): Cloudflare Web Analytics + Google Analytics 4.
 const gaId = import.meta.env.PUBLIC_GA_ID;
 
 const repoUrl = 'https://github.com/decoded-cipher/nodrix';
@@ -133,15 +132,9 @@ const jsonLd = {
     <!-- Page-specific head tags (per-page JSON-LD, etc.) -->
     <slot name="head" />
 
-    <!-- Microsoft Clarity -->
-    {import.meta.env.PROD && clarityId && (
-      <script is:inline define:vars={{ clarityId }}>
-        (function (c, l, a, r, i, t, y) {
-          c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
-          t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
-          y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
-        })(window, document, "clarity", "script", clarityId);
-      </script>
+    <!-- Cloudflare Web Analytics (cookieless) -->
+    {import.meta.env.PROD && (
+      <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "b101858b100640c1bf644db99301691b"}'></script>
     )}
 
     <!-- Google Analytics 4 -->
@@ -157,12 +150,10 @@ const jsonLd = {
       </Fragment>
     )}
 
-    <!-- Analytics events → GA4 + Clarity. No-op if neither is loaded (dev).
-         Fire declaratively with data-track="event_name" on any element. -->
+    <!-- Fire analytics events with data-track="event_name" on any element. -->
     <script is:inline>
       window.track = function (name, params) {
         try { if (window.gtag) window.gtag('event', name, params || {}); } catch (e) {}
-        try { if (window.clarity) window.clarity('event', name); } catch (e) {}
       };
       document.addEventListener('click', function (e) {
         const el = e.target.closest && e.target.closest('[data-track]');

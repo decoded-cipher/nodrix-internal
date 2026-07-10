@@ -12,7 +12,6 @@ const CATEGORY_LABEL: Record<string, string> = {
   concept: 'Concept',
 };
 const CATEGORY_ORDER = ['hardware', 'project', 'comparison', 'concept'];
-const boardLabel = (b: string) => (b === 'Raspberry Pi Pico W' ? 'Pico W' : b);
 
 const all = await getCollection('guides');
 const byDate = (a: { data: { datePublished: Date } }, b: { data: { datePublished: Date } }) =>
@@ -23,7 +22,6 @@ const upcoming = all.filter((g) => g.data.draft).sort(byDate);
 
 // Filter facets, derived from the guides themselves so they never drift.
 const categories = CATEGORY_ORDER.filter((c) => published.some((g) => g.data.category === c));
-const boards = [...new Set(published.map((g) => g.data.board).filter(Boolean))].sort() as string[];
 
 const site = Astro.site!;
 const jsonLd = jsonLdGraph(
@@ -86,9 +84,6 @@ const jsonLd = jsonLdGraph(
           {categories.map((c) => (
             <button type="button" class="g-chip" data-kind="category" data-val={c} aria-pressed="false">{CATEGORY_LABEL[c]}</button>
           ))}
-          {boards.map((b) => (
-            <button type="button" class="g-chip" data-kind="board" data-val={b} aria-pressed="false">{boardLabel(b)}</button>
-          ))}
         </div>
       </div>
 
@@ -98,7 +93,6 @@ const jsonLd = jsonLdGraph(
           <a
             data-guide
             data-category={g.data.category}
-            data-board={g.data.board ?? ''}
             data-text={`${g.data.title} ${g.data.description} ${CATEGORY_LABEL[g.data.category]} ${g.data.board ?? ''}`.toLowerCase()}
             href={`/guides/${g.id}`}
             class="group flex flex-col rounded-2xl border border-neutral-200 bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent-200 hover:shadow-lg hover:shadow-accent-500/5"
@@ -239,7 +233,7 @@ const jsonLd = jsonLdGraph(
       var emptyEl = document.getElementById('guide-empty');
       var resetBtn = document.getElementById('guide-reset');
 
-      // One active filter at a time: {kind:'all'|'category'|'board', val}.
+      // One active filter at a time: {kind:'all'|'category', val}.
       var state = { q: '', filter: { kind: 'all', val: null }, page: 1 };
 
       function chipFor(kind, val) {
@@ -252,7 +246,6 @@ const jsonLd = jsonLdGraph(
       var params = new URLSearchParams(location.search);
       if (params.get('q')) state.q = params.get('q');
       if (params.get('topic') && chipFor('category', params.get('topic'))) state.filter = { kind: 'category', val: params.get('topic') };
-      else if (params.get('board') && chipFor('board', params.get('board'))) state.filter = { kind: 'board', val: params.get('board') };
       if (params.get('page')) state.page = Math.max(1, parseInt(params.get('page'), 10) || 1);
 
       function pressChips() {
@@ -269,7 +262,6 @@ const jsonLd = jsonLdGraph(
       function matches(card) {
         var f = state.filter;
         if (f.kind === 'category' && card.getAttribute('data-category') !== f.val) return false;
-        if (f.kind === 'board' && card.getAttribute('data-board') !== f.val) return false;
         if (state.q && card.getAttribute('data-text').indexOf(state.q.toLowerCase()) === -1) return false;
         return true;
       }
@@ -278,7 +270,6 @@ const jsonLd = jsonLdGraph(
         var p = new URLSearchParams();
         if (state.q) p.set('q', state.q);
         if (state.filter.kind === 'category') p.set('topic', state.filter.val);
-        else if (state.filter.kind === 'board') p.set('board', state.filter.val);
         if (state.page > 1) p.set('page', String(state.page));
         var qs = p.toString();
         history.replaceState(null, '', qs ? location.pathname + '?' + qs : location.pathname);

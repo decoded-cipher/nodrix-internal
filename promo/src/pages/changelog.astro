@@ -7,6 +7,15 @@ import { breadcrumb, jsonLdGraph } from '../lib/seo';
 // Platform releases carry a `version`; companion releases (e.g. the library) carry a `tag`.
 const entries: { version?: string; tag?: string; date: string; title: string; postSlug?: string; items: string[] }[] = [
   {
+    version: '1.0.1',
+    date: 'July 5, 2026',
+    title: 'Control-state sync fixes',
+    items: [
+      'Dashboard toggles no longer revert when a device echoes a control value back as a boolean — <code class="inline-code">iot-toggle</code> now coerces value types the way the Arduino library does.',
+      'Control changes reflect on every open dashboard immediately, instead of only after the device echoes its telemetry back.',
+    ],
+  },
+  {
     tag: 'Arduino library',
     date: 'July 4, 2026',
     title: 'Arduino library for ESP32 & ESP8266',

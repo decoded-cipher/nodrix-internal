@@ -1,9 +1,44 @@
 import type { APIRoute } from 'astro';
+import { getCollection } from 'astro:content';
 
-// llms-full.txt — the full text of the site in one document, for deep LLM ingestion.
-export const GET: APIRoute = ({ site }) => {
+// llms-full.txt — the full text of the site in one document, for deep LLM
+// ingestion. Includes the product reference plus every published guide inline
+// (body + FAQs), so an assistant citing nodrix has the complete corpus.
+export const GET: APIRoute = async ({ site }) => {
   const u = (p = '') => new URL(p, site).href;
   const repo = 'https://github.com/decoded-cipher/nodrix';
+  const origin = new URL(site!).origin;
+  // Guide bodies use root-relative links (](/guides/x)); make them absolute so
+  // the links still resolve when the text is read outside the site.
+  const absolutize = (md: string) => md.replace(/\]\(\//g, `](${origin}/`);
+
+  const guides = (await getCollection('guides'))
+    .filter((g) => !g.data.draft)
+    .sort((a, b) => b.data.datePublished.getTime() - a.data.datePublished.getTime());
+
+  const guidesFull = guides
+    .map((g) => {
+      const meta = [`Category: ${g.data.category}`, g.data.board && `Board: ${g.data.board}`]
+        .filter(Boolean)
+        .join(' · ');
+      const faqs = (g.data.faqs ?? [])
+        .map((f: { q: string; a: string }) => `**Q: ${f.q}**\n${f.a}`)
+        .join('\n\n');
+      return [
+        `## Guide: ${g.data.title}`,
+        `URL: ${u('guides/' + g.id)}`,
+        meta,
+        '',
+        g.data.description,
+        '',
+        absolutize(g.body ?? ''),
+        faqs ? `### FAQ\n\n${faqs}` : '',
+      ]
+        .filter((s) => s !== '')
+        .join('\n')
+        .trim();
+    })
+    .join('\n\n---\n\n');
 
   const body = `# nodrix — full reference
 
@@ -59,6 +94,12 @@ Cloudflare Workers, Durable Objects, D1, R2, and KV.
 - Repository: ${repo}
 - Arduino/ESP library: https://github.com/decoded-cipher/nodrix-sdk
 - License: MIT
+
+# Guides (full text)
+
+The following are nodrix's hands-on guides in full — hardware builds, platform comparisons, and concept explainers, each with its FAQ. All builds report to a nodrix instance on the reader's own Cloudflare account.
+
+${guidesFull}
 `;
 
   return new Response(body, {

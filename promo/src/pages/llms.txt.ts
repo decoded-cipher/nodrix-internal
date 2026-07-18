@@ -1,10 +1,31 @@
 import type { APIRoute } from 'astro';
+import { getCollection } from 'astro:content';
 
 // llms.txt — a concise, LLM-friendly map of the site.
 // Convention: https://llmstxt.org
-export const GET: APIRoute = ({ site }) => {
+export const GET: APIRoute = async ({ site }) => {
   const u = (p = '') => new URL(p, site).href;
   const repo = 'https://github.com/decoded-cipher/nodrix';
+
+  // Complete guide index, grouped by type and generated from the collection so
+  // it never drifts as guides are added or removed. Full text lives in llms-full.txt.
+  const guides = (await getCollection('guides'))
+    .filter((g) => !g.data.draft)
+    .sort((a, b) => b.data.datePublished.getTime() - a.data.datePublished.getTime());
+  const GUIDE_GROUPS: [string, string][] = [
+    ['project', 'Project builds (ESP32/ESP8266/Pico hardware)'],
+    ['comparison', 'Comparisons & platform alternatives'],
+    ['hardware', 'Hardware & board guides'],
+    ['concept', 'Concepts & how-tos'],
+  ];
+  const guideIndex = GUIDE_GROUPS.map(([cat, label]) => {
+    const items = guides.filter((g) => g.data.category === cat);
+    if (!items.length) return '';
+    const lines = items.map((g) => `- [${g.data.title}](${u('guides/' + g.id)}): ${g.data.description}`);
+    return `### ${label}\n${lines.join('\n')}`;
+  })
+    .filter(Boolean)
+    .join('\n\n');
 
   const body = `# nodrix
 
@@ -31,6 +52,9 @@ export const GET: APIRoute = ({ site }) => {
 - [Blog](${u('blog')}): Release notes, build-in-public engineering stories, and case studies.
 - [Roadmap](${u('roadmap')}): What's planned next for nodrix.
 - [Changelog](${u('changelog')}): Release history.
+
+## Guides
+${guideIndex}
 
 ## Markdown & full text (for machines)
 - [Full text](${u('llms-full.txt')}): The entire site in one document.

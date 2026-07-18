@@ -50,7 +50,7 @@ const jsonLd = {
       url: site.href,
       logo: new URL('/icon-512.png', site).href,
       email: 'hello@nodrix.live',
-      sameAs: [repoUrl, productHuntUrl],
+      sameAs: [repoUrl, productHuntUrl, 'https://www.linkedin.com/company/nodrix-live'],
     },
     {
       '@type': 'WebSite',
@@ -67,7 +67,7 @@ const jsonLd = {
       operatingSystem: 'Cloudflare Workers',
       description: desc,
       url: site.href,
-      softwareVersion: '1.0',
+      softwareVersion: '1.0.1',
       isAccessibleForFree: true,
       license: 'https://opensource.org/licenses/MIT',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
@@ -285,8 +285,9 @@ const jsonLd = {
               <h3 class="text-xs font-semibold uppercase tracking-wider text-neutral-400">Project</h3>
               <ul class="mt-4 space-y-2.5 text-sm text-neutral-600">
                 <li><a href={repoUrl} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">GitHub</a></li>
-                <li><a href={`${repoUrl}/blob/master/README.md`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">README</a></li>
+                <!-- <li><a href={`${repoUrl}/blob/master/README.md`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">README</a></li> -->
                 <li><a href={`${repoUrl}/issues/new`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">Report an issue</a></li>
+                <li><a href="https://www.linkedin.com/company/nodrix-live" target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">LinkedIn</a></li>
                 <li><a href="mailto:hello@nodrix.live" class="transition-colors hover:text-accent-600">Contact</a></li>
               </ul>
             </div>
@@ -299,7 +300,7 @@ const jsonLd = {
             <span class="text-neutral-300" aria-hidden="true">·</span>
             <a href={`${repoUrl}/blob/master/LICENSE`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">MIT License</a>
             <span class="text-neutral-300" aria-hidden="true">·</span>
-            <a href={`${repoUrl}/releases`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">v1.0</a>
+            <a href={`${repoUrl}/releases`} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-accent-600">v1.0.1</a>
           </p>
           <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
             <a href="/privacy" class="transition-colors hover:text-accent-600">Privacy Policy</a>

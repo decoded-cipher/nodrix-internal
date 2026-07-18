@@ -32,7 +32,7 @@ related:
 ---
 
 A **Raspberry Pi Pico W** can put live sensor data on a cloud dashboard with a few lines of
-MicroPython — no MQTT broker, no SDK. You POST JSON to one HTTPS endpoint and poll a second one for
+[MicroPython](https://micropython.org) — no MQTT broker, no SDK. You POST JSON to one HTTPS endpoint and poll a second one for
 commands. This guide builds the whole loop against a real backend (nodrix, which deploys to your own
 Cloudflare account), using the Pico W's own onboard temperature sensor so you can run it with no
 wiring at all. Variables appear on your dashboard the first time they're seen.

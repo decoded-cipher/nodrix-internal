@@ -82,7 +82,7 @@ a compromise — it is the simpler correct choice.
   ESP8266, which the library also supports).
 - A sensor. The examples use a BME280 (temperature, humidity, pressure) over I2C, but any reading
   works.
-- The **Arduino IDE** (or PlatformIO) with the ESP32 board package and these libraries from the
+- The **Arduino IDE** (or PlatformIO) with the [ESP32 board package](https://github.com/espressif/arduino-esp32) and these libraries from the
   Library Manager: **Nodrix**, **ArduinoJson**, and — for the BME280 — **Adafruit BME280** plus
   **Adafruit Unified Sensor**.
 - A cloud endpoint. We use a nodrix instance: deploy once to your Cloudflare account, create a

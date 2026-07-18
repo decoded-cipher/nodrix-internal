@@ -54,7 +54,7 @@ depot or campus networks for fleet-yard visibility, or your home network for arr
 - A **NEO-6M GPS module** with its ceramic antenna — the ubiquitous blue breakout.
 - A **power source** where the tracker lives: vehicle USB, a power bank, or a 5V supply.
 - The **Arduino IDE** with the ESP32 board package, the **Nodrix** library, and the
-  **TinyGPSPlus** library, both from the Library Manager.
+  [**TinyGPSPlus**](https://github.com/mikalhart/TinyGPSPlus) library, both from the Library Manager.
 - A **nodrix instance** with a project and a project token.
 
 ## How the GPS side works

@@ -63,7 +63,7 @@ and have an electrician land the mains side.
 - A **PZEM-004T v3.0** with its split-core CT coil — the version with the Modbus serial interface.
 - A **5V supply** for the ESP32, an enclosure, and a fused tap off the circuit you're metering.
 - The **Arduino IDE** with the ESP32 board package, the **Nodrix** library, and the
-  **PZEM004Tv30** library, both from the Library Manager.
+  [**PZEM004Tv30**](https://github.com/mandulaj/PZEM-004T-v30) library, both from the Library Manager.
 - A **nodrix instance** with a project and a project token.
 
 ## Why use dedicated metering hardware

@@ -1,6 +1,6 @@
 ---
 title: "ESP32-C3 vs ESP8266: the upgrade question, answered honestly"
-description: "The ESP8266 still works and still costs two dollars — but the ESP32-C3 is its designated successor at nearly the same price, with the RAM headroom that makes TLS comfortable instead of a squeeze. When to switch, when the old board is still the right call, and what changes in firmware."
+description: "ESP32 vs ESP8266 in 2026, at the budget end: the ESP32-C3 is the 8266's designated successor at nearly the same price, with the RAM headroom that makes TLS comfortable instead of a squeeze. When to switch, when the old board is still the right call, where the wider ESP32 family fits, and what changes in firmware."
 category: hardware
 board: ESP32-C3
 difficulty: beginner
@@ -16,6 +16,9 @@ faqs:
   - q: "Should I buy ESP8266 boards for a new project just because they're cheaper?"
     a: "Only if the project is genuinely at the two-dollar end: a fixed sensor, one HTTPS report every few minutes, no BLE, no growth ambitions — the 8266 still does that with dignity. The moment the plan includes always-on TLS connections, bigger payloads, OTA headroom, or Bluetooth anything, the one-dollar saving buys you the exact constraints the C3 was designed to remove."
 related:
+  - href: "/guides/esp32-project-ideas"
+    label: "ESP32 project ideas"
+    desc: "What to build once you've picked the board."
   - href: "/guides/esp8266-iot-dashboard"
     label: "ESP8266 to the cloud"
     desc: "The old guard's full walkthrough, BearSSL squeeze and all."
@@ -67,6 +70,26 @@ The upgrades that actually change a maker's day, in order:
   legacy, not abandonware.
 - **It already works.** A deployed 8266 that reports on schedule owes you nothing. Boards in
   service are not an upgrade queue.
+
+## ESP32 vs ESP8266 is no longer two chips
+
+The reason this page is about the C3 specifically, rather than "ESP32 vs ESP8266" as a binary, is
+that the ESP32 stopped being one chip years ago. It's a family now, and which variant you pick
+usually matters more than the family name:
+
+- **ESP32-C3** — this page: near-8266 price, modern RAM, BLE, the natural successor for a cheap
+  Wi-Fi node that has outgrown the 8266.
+- **Classic ESP32** — dual-core and ubiquitous, the default when you want the deepest ecosystem and
+  the most examples to copy from.
+- **ESP32-S3** — more compute and vector instructions for camera work or light on-device ML.
+- **ESP32-C6** — Wi-Fi 6 plus the 802.15.4 radio for Thread and Zigbee, the family's route into
+  Matter; the detail is in [ESP32-C6 for makers](/guides/esp32-c6-for-makers).
+
+So the old question — "should I use an ESP32 or an ESP8266?" — almost always resolves to "move to a
+modern ESP32 variant," and then to "which one." At the budget end where the 8266 lived, that's the
+C3; step up only when a project needs an S3's compute or a C6's radios. The two-chip duel has
+quietly become a shortlist, and the 8266's price is the one thing that still keeps it on the list at
+all.
 
 ## The firmware reality
 

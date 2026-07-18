@@ -43,7 +43,7 @@ down.
 
 ## What each protocol actually is
 
-**MQTT** is publish/subscribe through a broker. Every device holds a persistent TCP connection to a
+[**MQTT**](https://mqtt.org) is publish/subscribe through a broker. Every device holds a persistent TCP connection to a
 central broker process; publishers push to topics, subscribers receive from them, and the broker
 routes. The protocol carries real machinery for unreliable links: three QoS levels, retained
 messages, and a last-will message the broker emits when a client vanishes. It was designed in 1999

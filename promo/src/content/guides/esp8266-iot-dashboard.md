@@ -35,8 +35,8 @@ related:
 An **ESP8266** is more than capable of putting live sensor data on a cloud dashboard over HTTPS — no
 MQTT broker, no message queue to babysit. The
 [nodrix Arduino library](https://github.com/decoded-cipher/nodrix-sdk) supports the 8266 directly;
-it uses **BearSSL** under the hood, which matters because the chip's RAM is tight, so keep payloads
-small. This guide builds the whole loop on a real backend (nodrix, which deploys to your own
+it uses **BearSSL** (bundled in the [ESP8266 Arduino core](https://github.com/esp8266/Arduino)) under
+the hood, which matters because the chip's RAM is tight, so keep payloads small. This guide builds the whole loop on a real backend (nodrix, which deploys to your own
 Cloudflare account): a reading up, a command back down, and a deep-sleep build that lasts. Variables
 show up on your dashboard the first time they're seen — no schema to declare.
 

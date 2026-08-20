@@ -5,7 +5,7 @@ category: hardware
 board: ESP32-C6
 difficulty: beginner
 datePublished: 2026-07-10
-dateUpdated: 2026-08-21
+dateUpdated: 2026-07-10
 faqs:
   - q: "Should I buy an ESP32-C6 instead of a regular ESP32 for a new project?"
     a: "If you're buying new anyway and the board fits your form factor, the C6 is a sensible default: current-generation silicon at effectively the same price, with radio options you may grow into. But it's a single RISC-V core where classic ESP32s are dual-core — for most sensor-and-dashboard projects that difference is irrelevant, and nothing about a Wi-Fi cloud project requires a C6. Don't replace working boards for it."

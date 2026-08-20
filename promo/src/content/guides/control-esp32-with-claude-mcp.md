@@ -5,7 +5,7 @@ category: project
 board: ESP32
 difficulty: intermediate
 datePublished: 2026-07-18
-dateUpdated: 2026-08-21
+dateUpdated: 2026-07-18
 faqs:
   - q: "What is an MCP server, and why would my IoT platform have one?"
     a: "MCP (Model Context Protocol) is the open standard AI assistants like Claude use to call external tools. An MCP server exposes a set of tools an agent can invoke — and when your IoT backend is the server, those tools are your devices: read this sensor, set that variable, create an automation. It's the difference between pasting sensor readings into a chat and letting the assistant query and control the hardware directly."

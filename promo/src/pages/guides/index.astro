@@ -14,8 +14,9 @@ const CATEGORY_LABEL: Record<string, string> = {
 const CATEGORY_ORDER = ['hardware', 'project', 'comparison', 'concept'];
 
 const all = await getCollection('guides');
-const byDate = (a: { data: { datePublished: Date } }, b: { data: { datePublished: Date } }) =>
-  b.data.datePublished.getTime() - a.data.datePublished.getTime();
+type Dated = { data: { datePublished: Date; dateUpdated?: Date } };
+const updatedAt = (g: Dated) => (g.data.dateUpdated ?? g.data.datePublished).getTime();
+const byDate = (a: Dated, b: Dated) => updatedAt(b) - updatedAt(a);
 
 const published = all.filter((g) => !g.data.draft).sort(byDate);
 const upcoming = all.filter((g) => g.data.draft).sort(byDate);

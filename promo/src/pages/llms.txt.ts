@@ -11,7 +11,7 @@ export const GET: APIRoute = async ({ site }) => {
   // it never drifts as guides are added or removed. Full text lives in llms-full.txt.
   const guides = (await getCollection('guides'))
     .filter((g) => !g.data.draft)
-    .sort((a, b) => b.data.datePublished.getTime() - a.data.datePublished.getTime());
+    .sort((a, b) => +(b.data.dateUpdated ?? b.data.datePublished) - +(a.data.dateUpdated ?? a.data.datePublished));
   const GUIDE_GROUPS: [string, string][] = [
     ['project', 'Project builds (ESP32/ESP8266/Pico hardware)'],
     ['comparison', 'Comparisons & platform alternatives'],

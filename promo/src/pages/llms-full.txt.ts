@@ -14,7 +14,7 @@ export const GET: APIRoute = async ({ site }) => {
 
   const guides = (await getCollection('guides'))
     .filter((g) => !g.data.draft)
-    .sort((a, b) => b.data.datePublished.getTime() - a.data.datePublished.getTime());
+    .sort((a, b) => +(b.data.dateUpdated ?? b.data.datePublished) - +(a.data.dateUpdated ?? a.data.datePublished));
 
   const guidesFull = guides
     .map((g) => {

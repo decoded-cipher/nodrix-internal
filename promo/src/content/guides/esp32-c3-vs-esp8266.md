@@ -1,11 +1,11 @@
 ---
-title: "ESP32-C3 vs ESP8266: the upgrade question, answered honestly"
+title: "ESP8266 vs ESP32-C3 in 2026: should you finally upgrade?"
 description: "ESP32 vs ESP8266 in 2026, at the budget end: the ESP32-C3 is the 8266's designated successor at nearly the same price, with the RAM headroom that makes TLS comfortable instead of a squeeze. When to switch, when the old board is still the right call, where the wider ESP32 family fits, and what changes in firmware."
 category: hardware
 board: ESP32-C3
 difficulty: beginner
 datePublished: 2026-07-10
-dateUpdated: 2026-07-10
+dateUpdated: 2026-08-20
 faqs:
   - q: "Is the ESP8266 obsolete in 2026?"
     a: "No — dated, not dead. Espressif's longevity commitment keeps the ESP8266 series in production toward the end of the decade, the ecosystem still receives real investment, and boards cost under two dollars in bulk. For a Wi-Fi-only sensor with modest TLS needs it remains perfectly serviceable. Obsolete is the wrong frame; 'no longer what you'd design in' is the right one."

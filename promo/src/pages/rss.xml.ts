@@ -7,7 +7,7 @@ const esc = (s: string) =>
 export const GET: APIRoute = async ({ site }) => {
   const guides = (await getCollection('guides'))
     .filter((g) => !g.data.draft)
-    .sort((a, b) => +(b.data.dateUpdated ?? b.data.datePublished) - +(a.data.dateUpdated ?? a.data.datePublished));
+    .sort((a, b) => b.data.datePublished.getTime() - a.data.datePublished.getTime());
 
   const items = guides
     .map((g) => {

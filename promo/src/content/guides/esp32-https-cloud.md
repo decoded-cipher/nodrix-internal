@@ -5,7 +5,7 @@ category: hardware
 board: ESP32
 difficulty: intermediate
 datePublished: 2026-06-08
-dateUpdated: 2026-07-04
+dateUpdated: 2026-08-21
 faqs:
   - q: "Can an ESP32 really talk to the cloud without MQTT?"
     a: "Yes. Underneath it's an HTTPS POST to one endpoint to send a reading and a GET to fetch queued commands — the library just wraps that. No broker is required for periodic telemetry."
@@ -244,6 +244,12 @@ can stop the board booting). Safe wake and IO pins on the base chip include 4, 1
   config or NVS, and rotate it if it leaks.
 - **Bound your own waits.** The one blocking spot you own is Wi-Fi association in a battery build —
   cap it (as above) so a bad night does not drain the cell.
+
+The protocol underneath is deliberately plain, which is why boards the library doesn't cover can
+still speak it directly — the [Arduino UNO R4 WiFi](/guides/arduino-uno-r4-wifi-cloud) build is the
+same contract written out by hand. And once a board is reporting, an
+[ESP32-S3 can run the model itself](/guides/esp32-s3-edge-ai) and send you the conclusion instead of
+the raw data.
 
 ## Troubleshooting
 

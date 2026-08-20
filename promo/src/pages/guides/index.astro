@@ -39,7 +39,7 @@ const jsonLd = jsonLdGraph(
 
 <Site
   title="Guides — connect hardware to the cloud | nodrix"
-  description="Hands-on, no-fluff guides for IoT makers: connect an ESP32 to the cloud over HTTPS, receive commands back, build dashboards, and squeeze months of battery life out of a sensor."
+  description="Hands-on, no-fluff guides for IoT makers: connect an ESP32, XIAO, UNO R4, or Raspberry Pi to your own cloud, write firmware in C++ or MicroPython, bridge LoRa and Bluetooth sensors, ship updates over the air, and squeeze months of battery life out of a build."
 >
   <Fragment slot="head">
     <script is:inline type="application/ld+json" set:html={jsonLd} />
@@ -53,9 +53,10 @@ const jsonLd = jsonLdGraph(
         Ship the project, not the plumbing.
       </h1>
       <p class="mt-5 max-w-2xl text-pretty text-base leading-relaxed text-neutral-600 sm:text-lg">
-        Practical, tested walk-throughs for getting hardware talking to the cloud — real Arduino
-        code, the bits other tutorials skip (like getting commands back to the device), and the
-        battery tricks that make a sensor last months.
+        Practical, tested walk-throughs for getting hardware talking to the cloud — real code in
+        Arduino C++ and MicroPython, the bits other tutorials skip (getting commands back to the
+        device, updating a board you can't reach, the sensor gotcha that ruins the build in week
+        three), and the battery tricks that make a sensor last months.
       </p>
     </div>
   </section>

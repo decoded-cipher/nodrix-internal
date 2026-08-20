@@ -5,7 +5,7 @@ category: project
 board: ESP32
 difficulty: intermediate
 datePublished: 2026-07-18
-dateUpdated: 2026-07-18
+dateUpdated: 2026-08-21
 faqs:
   - q: "What is an MCP server, and why would my IoT platform have one?"
     a: "MCP (Model Context Protocol) is the open standard AI assistants like Claude use to call external tools. An MCP server exposes a set of tools an agent can invoke — and when your IoT backend is the server, those tools are your devices: read this sensor, set that variable, create an automation. It's the difference between pasting sensor readings into a chat and letting the assistant query and control the hardware directly."
@@ -163,6 +163,13 @@ correlate the energy monitor's spike with the temperature log, notice the greenh
 becomes a problem, draft the automation and let you approve it. The tools to do that ship in the box
 today; the assistant supplies the reasoning. Turn the server on read-only, connect Claude, and ask
 it what it notices about your data — it's the fastest way to see why this is more than a novelty.
+
+MCP is the half that lets an assistant *act* on your instance. The other half is knowledge: a
+[Claude Skill for ESP32](/guides/claude-skill-for-esp32) teaches it to write correct firmware in the
+first place, so "add a sensor and check it's reporting" becomes one request instead of three
+sessions. And if what you actually wanted was to talk to the hardware,
+[voice control](/guides/voice-control-esp32) compares this path against on-device recognition and
+borrowing Siri or Alexa outright.
 
 ## Notes
 

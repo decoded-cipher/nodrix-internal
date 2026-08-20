@@ -48,7 +48,7 @@ export const GET: APIRoute = async ({ site }) => {
 - [Products](${u('products')}): Libraries to connect hardware — the Arduino library, dashboard widgets, and the open device protocol.
 - [Arduino library](${u('products/arduino-library')}): Reference for the optional ESP32/ESP8266 library — NODRIX_WRITE control handlers, telemetry, WebSocket/HTTP transports, and TLS pinning.
 - [Widgets](${u('widgets')}): Built-in, framework-agnostic Web Component widgets.
-- [Guides](${u('guides')}): Hands-on IoT guides — connect an ESP32 to the cloud over HTTPS (no MQTT broker), receive commands back, deep-sleep battery builds, and more.
+- [Guides](${u('guides')}): Hands-on IoT guides — connect an ESP32, XIAO, Arduino UNO R4, or Raspberry Pi to the cloud over HTTPS (no MQTT broker), receive commands back, deep-sleep battery builds, MicroPython, LoRa and Bluetooth gateways, OTA updates, Wi-Fi provisioning, on-device edge AI, and Matter/Thread.
 - [Blog](${u('blog')}): Release notes, build-in-public engineering stories, and case studies.
 - [Roadmap](${u('roadmap')}): What's planned next for nodrix.
 - [Changelog](${u('changelog')}): Release history.

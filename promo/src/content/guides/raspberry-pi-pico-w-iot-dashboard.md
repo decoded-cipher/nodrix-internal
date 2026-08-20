@@ -150,3 +150,7 @@ best on mains power, short missions, or where you specifically want MicroPython 
 
 That's a Pico W reporting to a dashboard you own, with commands flowing back — and the read API
 behind it means you can pull the same telemetry into Grafana or your own app whenever you like.
+
+The same MicroPython pattern runs unchanged [on an ESP32](/guides/esp32-micropython-cloud), and when
+a job outgrows a microcontroller entirely — real Python libraries, a camera, several processes — a
+[Raspberry Pi Zero 2 W](/guides/raspberry-pi-zero-2-w-iot) picks it up from there.

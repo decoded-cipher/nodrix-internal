@@ -5,7 +5,7 @@ category: project
 board: ESP32
 difficulty: beginner
 datePublished: 2026-07-18
-dateUpdated: 2026-07-18
+dateUpdated: 2026-08-21
 faqs:
   - q: "What's a good first ESP32 IoT project for a beginner?"
     a: "A temperature-and-humidity monitor on a BME280, reporting to a cloud dashboard. It's four wires, a dozen lines of firmware, and it teaches the whole loop — sensor to Wi-Fi to dashboard to alert — without any risky wiring or moving parts. Once that works, every other project on this list is a variation on the same skeleton, which is exactly why it's the one to start with."
@@ -139,6 +139,31 @@ sensor is reporting.
   Examiners reward closed loops and data ownership; all three have them.
 - **Something genuinely useful around the house?** #3 (air quality) and #5 (energy) are the two
   you'll still be running a year later.
+
+## Beyond the ten
+
+The list above is ranked for a first build. These are the ones worth doing next — narrower, more
+specific, and each solves a problem you actually have.
+
+- **[Water tank level monitor](/guides/esp32-water-tank-monitor)** — ultrasonic depth, percentage
+  full, and an alert before the tank runs dry.
+- **[Fridge and freezer alarm](/guides/esp32-freezer-alarm)** — probes in both compartments, and an
+  alarm that survives the power cut that killed the freezer.
+- **[Solar and battery monitor](/guides/esp32-solar-battery-monitor)** — real amp-hour counting on an
+  INA226, for a cabin, shed, RV, or boat.
+- **[Vibration monitor](/guides/esp32-vibration-monitor)** — motor health in the RMS velocity that
+  ISO 10816 actually grades machines on, rather than raw g.
+- **[E-paper dashboard](/guides/esp32-epaper-dashboard)** — the one build that reads your data back
+  instead of feeding it, and runs for months on a cell.
+- **[Bluetooth sensor gateway](/guides/esp32-ble-sensor-gateway)** — bridge five-dollar BTHome
+  thermometers into your own cloud, one board for the whole house.
+- **[LoRa gateway](/guides/esp32-lora-gateway)** — put a sensor kilometres from the nearest Wi-Fi.
+
+And two that aren't projects so much as things every deployed board eventually needs:
+[Wi-Fi provisioning](/guides/esp32-wifi-provisioning), so you stop hardcoding credentials, and
+[OTA updates](/guides/esp32-ota-updates), so you stop carrying boards back to your desk.
+
+## Where they all start
 
 Every one of these starts the same way — [get an ESP32 reporting over HTTPS](/guides/esp32-https-cloud)
 to [an instance on your own Cloudflare account](/guides/deploy-nodrix-cloudflare) — and branches from

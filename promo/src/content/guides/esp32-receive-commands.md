@@ -5,7 +5,7 @@ category: hardware
 board: ESP32
 difficulty: intermediate
 datePublished: 2026-06-08
-dateUpdated: 2026-07-04
+dateUpdated: 2026-08-21
 faqs:
   - q: "Can you push data to an ESP32 over plain HTTP?"
     a: "Not push, exactly — the device pulls. It polls a control endpoint on an interval and applies any queued writes, which gives near-real-time control without a broker. For instant updates while the board is awake, hold a WebSocket open and the cloud pushes down it. The library does either for you."

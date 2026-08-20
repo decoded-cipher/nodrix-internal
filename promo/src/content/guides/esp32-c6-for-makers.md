@@ -5,7 +5,7 @@ category: hardware
 board: ESP32-C6
 difficulty: beginner
 datePublished: 2026-07-10
-dateUpdated: 2026-07-10
+dateUpdated: 2026-08-21
 faqs:
   - q: "Should I buy an ESP32-C6 instead of a regular ESP32 for a new project?"
     a: "If you're buying new anyway and the board fits your form factor, the C6 is a sensible default: current-generation silicon at effectively the same price, with radio options you may grow into. But it's a single RISC-V core where classic ESP32s are dual-core — for most sensor-and-dashboard projects that difference is irrelevant, and nothing about a Wi-Fi cloud project requires a C6. Don't replace working boards for it."
@@ -30,10 +30,10 @@ related:
 ---
 
 The ESP32-C6 is the chip that made the smart-home crowd take notice: Wi-Fi 6, Bluetooth LE, and an
-IEEE 802.15.4 radio — the physical layer under Thread and Zigbee — on one die, on dev boards that
-cost about five dollars. It's become one of the most popular chips in the ESPHome and Home
-Assistant world on the strength of that radio list, and it's Espressif's ticket into the Matter
-era.
+IEEE 802.15.4 radio — the physical layer under [Thread and Zigbee](/guides/matter-thread-for-makers)
+— on one die, on dev boards that cost about five dollars. It's become one of the most popular chips
+in the ESPHome and Home Assistant world on the strength of that radio list, and it's Espressif's
+ticket into the Matter era.
 
 This page is the maker's-eye view: what those radios actually buy you today, the fine print the
 spec sheet doesn't lead with, and the part that matters if your project talks to a cloud dashboard

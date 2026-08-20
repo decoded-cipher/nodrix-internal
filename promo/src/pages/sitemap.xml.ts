@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
 const iso = (d: Date) => d.toISOString().split('T')[0];
-const STATIC_LASTMOD = '2026-06-17';
+const STATIC_LASTMOD = '2026-08-21';
 
 // Static top-level pages. Add new ones here.
 const staticRoutes: { path: string; priority: string }[] = [

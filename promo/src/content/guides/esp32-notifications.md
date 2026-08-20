@@ -5,7 +5,7 @@ category: project
 board: ESP32
 difficulty: beginner
 datePublished: 2026-07-10
-dateUpdated: 2026-07-10
+dateUpdated: 2026-08-21
 faqs:
   - q: "Can an ESP32 send a Discord or Slack message directly?"
     a: "Yes — both are one HTTPS POST to a webhook URL, and plenty of sketches do it. The cost is where the credentials end up: the webhook URL is a secret, and anything baked into firmware can be read back out of flash. It also welds the channel to the board — changing where alerts go, their wording, or their threshold means reflashing. Keeping the send in the cloud fixes all three."

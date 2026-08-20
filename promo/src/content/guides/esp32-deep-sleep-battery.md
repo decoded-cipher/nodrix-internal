@@ -5,7 +5,7 @@ category: hardware
 board: ESP32
 difficulty: intermediate
 datePublished: 2026-06-08
-dateUpdated: 2026-07-04
+dateUpdated: 2026-08-21
 faqs:
   - q: "How long can an ESP32 run on a battery while sending data?"
     a: "With deep sleep between readings, a single 18650 cell can last months. A ~3-second wake every 15 minutes spends almost all its time drawing microamps in sleep, not the ~120-160 mA of an active Wi-Fi radio — so the radio's brief bursts, not the idle time, set the lifetime."
@@ -165,7 +165,9 @@ minute and you're back to weeks.
 
 - **Pick the right board.** The biggest variable is idle current. A board with a USB-serial chip, a
   power LED, and a thirsty regulator can sit at hundreds of µA in "deep sleep." For real battery
-  builds use a low-sleep board or power the bare module.
+  builds use a low-sleep board or power the bare module — the
+  [XIAO ESP32 build](/guides/xiao-esp32-battery-sensor) works through exactly that trade on one
+  popular board.
 - **Give the sensor its warm-up.** Many sensors need tens to hundreds of ms after power-up before a
   valid reading — budget it rather than reading `nan`.
 - **Buffer offline.** If a send fails, stamp the reading with your own `ts` (NTP-synced) and send it

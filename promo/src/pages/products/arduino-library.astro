@@ -8,10 +8,10 @@ import RelatedLinks from '../../components/RelatedLinks.astro';
 import { breadcrumb, faqPage, jsonLdGraph } from '../../lib/seo';
 
 const repoUrl = 'https://github.com/decoded-cipher/nodrix-sdk';
-const releaseUrl = `${repoUrl}/releases/tag/v0.1.0`;
+const releaseUrl = `${repoUrl}/releases/tag/v0.1.1`;
 const pioUrl = 'https://registry.platformio.org/libraries/decoded-cipher/Nodrix';
 const arduinoUrl = 'https://www.arduino.cc/reference/en/libraries/nodrix/';
-const version = '0.1.0';
+const version = '0.1.1';
 
 const title = 'Nodrix Arduino library for ESP32 & ESP8266';
 const description =
@@ -104,7 +104,7 @@ const api = [
   { s: 'setInsecure()', d: 'Skip certificate validation (default)' },
   { s: 'setCACert(pem)', d: 'Pin a root CA (ESP32)' },
   { s: 'setFingerprint(fp)', d: 'Pin a SHA-1 fingerprint (ESP8266 HTTP)' },
-  { s: 'setDebug(on)', d: 'Log connection and protocol activity to Serial' },
+  { s: 'setDebug(on)', d: 'Log connection and protocol activity to Serial, with the reason for any failure' },
   { s: 'NODRIX_WRITE("var") { … }', d: 'Handle a cloud write; value is in scope' },
 ];
 

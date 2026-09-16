@@ -121,7 +121,7 @@ const left = h(
       pill('ESP32 · ESP8266', true),
       pill('C++', false),
       pill('MIT', false),
-      pill('v0.1.0', false),
+      pill('v0.1.1', false),
     ]),
   ],
 );

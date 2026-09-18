@@ -25,7 +25,7 @@ const staticRoutes: { path: string; priority: string; listing?: 'guides' | 'blog
 ];
 
 // Product pages, ranked above guides and blog. Add new products here.
-const productSlugs = ['arduino-library'];
+const productSlugs = ['arduino-library', 'mcp'];
 const productRoutes = productSlugs.map((slug) => ({ path: `products/${slug}`, priority: '0.9' }));
 
 export const GET: APIRoute = async ({ site }) => {

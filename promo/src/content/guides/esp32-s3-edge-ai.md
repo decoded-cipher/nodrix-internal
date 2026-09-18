@@ -1,11 +1,11 @@
 ---
-title: "ESP32-S3 edge AI: run inference on the board, send only the answer"
-description: "Build a person-detecting ESP32-S3 camera that never uploads an image: on-device TensorFlow Lite inference at roughly 200 ms, the vector-instruction speedup that isn't automatic, and a dashboard that receives conclusions instead of frames."
+title: "ESP32-S3 edge AI: send the answer, not the image"
+description: "A person-detecting ESP32-S3 camera that never uploads an image: on-device inference at roughly 200 ms, and the vector speedup that isn't automatic."
 category: project
 board: ESP32-S3
 difficulty: advanced
 datePublished: 2026-08-20
-dateUpdated: 2026-08-20
+dateUpdated: 2026-09-18
 faqs:
   - q: "How much faster is the ESP32-S3 than a classic ESP32 for this?"
     a: "Around 4.5× on 16-bit detection models, which is the difference between a demo and something usable. The S3's Xtensa LX7 cores carry SIMD vector instructions that the original ESP32 simply doesn't have, and neural network inference is exactly the workload they were added for. A person-detection model at 96×96 lands near 200 ms per frame on an S3."

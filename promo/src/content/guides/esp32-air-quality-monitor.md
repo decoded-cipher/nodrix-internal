@@ -1,11 +1,11 @@
 ---
-title: "Build an ESP32 air quality monitor with a live CO2 dashboard"
-description: "A complete ESP32 CO2 and air-quality build on the Sensirion SCD41: true NDIR-grade CO2, temperature and humidity over one sensor, streamed to a live dashboard with colour-banded alerts — no MQTT broker, no Home Assistant server, on your own Cloudflare account."
+title: "ESP32 air quality monitor with a live CO2 dashboard"
+description: "A complete SCD41 build: NDIR-grade CO2, temperature and humidity from one sensor, streamed to a live dashboard with colour-banded alerts."
 category: project
 board: ESP32
 difficulty: beginner
 datePublished: 2026-07-18
-dateUpdated: 2026-07-18
+dateUpdated: 2026-09-18
 faqs:
   - q: "Why the SCD41 instead of an MQ-135 or MH-Z19?"
     a: "Because it measures CO2 honestly. The MQ-135 is a cheap MOX gas sensor that doesn't report CO2 in real ppm — it drifts, needs constant recalibration, and conflates gases. The MH-Z19 is a genuine NDIR CO2 sensor and a reasonable older choice, but the Sensirion SCD41 is a current photoacoustic CO2 sensor that also gives you temperature and humidity from one I2C part, with ±(40 ppm + 5%) accuracy. For a monitor you'll trust enough to act on, the SCD41 is the right sensor in 2026."

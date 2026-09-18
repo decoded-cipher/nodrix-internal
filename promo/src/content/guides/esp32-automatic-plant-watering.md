@@ -1,11 +1,11 @@
 ---
 title: "Build an ESP32 automatic plant watering system"
-description: "A complete ESP32 self-watering build: calibrate a capacitive soil sensor, switch a pump safely through a relay, and let the cloud run the watering logic over a single WebSocket — closed-loop, broker-free, on your own Cloudflare account."
+description: "Calibrate a capacitive soil sensor, switch a pump safely through a relay, and let the cloud run the watering logic over a single WebSocket."
 category: project
 board: ESP32
 difficulty: beginner
 datePublished: 2026-06-08
-dateUpdated: 2026-07-04
+dateUpdated: 2026-09-18
 faqs:
   - q: "Why does the watering logic live in the cloud instead of on the ESP32?"
     a: "So you can change it without reflashing. Thresholds, burst length, alert channels, and the whole trigger-condition-action flow are edited in nodrix and take effect on the next reading. The board keeps one job — report a number, act on a flag — which is the part you don't want to be reprogramming every time you re-pot a plant or swap a sensor."

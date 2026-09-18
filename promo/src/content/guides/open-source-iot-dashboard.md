@@ -1,9 +1,9 @@
 ---
-title: "Open-source IoT dashboards in 2026: what actually works for makers"
-description: "Most 'best open-source IoT platform' lists are written for factories, not makers. Here's the maker's-eye view: what an IoT dashboard actually needs to do, which open-source options genuinely deliver it, what each one costs to operate, and when a serverless deploy beats them all."
+title: "Open-source IoT dashboards that actually work for makers"
+description: "What a maker's IoT dashboard actually needs, which open-source options deliver it, what each costs to run, and when a serverless deploy wins."
 category: concept
 datePublished: 2026-07-10
-dateUpdated: 2026-07-10
+dateUpdated: 2026-09-18
 faqs:
   - q: "What's the best open-source IoT dashboard for an ESP32 project?"
     a: "For a maker project, the shortlist is honest: nodrix if you want dashboards, device protocol, and automations in one deploy with nothing to operate; ThingsBoard CE if you have a server and want the industrial feature set; Grafana with InfluxDB if visualization is the whole requirement and you don't need to control devices. The rest of the tools on typical 'best of' lists are either industrial middleware or business-metrics dashboards that never met a microcontroller."

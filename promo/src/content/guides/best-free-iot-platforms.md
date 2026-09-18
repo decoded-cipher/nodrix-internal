@@ -1,9 +1,9 @@
 ---
 title: "The best free IoT platforms for makers in 2026, ranked"
-description: "Every 'free' IoT platform caps something — devices, messages, retention, or all three. Here's an honest ranking of the free tiers makers actually use in 2026, what each one caps, and the one option where the free tier is Cloudflare's, not a vendor's."
+description: "Every free IoT tier caps something — devices, messages, or retention. An honest 2026 ranking of what each one limits, and where the free tier is your own."
 category: comparison
 datePublished: 2026-07-10
-dateUpdated: 2026-07-10
+dateUpdated: 2026-09-18
 faqs:
   - q: "Is there a completely free IoT platform?"
     a: "Truly free means no device caps, no message quotas, and no retention limits — and no hosted platform offers that, because your data costs them money. The closest thing is running open-source software on infrastructure with a generous free tier: nodrix on Cloudflare's free plan is free in that sense, and self-hosted ThingsBoard is free if you already own a server and the time to run it."

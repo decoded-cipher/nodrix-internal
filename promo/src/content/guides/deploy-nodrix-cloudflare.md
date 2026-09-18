@@ -31,6 +31,9 @@ related:
   - href: "/guides/thingsboard-alternative"
     label: "Why run it on your own Cloudflare"
     desc: "The ownership trade behind the one-click deploy."
+  - href: "/guides/cloudflare-free-tier-limits"
+    label: "What it costs to run"
+    desc: "Which free-tier ceiling you meet first, and when $5/month starts."
 ---
 
 nodrix deploys with **one click into your own Cloudflare account** — Workers, Durable Objects, D1,

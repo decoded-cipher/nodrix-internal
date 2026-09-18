@@ -1,11 +1,11 @@
 ---
-title: "ESP8266 vs ESP32-C3 in 2026: should you finally upgrade?"
-description: "ESP32 vs ESP8266 in 2026, at the budget end: the ESP32-C3 is the 8266's designated successor at nearly the same price, with the RAM headroom that makes TLS comfortable instead of a squeeze. When to switch, when the old board is still the right call, where the wider ESP32 family fits, and what changes in firmware."
+title: "ESP8266 vs ESP32-C3: upgrade new builds, keep working ones"
+description: "The ESP32-C3 is the 8266's successor at nearly the same price, with the RAM headroom TLS needs. Upgrade new designs; leave working deployments alone."
 category: hardware
 board: ESP32-C3
 difficulty: beginner
 datePublished: 2026-07-10
-dateUpdated: 2026-08-20
+dateUpdated: 2026-09-18
 faqs:
   - q: "Is the ESP8266 obsolete in 2026?"
     a: "No — dated, not dead. Espressif's longevity commitment keeps the ESP8266 series in production toward the end of the decade, the ecosystem still receives real investment, and boards cost under two dollars in bulk. For a Wi-Fi-only sensor with modest TLS needs it remains perfectly serviceable. Obsolete is the wrong frame; 'no longer what you'd design in' is the right one."
@@ -33,14 +33,16 @@ related:
     desc: "Deep-sleep patterns for either chip."
 ---
 
+**For a new design, take the ESP32-C3.** It costs about the same as an ESP8266 and removes the RAM
+ceiling that makes TLS a squeeze. **For a deployment that already works, leave it alone** — the 8266
+is not obsolete, and reflashing a fleet to fix nothing is not an upgrade. The 8266's remaining
+advantages are real, and they are covered below.
+
 The ESP8266 is the board that made Wi-Fi microcontrollers a hobby: a decade of tutorials, a
 sub-two-dollar price, and millions of deployed nodes still dutifully reporting. It's also a 2014
 design whose RAM budget makes modern TLS feel like packing a suitcase by sitting on it. The
 ESP32-C3 is Espressif's designed successor — near-8266 pricing with the constraints removed — and
 "should I switch" has become the default question at the budget end of the family.
-
-The honest answer has three parts: for new designs, yes; for working deployments, no; and the
-details are worth two minutes because the 8266's remaining advantages are real.
 
 ## What the C3 fixes
 

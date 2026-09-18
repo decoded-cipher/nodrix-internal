@@ -1,9 +1,9 @@
 ---
-title: "A Datacake alternative without per-device pricing — open-source, on your Cloudflare"
-description: "Want a Datacake alternative that drops per-device pricing and keeps your data in your own tenancy? nodrix is open-source IoT you deploy to your own Cloudflare account — low-effort dashboards, automations, and a read API, billed as Cloudflare usage."
+title: "Datacake alternative with no per-device pricing"
+description: "nodrix is an open-source Datacake alternative you deploy to your own Cloudflare account — no per-device pricing, your telemetry in your own tenancy."
 category: comparison
 datePublished: 2026-06-08
-dateUpdated: 2026-07-04
+dateUpdated: 2026-09-18
 faqs:
   - q: "Is there an open-source alternative to Datacake?"
     a: "Yes. nodrix is open-source (MIT) and you deploy it to your own Cloudflare account instead of paying per device on a hosted plan. Datacake is a low-code SaaS billed by device; nodrix has no per-device license and your data stays in your own tenancy."

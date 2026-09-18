@@ -2,16 +2,22 @@ import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
 const iso = (d: Date) => d.toISOString().split('T')[0];
-const STATIC_LASTMOD = '2026-08-21';
+const dateOf = (e: { data: { dateUpdated?: Date; datePublished: Date } }) =>
+  e.data.dateUpdated ?? e.data.datePublished;
 
-// Static top-level pages. Add new ones here.
-const staticRoutes: { path: string; priority: string }[] = [
+const newest = (entries: { data: { dateUpdated?: Date; datePublished: Date } }[]) =>
+  entries.reduce((max, e) => (dateOf(e) > max ? dateOf(e) : max), new Date(0));
+
+const STATIC_LASTMOD = '2026-09-18';
+
+// Static top-level pages. Add new ones here; `listing` takes lastmod from that collection.
+const staticRoutes: { path: string; priority: string; listing?: 'guides' | 'blog' }[] = [
   { path: '', priority: '1.0' },
   { path: 'products', priority: '0.9' },
   { path: 'docs', priority: '0.8' },
   { path: 'widgets', priority: '0.8' },
-  { path: 'guides', priority: '0.8' },
-  { path: 'blog', priority: '0.8' },
+  { path: 'guides', priority: '0.8', listing: 'guides' },
+  { path: 'blog', priority: '0.8', listing: 'blog' },
   { path: 'roadmap', priority: '0.6' },
   { path: 'changelog', priority: '0.6' },
   { path: 'privacy', priority: '0.3' },
@@ -39,8 +45,13 @@ export const GET: APIRoute = async ({ site }) => {
     .filter((d) => !d.data.draft)
     .map((d) => ({ path: `docs/${d.id}`, priority: '0.8', lastmod: iso(d.data.dateUpdated ?? d.data.datePublished) }));
 
+  const listingLastmod = { guides: iso(newest(guides)), blog: iso(newest(blog)) };
+
   const urls = [
-    ...staticRoutes.map((r) => ({ ...r, lastmod: STATIC_LASTMOD })),
+    ...staticRoutes.map((r) => ({
+      ...r,
+      lastmod: r.listing ? listingLastmod[r.listing] : STATIC_LASTMOD,
+    })),
     ...productRoutes.map((r) => ({ ...r, lastmod: STATIC_LASTMOD })),
     ...guideRoutes,
     ...blogRoutes,

@@ -1,9 +1,9 @@
 ---
-title: "A ThingSpeak alternative for realtime IoT you own — open-source, on your Cloudflare"
-description: "Need a ThingSpeak alternative without the update-rate floor or annual message cap? nodrix is open-source IoT you deploy to your own Cloudflare account — realtime telemetry and control, dashboards, automations, and a read API, all in your tenancy."
+title: "ThingSpeak alternative with no message cap or rate floor"
+description: "nodrix is an open-source ThingSpeak alternative you deploy to your own Cloudflare account — no annual message cap, no 15-second update floor."
 category: comparison
 datePublished: 2026-06-08
-dateUpdated: 2026-07-04
+dateUpdated: 2026-09-18
 faqs:
   - q: "Is there a free, open-source alternative to ThingSpeak?"
     a: "Yes. nodrix is open-source (MIT) and you deploy it to your own Cloudflare account, so there's no license cost and no annual message quota — you pay Cloudflare for usage, which for a handful of sensors is effectively free. ThingSpeak is a hosted MathWorks service; the free tier is non-commercial and rate-limited."

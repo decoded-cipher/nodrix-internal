@@ -137,16 +137,12 @@ const char* TOKEN     = "tok_your_project_token";
 // Upload the compiled .ino.bin under this exact string.
 const char* FW_VERSION = "1.4.0";
 
-// openssl s_client -showcerts -connect nodrix.you.workers.dev:443 </dev/null
-const char* ROOT_CA = R"(-----BEGIN CERTIFICATE-----
-...the last certificate in that chain...
------END CERTIFICATE-----)";
-
 void setup() {
   Serial.begin(115200);
 
+  Nodrix.setDebug(true);               // prints each step of an update to serial
   Nodrix.setFirmwareVersion(FW_VERSION);
-  Nodrix.setCACert(ROOT_CA);           // firmware delivery is the wrong place to skip validation
+  Nodrix.setDeviceKey("roof-sensor");  // optional — defaults to this board's MAC
   Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
 }
 
@@ -157,6 +153,13 @@ void loop() {
 
 `Nodrix.run()` is what services the check, so the download happens between loop iterations rather
 than inside a callback — nothing you are in the middle of handling gets interrupted by a reboot.
+
+The board registers itself the first time it reports, and the key is what it registers as. Leave it
+unset and that is the board's MAC, which is fine until the hardware is replaced: the new board
+arrives as a new device, with no history and none of the firmware assigned to the one it replaced.
+Naming the key ties the identity to the role instead of the chip, so a swapped board inherits the
+row. The version and the key answer different questions — which board this is, and what it is
+running — and OTA needs both.
 
 ## Watching the rollout
 
@@ -171,9 +174,13 @@ given up, which points you at the version string instead of at the board.
 
 ## Notes
 
-The SDK does not validate certificates until you pin one, and firmware delivery is exactly the wrong
-place to leave that off — an unauthenticated transport plus an unvalidated binary is how a fleet gets
-taken over. `setCACert()` on an ESP32, `setFingerprint()` on an ESP8266 in HTTP mode.
+The sketch above runs on the SDK's default, which encrypts the connection without verifying who is on
+the other end of it. That is fine for a first run and wrong for anything deployed: firmware delivery
+is exactly the place where an unauthenticated transport plus an unvalidated binary is how a fleet
+gets taken over. Pull your instance's root with
+`openssl s_client -showcerts -connect nodrix.you.workers.dev:443 </dev/null`, paste the last
+certificate in the chain into a string, and call `Nodrix.setCACert(rootCA)` before `begin()` — or
+`setFingerprint()` on an ESP8266 in HTTP mode.
 
 What that gets you is a validated connection to your own instance, a project token that authorises
 the download, and the version the board reports afterwards as proof of what actually landed. Signed

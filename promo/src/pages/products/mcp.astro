@@ -1,0 +1,389 @@
+---
+import { Code } from 'astro:components';
+import Site from '../../layouts/Site.astro';
+import Waves from '../../components/Waves.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Faq from '../../components/Faq.astro';
+import RelatedLinks from '../../components/RelatedLinks.astro';
+import { breadcrumb, faqPage, jsonLdGraph } from '../../lib/seo';
+
+const repoUrl = 'https://github.com/decoded-cipher/nodrix';
+const registryName = 'live.nodrix/nodrix';
+const registryUrl = 'https://registry.modelcontextprotocol.io';
+
+const title = 'Nodrix MCP server — read and control your own hardware from an AI assistant';
+const description =
+  'A native Model Context Protocol server built into nodrix. 12 read tools for telemetry, history, dashboards and automations, 16 write tools including set_variable to actuate hardware, and no delete tools at all. Owner-gated, off by default, and running in your own Cloudflare account.';
+
+const endpoints = [
+  {
+    path: '/v1/mcp',
+    auth: 'Bearer token',
+    who: 'CLI and IDE clients',
+    desc: 'Claude Code, Cursor, and anything configured with a static token. Authenticates with a user token from Settings → Tokens.',
+  },
+  {
+    path: '/v1/mcp/oauth',
+    auth: 'OAuth 2.1',
+    who: 'Browser-based connectors',
+    desc: 'claude.ai and ChatGPT custom connectors. No token to manage — the user signs in on your instance and approves a consent screen.',
+  },
+];
+
+const capabilities = [
+  { name: 'Read live state', desc: 'get_state returns the latest value of every variable in a project — whatever the device last reported, even if it is asleep right now.', icon: 'M12 8V4H8 M6 8h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z M2 14h2 M20 14h2 M9 13v2 M15 13v2' },
+  { name: 'Query history', desc: 'get_series pulls recent time-series points for a variable, so an assistant can analyse a trend rather than just quote a number.', icon: 'm4 14 5-5 4 4 7-7 M21 14V6h-8' },
+  { name: 'Actuate hardware', desc: 'set_variable enqueues a control write your device picks up on its next poll. This is how an assistant turns on a relay.', icon: 'M12 2v10 M18.4 6.6a9 9 0 1 1-12.77.04' },
+  { name: 'Build dashboards', desc: 'List widget types and their prop shapes, then create dashboards and place widgets — the assistant can assemble a view, not just read one.', icon: 'M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z' },
+  { name: 'Write automations', desc: 'list_block_types exposes every trigger, condition and action with its config fields, so an assistant can compose a whole flow graph.', icon: 'M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18' },
+  { name: 'Drive integrations', desc: 'Create, update and test-fire integrations. Secret config values are redacted on the way out, so credentials never reach the model.', icon: 'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71' },
+];
+
+const guarantees = [
+  { title: 'Off by default', body: 'Two deployment flags, both off. mcp_enabled is the master switch; mcp_write_enabled gates everything that can change state. A fresh deployment exposes no MCP surface at all.', icon: 'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M10.3 21a1.94 1.94 0 0 0 3.4 0' },
+  { title: 'Disabled looks absent', body: 'While the master switch is off, /v1/mcp returns 404 rather than 403 — a disabled server looks like it was never there, instead of advertising something to probe.', icon: 'M9.88 9.88a3 3 0 1 0 4.24 4.24 M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68 M6.61 6.61A13.5 13.5 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61 M2 2l20 20' },
+  { title: 'Read-only until you say otherwise', body: 'Even an admin-scope token gets only the 12 read tools until the write flag is on. An assistant can look at everything and command nothing, which is the sane default.', icon: 'M12 15v2 M5 11h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z M7 11V7a5 5 0 0 1 10 0v4' },
+  { title: 'Never more than the human', body: "Every tool re-derives authority from the token creator's role and the token's project scope before it runs. MCP cannot reach a project, or take an action, that the person behind the token could not.", icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M22 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75' },
+  { title: 'No delete tools, ever', body: 'There is no tool to delete a project, variable, dashboard, automation or integration. The destructive verbs are simply not in the surface, so no prompt can reach them.', icon: 'M3 6h18 M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2 M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6 M2 2l20 20' },
+  { title: 'Every write is audited', body: 'MCP-driven changes land in the audit log tagged as MCP-sourced, so an AI-initiated change is always distinguishable from one made in the web app or over the API.', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8' },
+];
+
+const readTools = [
+  { n: 'list_projects', d: 'List the projects this token can access.' },
+  { n: 'list_variables', d: 'List declared variables (key, unit, last seen) for a project.' },
+  { n: 'get_state', d: 'Get the latest value of every variable in a project.' },
+  { n: 'get_series', d: 'Get recent time-series points for one variable.' },
+  { n: 'list_dashboards', d: 'List dashboards in a project.' },
+  { n: 'get_dashboard', d: 'Get one dashboard including its widget layout.' },
+  { n: 'list_widget_types', d: 'List available widget types and their canonical prop shapes.' },
+  { n: 'list_widgets', d: 'List widgets in a dashboard — id, type, position, props.' },
+  { n: 'list_block_types', d: 'List automation block kinds — triggers, conditions, actions — with their config fields and ports.' },
+  { n: 'list_integration_kinds', d: 'List integration kinds with their connection fields and operations.' },
+  { n: 'list_automations', d: 'List automations — flow graph and last run status — in a project.' },
+  { n: 'list_integrations', d: 'List integrations in a project. Secret config values are redacted.' },
+];
+
+const writeTools = [
+  { n: 'create_project', d: 'Create a project. Requires an owner/admin token.' },
+  { n: 'update_project', d: 'Rename or re-describe a project.' },
+  { n: 'create_variable', d: 'Declare a variable, optionally with a unit.' },
+  { n: 'update_variable', d: "Update a variable's unit." },
+  { n: 'set_variable', d: 'Enqueue a control write to hardware — the device picks it up on its next poll.' },
+  { n: 'create_dashboard', d: 'Create a dashboard, with or without a starting widget grid.' },
+  { n: 'update_dashboard', d: 'Update a dashboard name, description or layout, with optimistic concurrency.' },
+  { n: 'add_widget', d: 'Add a widget to a dashboard and return the inserted widget.' },
+  { n: 'update_widget', d: 'Update a single widget. Props replace rather than merge.' },
+  { n: 'create_automation', d: 'Create an automation from a {nodes, edges} flow graph.' },
+  { n: 'update_automation', d: 'Update an automation, or replace its whole flow graph.' },
+  { n: 'run_automation', d: 'Run an automation now — drives manual automations, and acts as a test harness.' },
+  { n: 'emit_event', d: 'Fire a named event, running any enabled event-triggered automations that match.' },
+  { n: 'create_integration', d: 'Create an integration of any supported kind.' },
+  { n: 'update_integration', d: 'Update an integration — name, config, enabled.' },
+  { n: 'test_integration', d: 'Fire an integration once with a synthetic context to verify delivery.' },
+];
+
+const faqs = [
+  {
+    q: 'Does my telemetry get sent to Anthropic or OpenAI?',
+    a: 'Only what the assistant actually asks for, and only when you have connected it. The MCP server runs inside your own Cloudflare account alongside your data — there is no nodrix-operated middleman that sees your projects. When an assistant calls get_state, that tool result goes to the model the same way any tool result does. Nothing is streamed or synced in the background, and with the server switched off nothing is reachable at all.',
+  },
+  {
+    q: 'Which tools require the write toggle?',
+    a: 'All sixteen management tools, including set_variable. With only mcp_enabled on, a client sees just the twelve read tools — the write tools are not registered, so they do not appear in the tool list at all rather than failing when called. Turning on mcp_write_enabled additionally requires the connecting token to be admin-scope.',
+  },
+  {
+    q: 'Can an assistant delete my project or my data?',
+    a: 'No. There are no delete tools in the MCP surface — not for projects, variables, dashboards, automations or integrations. This is a deliberate design constraint rather than a permission setting, so there is no toggle that turns destructive operations on.',
+  },
+  {
+    q: 'Can I limit an assistant to one project?',
+    a: 'Yes. Mint a project-scoped token and every tool resolves against that project only; an all-projects token is the one that can move between them. The scope is enforced server-side before the tool runs, so it is not something a prompt can talk its way around.',
+  },
+  {
+    q: 'Does the hardware need to be plugged into the machine running the assistant?',
+    a: 'No, and this is the main thing that separates it from most hardware MCP servers. Your devices report to your nodrix deployment, not to your laptop, so the assistant talks to the deployment. The board can be in another building. A control write is queued and delivered on the device’s next poll, so it also works with a battery sensor that is deep-sleeping when you ask.',
+  },
+  {
+    q: 'Which AI clients can connect?',
+    a: 'Anything that speaks MCP over Streamable HTTP. The OAuth endpoint suits browser clients like the claude.ai and ChatGPT connectors; the bearer endpoint suits Claude Code, Cursor and other token-configured tools. nodrix is also listed in the official MCP registry, so registry-aware clients can resolve it by name.',
+  },
+];
+
+const related = [
+  { href: '/guides/control-esp32-with-claude-mcp', label: 'Control your ESP32 with Claude', desc: 'The step-by-step walkthrough, from enabling the server to the first relay.' },
+  { href: '/guides/claude-skill-for-esp32', label: 'A Claude Skill that writes ESP32 firmware', desc: 'The other half — generating the sketch, not just driving it.' },
+  { href: '/guides/voice-control-esp32', label: 'Voice-control an ESP32', desc: 'Speaking to hardware, on top of the same primitives.' },
+  { href: '/products/arduino-library', label: 'Arduino library', desc: 'What runs on the board the assistant is talking to.' },
+  { href: '/docs#mcp', label: 'Docs: MCP', desc: 'The short version, in context with the rest of the platform.' },
+  { href: '/docs#protocol', label: 'Device protocol', desc: 'The HTTPS/WebSocket contract underneath it all.' },
+];
+
+const cliSnippet = `claude mcp add --transport http nodrix \\
+  https://your-instance.workers.dev/v1/mcp \\
+  --header "Authorization: Bearer YOUR_TOKEN"`;
+
+const jsonSnippet = `{
+  "mcpServers": {
+    "nodrix": {
+      "type": "http",
+      "url": "https://your-instance.workers.dev/v1/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_TOKEN"
+      }
+    }
+  }
+}`;
+
+const oauthSnippet = `https://your-instance.workers.dev/v1/mcp/oauth`;
+
+const site = Astro.site!;
+const path = '/products/mcp';
+const jsonLd = jsonLdGraph(
+  {
+    '@type': 'SoftwareApplication',
+    name: 'Nodrix MCP server',
+    description,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Cloudflare Workers',
+    codeRepository: repoUrl,
+    license: 'https://opensource.org/licenses/MIT',
+    url: new URL(path, site).href,
+    author: { '@type': 'Organization', name: 'nodrix', url: site.href },
+    isPartOf: { '@id': new URL('#website', site).href },
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  },
+  breadcrumb(site, [
+    { name: 'Home', path: '/' },
+    { name: 'Products', path: '/products' },
+    { name: 'MCP server', path },
+  ]),
+  faqPage(faqs),
+);
+
+const h2 = 'mt-2 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl';
+const tile = 'flex h-11 w-11 items-center justify-center rounded-xl bg-accent-50 text-accent-600 ring-1 ring-inset ring-accent-100';
+const svgAttrs = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' };
+const pill = 'rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-600';
+const mono = 'rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]';
+---
+
+<Site title={`${title} | nodrix`} description={description} type="article">
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json" set:html={jsonLd} />
+  </Fragment>
+
+  <main data-doc>
+    <!-- Hero -->
+    <section class="hero-glow relative overflow-hidden border-b border-neutral-200/70">
+      <Waves />
+      <div class="relative mx-auto max-w-4xl px-5 py-16 sm:px-6 sm:py-24">
+        <nav class="text-sm text-neutral-500" aria-label="Breadcrumb">
+          <a href="/products" class="font-semibold text-accent-600 hover:text-accent-700">Products</a>
+          <span class="mx-1.5 text-neutral-300">/</span>
+          <span>MCP server</span>
+        </nav>
+        <h1 class="mt-4 text-balance text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl">
+          A native MCP server for hardware you don't have to babysit.
+        </h1>
+        <p class="mt-5 max-w-2xl text-pretty text-base leading-relaxed text-neutral-600 sm:text-lg">
+          Most hardware MCP servers need the board plugged into the machine running the agent. Your
+          devices report to <strong>your nodrix deployment</strong> instead, so the assistant talks to
+          the deployment — and the board can be in another building, or asleep.
+        </p>
+
+        <div class="mt-6 flex flex-wrap items-center gap-2">
+          <span class={pill}>12 read · 16 write tools</span>
+          <span class={pill}>No delete tools</span>
+          <span class={pill}>Owner-gated, off by default</span>
+          <span class={pill}>Streamable HTTP</span>
+          <span class={pill}>MIT licensed</span>
+        </div>
+
+        <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+          <a
+            href="/guides/control-esp32-with-claude-mcp"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-neutral-900 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800"
+          >
+            Walk through the setup
+          </a>
+          <a
+            href={repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-300 bg-white px-6 py-3.5 text-base font-semibold text-neutral-800 transition-colors hover:bg-neutral-50"
+          >
+            View on GitHub
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Endpoints -->
+    <section class="border-b border-neutral-200/70">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Connect</span>
+        <h2 class={h2}>Two endpoints, one worker</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          Both speak Streamable HTTP and expose the same tools. They differ only in how the client
+          proves who it is — pick whichever your client supports.
+        </p>
+
+        <div class="mt-8 grid gap-4 sm:grid-cols-2">
+          {endpoints.map((e) => (
+            <div class="rounded-xl border border-neutral-200 bg-white p-6">
+              <div class="flex items-center justify-between gap-3">
+                <h3 class="font-mono text-sm font-semibold text-neutral-900">{e.path}</h3>
+                <span class="rounded-full bg-accent-50 px-2.5 py-0.5 text-xs font-semibold text-accent-600">{e.auth}</span>
+              </div>
+              <p class="mt-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">{e.who}</p>
+              <p class="mt-2 text-sm leading-relaxed text-neutral-600">{e.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <h3 class="mt-10 text-base font-semibold text-neutral-900">Token-configured clients</h3>
+        <p class="mt-2 text-sm leading-relaxed text-neutral-600">
+          Mint a token in <strong>Settings → Tokens</strong>, then point the client at the bearer
+          endpoint. With the Claude Code CLI:
+        </p>
+        <div class="tight-codes mt-3">
+          <Code code={cliSnippet} lang="bash" />
+        </div>
+        <p class="mt-4 text-sm leading-relaxed text-neutral-600">
+          Or as configuration, for any client that reads an MCP server map:
+        </p>
+        <div class="tight-codes mt-3">
+          <Code code={jsonSnippet} lang="json" />
+        </div>
+
+        <h3 class="mt-10 text-base font-semibold text-neutral-900">Browser connectors</h3>
+        <p class="mt-2 text-sm leading-relaxed text-neutral-600">
+          For claude.ai and ChatGPT, add a custom connector pointing at the OAuth endpoint. There is
+          no token to paste — you sign in on your own instance and approve a consent screen that
+          spells out what is being granted.
+        </p>
+        <div class="tight-codes mt-3">
+          <Code code={oauthSnippet} lang="bash" />
+        </div>
+        <p class="mt-4 text-sm leading-relaxed text-neutral-600">
+          The <a href="/guides/control-esp32-with-claude-mcp" class="font-medium text-accent-600 hover:text-accent-700">full walkthrough</a>
+          covers both paths step by step, including where the menus live.
+        </p>
+      </div>
+    </section>
+
+    <!-- Capabilities -->
+    <section class="border-b border-neutral-200/70 bg-neutral-50">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Capabilities</span>
+        <h2 class={h2}>What an assistant can actually do</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          The tools map onto the platform's own primitives, so anything you can do in the dashboard
+          an assistant can do too — within the limits below.
+        </p>
+        <div class="mt-10 grid gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 sm:grid-cols-2 lg:grid-cols-3">
+          {capabilities.map((c) => (
+            <div class="group bg-white p-6 transition-colors hover:bg-neutral-50/70">
+              <div class={tile}>
+                <svg class="h-5 w-5" {...svgAttrs}><path d={c.icon} /></svg>
+              </div>
+              <h3 class="mt-5 text-base font-semibold text-neutral-900">{c.name}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-neutral-600">{c.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Safety -->
+    <section class="border-b border-neutral-200/70">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Boundaries</span>
+        <h2 class={h2}>Letting an AI near your hardware, carefully</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          Every capability above is gated. The defaults assume you have not thought about this yet,
+          so nothing is exposed until you deliberately expose it.
+        </p>
+        <div class="mt-10 grid gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 sm:grid-cols-2 lg:grid-cols-3">
+          {guarantees.map((g) => (
+            <div class="bg-white p-6">
+              <div class={tile}>
+                <svg class="h-5 w-5" {...svgAttrs}><path d={g.icon} /></svg>
+              </div>
+              <h3 class="mt-5 text-base font-semibold text-neutral-900">{g.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-neutral-600">{g.body}</p>
+            </div>
+          ))}
+        </div>
+        <p class="mt-6 text-sm leading-relaxed text-neutral-600">
+          The two flags live in <strong>Settings → More</strong>:
+          <code class={mono}>mcp_enabled</code> and <code class={mono}>mcp_write_enabled</code>.
+          Only the instance owner can change them.
+        </p>
+      </div>
+    </section>
+
+    <!-- Tool reference -->
+    <section class="border-b border-neutral-200/70 bg-neutral-50">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Reference</span>
+        <h2 class={h2}>Every tool</h2>
+
+        <h3 class="mt-8 text-base font-semibold text-neutral-900">
+          Read — always available when MCP is on
+        </h3>
+        <div class="mt-3 overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+          <table class="w-full text-sm">
+            <tbody class="divide-y divide-neutral-100">
+              {readTools.map((t) => (
+                <tr>
+                  <td class="whitespace-nowrap px-4 py-2.5"><code class="font-mono text-[13px] text-neutral-900">{t.n}</code></td>
+                  <td class="px-4 py-2.5 text-neutral-600">{t.d}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="mt-10 text-base font-semibold text-neutral-900">
+          Write — only with <code class={mono}>mcp_write_enabled</code> and an admin-scope token
+        </h3>
+        <div class="mt-3 overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+          <table class="w-full text-sm">
+            <tbody class="divide-y divide-neutral-100">
+              {writeTools.map((t) => (
+                <tr>
+                  <td class="whitespace-nowrap px-4 py-2.5"><code class="font-mono text-[13px] text-neutral-900">{t.n}</code></td>
+                  <td class="px-4 py-2.5 text-neutral-600">{t.d}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-6 text-sm leading-relaxed text-neutral-600">
+          There is no delete tool on either list, and that is not an oversight — the destructive
+          verbs are absent from the surface entirely.
+        </p>
+      </div>
+    </section>
+
+    <!-- Registry -->
+    <section class="border-b border-neutral-200/70">
+      <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
+        <span class="text-sm font-semibold text-accent-600">Discovery</span>
+        <h2 class={h2}>In the official MCP registry</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+          nodrix is published to the
+          <a href={registryUrl} target="_blank" rel="noopener noreferrer" class="font-medium text-accent-600 hover:text-accent-700">official MCP registry</a>
+          as <code class={mono}>{registryName}</code>. Clients that resolve servers from the registry
+          can add it by name — you still supply your own deployment's hostname, because the server
+          runs in your Cloudflare account rather than ours.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <Faq items={faqs} />
+  <RelatedLinks links={related} />
+  <CtaBand title="Deploy the instance your assistant will talk to" subtitle="Nodrix is free and open source — deploy it to your own Cloudflare account, connect your hardware, then switch the MCP server on when you're ready." />
+</Site>

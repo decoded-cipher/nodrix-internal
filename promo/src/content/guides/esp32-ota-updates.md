@@ -1,11 +1,11 @@
 ---
 title: "ESP32 OTA updates: ship firmware to deployed boards without touching them"
-description: "How to update ESP32 firmware over the air properly: the partition trade nobody warns you about, an HTTPS pull triggered from your own dashboard, rollback that catches a bad build, and fleet versions you can actually see."
+description: "How to update ESP32 firmware over the air properly: the partition trade nobody warns you about, an HTTPS pull from the instance the board already talks to, rollback that catches a bad build, and fleet versions you can actually see."
 category: concept
 board: ESP32
 difficulty: intermediate
 datePublished: 2026-08-20
-dateUpdated: 2026-08-20
+dateUpdated: 2026-09-19
 faqs:
   - q: "Why does enabling OTA halve my available program space?"
     a: "Because the board has to hold two complete copies of your firmware. An OTA update downloads the new build into an inactive slot while the current one keeps running, then flips a pointer and reboots into it. That's what makes the update safe — a failure mid-download leaves the working copy untouched — and it's why a 4MB ESP32 gives you roughly 1.3MB per slot instead of one big 3MB one."
@@ -14,16 +14,16 @@ faqs:
   - q: "What happens if the update downloads but the new firmware is broken?"
     a: "With rollback enabled, the board recovers on its own. A freshly-flashed image boots in a pending state and must call `esp_ota_mark_app_valid_cancel_rollback()` to confirm itself; if it crashes or reboots before doing so, the bootloader reverts to the previous slot. Put that call after your Wi-Fi connects rather than at the top of setup, so 'working' means it can actually reach the network."
   - q: "Is it safe to trigger updates from a dashboard?"
-    a: "It is when the device decides what to trust. The dashboard write should be a signal, not a command — the board fetches over HTTPS from a host you control and refuses URLs that don't match it. The danger isn't someone flipping a toggle, it's a device that will install firmware from any address it's handed."
+    a: "It is when the device decides what to trust. A board should never be handed a URL to install from. With nodrix it asks its own instance over the connection it is already authenticated on, and the answer is either an image or nothing — no address from the outside is ever involved. The danger was never someone flipping a toggle, it is a device that will install firmware from anywhere it is pointed."
   - q: "Can nodrix host my firmware binaries?"
-    a: "Not today — it stores telemetry, not build artefacts. What it does well is the orchestration around the update: devices report their running version as a variable so you can see your fleet's versions at a glance, and a control write tells a board to go and fetch. Host the binary anywhere static — R2, GitHub releases, any bucket — and let the dashboard drive the rollout."
+    a: "Yes. Upload the compiled `.ino.bin` under Devices, assign it to a board, and nodrix serves the image to that board when it checks in. The upload is inspected first, so a merged whole-flash image — the one that would leave a board unbootable if installed over the air — is refused rather than shipped. You don't need a separate bucket or release host."
 related:
   - href: "/guides/esp32-https-cloud"
     label: "Connect an ESP32 over HTTPS"
     desc: "The TLS foundation a safe update pull depends on."
   - href: "/guides/esp32-receive-commands"
     label: "Receive commands on an ESP32"
-    desc: "The downlink that triggers the update."
+    desc: "The other direction: telling a running board what to do."
   - href: "/guides/update-nodrix"
     label: "Updating your nodrix instance"
     desc: "The same problem, solved on the server side."
@@ -80,80 +80,74 @@ instead.
 
 Where you put that call is the entire design decision. Calling it at the top of `setup()` means
 "working" only means "reached the first line of code" — which a build with a broken Wi-Fi config
-passes easily, and then sits there bricked-but-happy forever. Call it **after the board has connected
-and reported in**, so confirmation means the firmware can actually do its job.
+passes easily, and then sits there bricked-but-happy forever. Confirmation should mean the firmware
+can actually do its job.
+
+The nodrix SDK makes that call when the board reaches your instance, not when it boots. A build that
+comes up but cannot connect is never marked good, so the next reset takes the board back to the
+version that could.
 
 Note that rollback needs a partition table with two app slots and **no factory partition** — the
 OTA-capable schemes are already laid out this way.
 
 ## The update flow
 
-Nodrix doesn't host firmware binaries; it isn't a build artefact store. What it does host is the
-signal and the visibility, which is most of what a small fleet needs:
+Nodrix hosts the image and tracks who took it. Compile with the toolchain you already use, then:
 
-- The board reports `firmware_version` as [ordinary telemetry](/guides/esp32-https-cloud), so the
-  dashboard shows what every device is running.
-- You publish the new binary anywhere static — R2, a GitHub release, any bucket over HTTPS.
-- A control write to a `firmware_url` variable tells a board to go and fetch it.
+- **Upload** the compiled `.ino.bin` under **Devices → Firmware**, named with the version string the
+  sketch reports. Arduino IDE writes it to `build/<board>/` under **Sketch → Export Compiled Binary**;
+  PlatformIO leaves it at `.pio/build/<env>/firmware.bin`. Upload the app image, not
+  `.ino.merged.bin`.
+- **Assign** it to a board on **Devices**. That is the whole of starting an update — there is no job
+  to schedule and nothing to poll.
+- **The board pulls it.** One on the socket is told as soon as you assign; one on HTTP finds it at
+  its next check. It downloads over the connection it is already authenticated on, writes the spare
+  slot, and restarts.
 
-The rollout is then just a dashboard action, and because the version is a variable, you can watch the
-fleet move across as devices pick it up.
+The board reporting the new version is what marks the update landed, which is why the string in the
+sketch has to match the string on the upload. If they differ, the board installs an update it can
+never complete — so nodrix stops offering after a few attempts and says the device gave up, instead
+of leaving it reinstalling forever. Assigning again clears that and retries.
 
 ## The firmware
 
-The write handler receives the URL, checks it against a host you trust, and hands off to
-`httpUpdate`. The confirmation call sits at the end of a successful startup, not the beginning.
+> **Needs Nodrix 0.2.0 or newer**
+>
+> `setFirmwareVersion()` and the update check do not exist in earlier versions — a board built
+> against one of those reports nothing and is never offered an update. Update the library under
+> **Tools → Manage Libraries** in the Arduino IDE, or pin `decoded-cipher/Nodrix@^0.2.0` in
+> PlatformIO.
+
+Name the version the sketch is before `begin()`. The SDK reports that string, asks for an assigned
+update when it connects and every six hours after that, downloads anything that differs from what it
+is running, and restarts into it. `Nodrix.checkForUpdate()` forces a check when you don't want to
+wait for the next one.
+
+There is no update handler to write and no host to guard against: the board is never handed a URL,
+only an answer to a question it asked.
 
 ```cpp
 #include <Nodrix.h>
-#include <WiFiClientSecure.h>
-#include <HTTPUpdate.h>
-#include <esp_ota_ops.h>
 
 const char* WIFI_SSID = "your-ssid";
 const char* WIFI_PASS = "your-password";
 const char* HOST      = "nodrix.you.workers.dev";
 const char* TOKEN     = "tok_your_project_token";
 
-const char* FW_VERSION  = "1.4.0";
-const char* TRUSTED_FW  = "https://fw.example.com/";   // updates must start with this
+// Upload the compiled .ino.bin under this exact string.
+const char* FW_VERSION = "1.4.0";
 
-NODRIX_WRITE("firmware_url") {
-  String url = value.asString();
-  if (!url.startsWith(TRUSTED_FW)) {
-    Nodrix.send("ota_status", "rejected_host");
-    return;
-  }
-
-  Nodrix.send("ota_status", "downloading");
-  Nodrix.flush();                       // get it out before the radio is busy
-
-  WiFiClientSecure client;
-  client.setInsecure();                 // pin a CA in production
-  httpUpdate.rebootOnUpdate(true);
-
-  t_httpUpdate_return r = httpUpdate.update(client, url);
-  if (r == HTTP_UPDATE_FAILED) {
-    Nodrix.send("ota_status", httpUpdate.getLastErrorString());
-  }
-  // On success the board reboots inside update() and never reaches here.
-}
+// openssl s_client -showcerts -connect nodrix.you.workers.dev:443 </dev/null
+const char* ROOT_CA = R"(-----BEGIN CERTIFICATE-----
+...the last certificate in that chain...
+-----END CERTIFICATE-----)";
 
 void setup() {
+  Serial.begin(115200);
+
+  Nodrix.setFirmwareVersion(FW_VERSION);
+  Nodrix.setCACert(ROOT_CA);           // firmware delivery is the wrong place to skip validation
   Nodrix.begin(WIFI_SSID, WIFI_PASS, HOST, TOKEN);
-
-  unsigned long t0 = millis();
-  while (!Nodrix.connected() && millis() - t0 < 30000) {
-    Nodrix.run();
-    delay(50);
-  }
-
-  if (Nodrix.connected()) {
-    Nodrix.send("firmware_version", FW_VERSION);
-    Nodrix.send("ota_status", "ok");
-    Nodrix.flush();
-    esp_ota_mark_app_valid_cancel_rollback();   // only now is this build "good"
-  }
 }
 
 void loop() {
@@ -161,37 +155,33 @@ void loop() {
 }
 ```
 
-The `Nodrix.flush()` before the download matters. Once `httpUpdate` starts, the board is busy writing
-flash and will reboot without warning, so anything you wanted to report needs to have actually left
-first.
-
-The host check is the security boundary. Without it, anyone who can write that variable can point
-your board at any binary on the internet — the toggle isn't the risk, a device that installs firmware
-from arbitrary addresses is.
+`Nodrix.run()` is what services the check, so the download happens between loop iterations rather
+than inside a callback — nothing you are in the middle of handling gets interrupted by a reboot.
 
 ## Watching the rollout
 
-Put `firmware_version` on a dashboard widget and it becomes your fleet inventory. With several boards
-in one project, use a distinct variable per device — `sensor_a_version`, `sensor_b_version` — and a
-glance tells you which ones took the update and which are stuck.
+**Devices** is the inventory: one row per board, showing the chip it reported, the version it is
+running, the version assigned to it, and when it was last heard from. Boards appear the first time
+they report — there is nothing to enrol.
 
-`ota_status` is the other half. Because it reports `downloading`, `rejected_host`, or a specific
-error string, a failed update tells you *why* rather than leaving you with a board that simply went
-quiet.
-
-Add a **variable** trigger on `ota_status` not equal to `ok` with a
-[Telegram action](/guides/esp32-notifications), and a failed rollout tells you rather than waiting to
-be discovered.
+A stalled rollout nearly always has one cause. The sketch reports `1.4.0` while the upload was named
+`1.4`, so the board installs, reboots, reports a string that isn't the one assigned, and would go
+round again forever. Nodrix stops offering after a few attempts and marks that device as having
+given up, which points you at the version string instead of at the board.
 
 ## Notes
 
-`setInsecure()` keeps the example readable. Firmware delivery is exactly the wrong place to skip
-certificate validation in production — an unauthenticated transport plus an unvalidated binary is
-how a fleet gets taken over. Pin the CA, and sign your images if the devices matter.
+The SDK does not validate certificates until you pin one, and firmware delivery is exactly the wrong
+place to leave that off — an unauthenticated transport plus an unvalidated binary is how a fleet gets
+taken over. `setCACert()` on an ESP32, `setFingerprint()` on an ESP8266 in HTTP mode.
 
-[Battery devices](/guides/esp32-deep-sleep-battery) that spend their lives asleep need the update
-check on wake, not on a persistent socket. Poll the control endpoint once per wake cycle, and expect rollouts to take as long as your
-sleep interval.
+What that gets you is a validated connection to your own instance, a project token that authorises
+the download, and the version the board reports afterwards as proof of what actually landed. Signed
+images, where the board verifies a signature before it boots the new slot, are on the roadmap.
+
+[Battery devices](/guides/esp32-deep-sleep-battery) never hold a socket, so nothing can nudge them;
+the check runs on the first wake after you assign. Budget the download into that wake's power
+envelope — it is the most expensive thing the node will do that cycle.
 
 An OTA download needs enough free heap for the TLS session on top of everything your sketch is
 already holding. If updates fail on a memory-tight build while plain telemetry works, that's the

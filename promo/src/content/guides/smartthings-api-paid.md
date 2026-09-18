@@ -24,7 +24,7 @@ related:
   - href: "/guides/deploy-nodrix-cloudflare"
     label: "Deploy nodrix to Cloudflare"
     desc: "The deployment your devices report to."
-  - href: "/docs/cloudflare-limits"
+  - href: "/guides/cloudflare-free-tier-limits"
     label: "What it costs to run"
     desc: "The arithmetic behind the free tier."
 ---

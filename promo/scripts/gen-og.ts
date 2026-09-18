@@ -1,7 +1,7 @@
 // Local OG / feature-image generator. Run with `bun run og:gen` whenever guide content
 // changes, then commit the PNGs in public/og/. These images are pre-generated and
 // committed, so the Cloudflare build never needs the (dev-only) satori/resvg tooling.
-import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
@@ -64,7 +64,7 @@ for (const file of blogFiles) {
 console.log(`Generated ${blogFiles.length} OG image(s) -> public/og/blog/`);
 
 // Reference docs: the guide-style card, badged "Docs".
-const docFiles = readdirSync(DOCS_DIR).filter((f) => f.endsWith('.md'));
+const docFiles = existsSync(DOCS_DIR) ? readdirSync(DOCS_DIR).filter((f) => f.endsWith('.md')) : [];
 for (const file of docFiles) {
   const slug = basename(file, '.md');
   const { data } = matter(readFileSync(resolve(DOCS_DIR, file), 'utf8'));

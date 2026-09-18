@@ -1,6 +1,8 @@
 ---
 title: "Cloudflare limits and what they cost you"
 description: "What a nodrix deployment actually consumes on Cloudflare's free tier, which ceiling you hit first, and when the $5/month plan becomes necessary."
+category: concept
+difficulty: beginner
 datePublished: 2026-09-18
 faqs:
   - q: "Can nodrix run entirely on Cloudflare's free tier?"
@@ -17,14 +19,24 @@ related:
   - href: "/guides/deploy-nodrix-cloudflare"
     label: "Deploy nodrix to Cloudflare"
     desc: "Getting the deployment up in the first place."
-  - href: "/docs"
-    label: "Device protocol & read API"
-    desc: "The endpoints these limits apply to."
+  - href: "/guides/esp32-https-cloud"
+    label: "Connect an ESP32 over HTTPS"
+    desc: "The connection every one of these requests comes from."
+  - href: "/guides/esp32-deep-sleep-battery"
+    label: "ESP32 battery life"
+    desc: "Duty-cycling saves battery and request quota together."
+  - href: "/guides/smartthings-api-paid"
+    label: "SmartThings API goes paid"
+    desc: "Owning the telemetry layer, and what it costs to hold."
 ---
+
+**A hobby deployment runs free.** The ceiling you meet first is Workers requests — 100,000 a day,
+which is roughly eleven devices posting every ten seconds, or fifty posting every minute. Past that,
+Workers Paid is **$5/month flat** and stays that way for a long time.
 
 nodrix runs in your own Cloudflare account, so the bill is Cloudflare's rather than a per-device
 licence. That is the point of the architecture, but it does mean the platform's limits become yours.
-This page is the arithmetic: what a deployment consumes, which ceiling arrives first, and when the
+What follows is the arithmetic: what a deployment consumes, which ceiling arrives first, and when the
 five-dollar plan stops being optional.
 
 ## Where your data actually goes

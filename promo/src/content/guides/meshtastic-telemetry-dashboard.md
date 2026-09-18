@@ -25,7 +25,7 @@ related:
   - href: "/guides/deploy-nodrix-cloudflare"
     label: "Deploy nodrix to Cloudflare"
     desc: "Where the mesh readings land."
-  - href: "/docs/cloudflare-limits"
+  - href: "/guides/cloudflare-free-tier-limits"
     label: "What it costs to run"
     desc: "Request budget for a gateway that posts continuously."
 ---

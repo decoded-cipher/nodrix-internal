@@ -7,7 +7,8 @@
     "sensors": "bun sensors.js",
     "controllers": "bun controllers.js",
     "gps": "bun gps.js",
-    "start": "bun start.js"
+    "start": "bun start.js",
+    "dht": "bun dht-boards.js"
   },
   "dependencies": {
     "axios": "^1.7.7",

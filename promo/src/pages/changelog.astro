@@ -7,6 +7,29 @@ import { breadcrumb, jsonLdGraph } from '../lib/seo';
 // Platform releases carry a `version`; companion releases (e.g. the library) carry a `tag`.
 const entries: { version?: string; tag?: string; date: string; title: string; postSlug?: string; items: string[] }[] = [
   {
+    version: '1.0.2',
+    date: 'November 12, 2026',
+    title: 'Security fixes',
+    items: [
+      'Invites are redeemed only through the invite link, or an OAuth sign-in whose provider has verified the email.',
+      'API tokens follow their creator’s current access, and only owners and admins can create them. Removing a user revokes their tokens and pending invites.',
+      'MCP re-checks access on every call, requires PKCE, and expires sessions after 24 hours. OAuth client registration is off while MCP is off.',
+      'Revoking a device token disconnects its open WebSocket, and open dashboards stop streaming to anyone whose access was revoked.',
+      'Chart labels are escaped, post-login redirects stay on your instance, webhook templates JSON-escape device values, and automations, event payloads and variables are size-capped.',
+    ],
+  },
+  {
+    tag: 'Arduino library',
+    version: '0.1.2',
+    date: 'November 12, 2026',
+    title: 'Certificate pins that always apply',
+    items: [
+      '<code class="inline-code">setCACert()</code> now works on ESP8266, over HTTP and WebSocket, and <code class="inline-code">setFingerprint()</code> works on the ESP8266 WebSocket.',
+      'A pin that can’t be applied — a fingerprint on ESP32, or a malformed one — fails the connection instead of silently falling back to an unvalidated one.',
+      'With <code class="inline-code">setDebug(true)</code>, the library warns when certificates aren’t being validated.',
+    ],
+  },
+  {
     tag: 'Arduino library',
     version: '0.1.1',
     date: 'September 16, 2026',

@@ -67,9 +67,13 @@ The HTTP service integration can HMAC-sign its request body with a shared secret
 ## MCP (AI clients)
 Optional Model Context Protocol server. Off by default — the owner flips it on from Settings → MCP server.
 
-Two transports on the same worker:
-- \`/v1/mcp\` — bearer-token, for CLI and IDE clients (Claude Code, Cursor). Authenticate with a user token from Settings → Tokens.
-- \`/v1/mcp/oauth\` — OAuth 2.1, for browser-based clients (claude.ai connectors). The user signs in and approves a consent screen; no token to manage.
+One endpoint, \`/v1/mcp\` (Streamable HTTP), accepts either credential:
+- OAuth 2.1 sign-in, for claude.ai and ChatGPT connectors and the Claude Code plugin. The user signs in on their instance and approves a consent screen; no token to manage. Clients can register dynamically or use a Client ID Metadata Document.
+- An API token in \`Authorization: Bearer\`, for Cursor and other token-configured clients. Create one in Settings → Tokens.
+
+\`/v1/mcp/oauth\` still works as an alias for connectors added before the endpoints were merged.
+
+Claude Code plugin: \`/plugin install nodrix --marketplace decoded-cipher/nodrix\`. It asks for the instance's endpoint and handles sign-in.
 
 Read tools (browse projects, read state and time-series, view automations) are exposed when MCP is on. Management tools (create/update of projects, variables, dashboards, automations, integrations; run automations; set variable values for hardware) require a second deployment toggle AND an explicit \`mcp:manage\` grant at consent time. No delete operations are ever exposed. Every MCP-driven write is recorded in the audit log when enabled, tagged as MCP-sourced.
 

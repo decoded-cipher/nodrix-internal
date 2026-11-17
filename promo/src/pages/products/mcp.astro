@@ -15,18 +15,18 @@ const title = 'Nodrix MCP server — read and control your own hardware from an 
 const description =
   'A native Model Context Protocol server built into nodrix. 12 read tools for telemetry, history, dashboards and automations, 16 write tools including set_variable to actuate hardware, and no delete tools at all. Owner-gated, off by default, and running in your own Cloudflare account.';
 
-const endpoints = [
+const signIns = [
   {
-    path: '/v1/mcp',
-    auth: 'Bearer token',
-    who: 'CLI and IDE clients',
-    desc: 'Claude Code, Cursor, and anything configured with a static token. Authenticates with a user token from Settings → Tokens.',
+    name: 'Sign in',
+    auth: 'OAuth 2.1',
+    who: 'claude.ai, ChatGPT, Claude Code',
+    desc: 'Custom connectors and the Claude Code plugin. No token to manage — the user signs in on your instance and approves a consent screen.',
   },
   {
-    path: '/v1/mcp/oauth',
-    auth: 'OAuth 2.1',
-    who: 'Browser-based connectors',
-    desc: 'claude.ai and ChatGPT custom connectors. No token to manage — the user signs in on your instance and approves a consent screen.',
+    name: 'API token',
+    auth: 'Bearer token',
+    who: 'CLI and IDE clients',
+    desc: 'Cursor, scripts, and anything configured with a static token. Authenticates with a user token from Settings → Tokens.',
   },
 ];
 
@@ -89,7 +89,7 @@ const faqs = [
   },
   {
     q: 'Which tools require the write toggle?',
-    a: 'All sixteen management tools, including set_variable. With only mcp_enabled on, a client sees just the twelve read tools — the write tools are not registered, so they do not appear in the tool list at all rather than failing when called. Turning on mcp_write_enabled additionally requires the connecting token to be admin-scope.',
+    a: 'All sixteen management tools, including set_variable. With only mcp_enabled on, a client sees just the twelve read tools — the write tools are not registered, so they do not appear in the tool list at all rather than failing when called. Turning on mcp_write_enabled additionally requires an admin-scope token, or read-and-manage access granted on the sign-in screen.',
   },
   {
     q: 'Can an assistant delete my project or my data?',
@@ -105,7 +105,7 @@ const faqs = [
   },
   {
     q: 'Which AI clients can connect?',
-    a: 'Anything that speaks MCP over Streamable HTTP. The OAuth endpoint suits browser clients like the claude.ai and ChatGPT connectors; the bearer endpoint suits Claude Code, Cursor and other token-configured tools. nodrix is also listed in the official MCP registry, so registry-aware clients can resolve it by name.',
+    a: 'Anything that speaks MCP over Streamable HTTP, all on the same endpoint. claude.ai and ChatGPT connectors sign in through your instance, Claude Code has a nodrix plugin that does the same, and Cursor and other token-configured tools send an API token. nodrix is also listed in the official MCP registry, so registry-aware clients can resolve it by name.',
   },
 ];
 
@@ -117,6 +117,8 @@ const related = [
   { href: '/docs#mcp', label: 'Docs: MCP', desc: 'The short version, in context with the rest of the platform.' },
   { href: '/docs#protocol', label: 'Device protocol', desc: 'The HTTPS/WebSocket contract underneath it all.' },
 ];
+
+const pluginSnippet = `/plugin install nodrix --marketplace decoded-cipher/nodrix`;
 
 const cliSnippet = `claude mcp add --transport http nodrix \\
   https://your-instance.workers.dev/v1/mcp \\
@@ -134,7 +136,7 @@ const jsonSnippet = `{
   }
 }`;
 
-const oauthSnippet = `https://your-instance.workers.dev/v1/mcp/oauth`;
+const connectorSnippet = `https://your-instance.workers.dev/v1/mcp`;
 
 const site = Astro.site!;
 const path = '/products/mcp';
@@ -222,17 +224,18 @@ const mono = 'rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]';
     <section class="border-b border-neutral-200/70">
       <div class="mx-auto max-w-5xl px-5 py-16 sm:px-6 sm:py-20">
         <span class="text-sm font-semibold text-accent-600">Connect</span>
-        <h2 class={h2}>Two endpoints, one worker</h2>
+        <h2 class={h2}>One endpoint, two ways in</h2>
         <p class="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-600 sm:text-base">
-          Both speak Streamable HTTP and expose the same tools. They differ only in how the client
-          proves who it is — pick whichever your client supports.
+          Every client connects to <code class={mono}>/v1/mcp</code> over Streamable HTTP and sees
+          the same tools. The only difference is how the client proves who it is — pick whichever
+          your client supports.
         </p>
 
         <div class="mt-8 grid gap-4 sm:grid-cols-2">
-          {endpoints.map((e) => (
+          {signIns.map((e) => (
             <div class="rounded-xl border border-neutral-200 bg-white p-6">
               <div class="flex items-center justify-between gap-3">
-                <h3 class="font-mono text-sm font-semibold text-neutral-900">{e.path}</h3>
+                <h3 class="text-sm font-semibold text-neutral-900">{e.name}</h3>
                 <span class="rounded-full bg-accent-50 px-2.5 py-0.5 text-xs font-semibold text-accent-600">{e.auth}</span>
               </div>
               <p class="mt-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">{e.who}</p>
@@ -241,10 +244,19 @@ const mono = 'rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]';
           ))}
         </div>
 
+        <h3 class="mt-10 text-base font-semibold text-neutral-900">Claude Code</h3>
+        <p class="mt-2 text-sm leading-relaxed text-neutral-600">
+          Install the nodrix plugin. It asks for your endpoint and opens your instance to sign in the
+          first time:
+        </p>
+        <div class="tight-codes mt-3">
+          <Code code={pluginSnippet} lang="bash" />
+        </div>
+
         <h3 class="mt-10 text-base font-semibold text-neutral-900">Token-configured clients</h3>
         <p class="mt-2 text-sm leading-relaxed text-neutral-600">
-          Mint a token in <strong>Settings → Tokens</strong>, then point the client at the bearer
-          endpoint. With the Claude Code CLI:
+          Mint a token in <strong>Settings → Tokens</strong> and send it as a bearer header. With the
+          Claude Code CLI:
         </p>
         <div class="tight-codes mt-3">
           <Code code={cliSnippet} lang="bash" />
@@ -258,12 +270,12 @@ const mono = 'rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]';
 
         <h3 class="mt-10 text-base font-semibold text-neutral-900">Browser connectors</h3>
         <p class="mt-2 text-sm leading-relaxed text-neutral-600">
-          For claude.ai and ChatGPT, add a custom connector pointing at the OAuth endpoint. There is
+          For claude.ai and ChatGPT, add a custom connector pointing at the same endpoint. There is
           no token to paste — you sign in on your own instance and approve a consent screen that
           spells out what is being granted.
         </p>
         <div class="tight-codes mt-3">
-          <Code code={oauthSnippet} lang="bash" />
+          <Code code={connectorSnippet} lang="bash" />
         </div>
         <p class="mt-4 text-sm leading-relaxed text-neutral-600">
           The <a href="/guides/control-esp32-with-claude-mcp" class="font-medium text-accent-600 hover:text-accent-700">full walkthrough</a>
@@ -316,7 +328,7 @@ const mono = 'rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]';
           ))}
         </div>
         <p class="mt-6 text-sm leading-relaxed text-neutral-600">
-          The two flags live in <strong>Settings → More</strong>:
+          The two flags are the switches on the <strong>MCP server</strong> card in Settings:
           <code class={mono}>mcp_enabled</code> and <code class={mono}>mcp_write_enabled</code>.
           Only the instance owner can change them.
         </p>
@@ -346,7 +358,7 @@ const mono = 'rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px]';
         </div>
 
         <h3 class="mt-10 text-base font-semibold text-neutral-900">
-          Write — only with <code class={mono}>mcp_write_enabled</code> and an admin-scope token
+          Write — only with <code class={mono}>mcp_write_enabled</code>, and an admin-scope token or a manage grant
         </h3>
         <div class="mt-3 overflow-x-auto rounded-xl border border-neutral-200 bg-white">
           <table class="w-full text-sm">

@@ -40,7 +40,7 @@ export const GET: APIRoute = async ({ site }) => {
 - Two-way control: toggles/sliders/buttons write values back to hardware.
 - Edge automations: a visual flow builder — one or more triggers (variable thresholds, schedules, sunrise/sunset, custom events) branch through conditions into actions (set variables, call an integration over HTTP/email/chat like Slack/Telegram/Discord, or emit events).
 - Clean read API: edge-cached latest state, time-series, and variable listings behind one bearer token.
-- Optional MCP (Model Context Protocol) server — owner-gated, off by default. Lets Claude, Claude Code, ChatGPT, and any MCP-aware client read projects and (with an explicit toggle) drive automations. Bearer transport at /v1/mcp; OAuth at /v1/mcp/oauth.
+- Optional MCP (Model Context Protocol) server — owner-gated, off by default. Lets Claude, Claude Code, ChatGPT, and any MCP-aware client read projects and (with an explicit toggle) drive automations. One endpoint at /v1/mcp accepts an OAuth sign-in or an API token; Claude Code has a nodrix plugin.
 
 ## Pages
 - [Home](${u()}): Product overview, features, and how it works.

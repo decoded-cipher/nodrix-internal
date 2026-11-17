@@ -382,12 +382,16 @@ void loop() {
         <h2 class="text-2xl font-bold tracking-tight text-neutral-900">MCP server for AI clients</h2>
         <p class="mt-4 text-sm leading-relaxed text-neutral-700">
           Optional Model Context Protocol server, so an assistant can read a project's telemetry and —
-          once you allow it — act on the hardware. Off by default; the owner enables it from
-          Settings → More. It exposes two endpoints on the same worker:
-          <code class="rounded bg-neutral-100 px-1 py-0.5 text-xs">/v1/mcp</code> for token-configured
-          clients like Claude Code, and
-          <code class="rounded bg-neutral-100 px-1 py-0.5 text-xs">/v1/mcp/oauth</code> for browser
-          connectors like claude.ai.
+          once you allow it — act on the hardware. Off by default; the owner turns it on from the MCP
+          server card in Settings. Every client connects to one endpoint,
+          <code class="rounded bg-neutral-100 px-1 py-0.5 text-xs">/v1/mcp</code>, either by signing in
+          on your instance (claude.ai and ChatGPT connectors, the Claude Code plugin) or with an API
+          token (Cursor and other token-configured clients).
+        </p>
+        <p class="mt-3 text-sm leading-relaxed text-neutral-700">
+          In Claude Code, install the nodrix plugin with
+          <code class="rounded bg-neutral-100 px-1 py-0.5 text-xs">/plugin install nodrix --marketplace decoded-cipher/nodrix</code>.
+          It asks for your endpoint and opens your instance to sign in the first time.
         </p>
         <p class="mt-3 text-sm leading-relaxed text-neutral-700">
           Twelve read tools are available whenever the server is on. The sixteen management tools —

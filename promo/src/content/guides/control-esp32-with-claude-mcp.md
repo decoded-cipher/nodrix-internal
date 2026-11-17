@@ -5,7 +5,7 @@ category: project
 board: ESP32
 difficulty: intermediate
 datePublished: 2026-07-18
-dateUpdated: 2026-07-18
+dateUpdated: 2026-11-17
 faqs:
   - q: "What is an MCP server, and why would my IoT platform have one?"
     a: "MCP (Model Context Protocol) is the open standard AI assistants like Claude use to call external tools. An MCP server exposes a set of tools an agent can invoke — and when your IoT backend is the server, those tools are your devices: read this sensor, set that variable, create an automation. It's the difference between pasting sensor readings into a chat and letting the assistant query and control the hardware directly."
@@ -14,7 +14,7 @@ faqs:
   - q: "How is this different from the Home Assistant MCP server?"
     a: "Home Assistant's MCP server is built for Home Assistant's world — off-the-shelf smart-home devices on your local network, exposed through its Assist API. nodrix's is built for the other world: your own custom hardware — an ESP32 you flashed — reporting to your own cloud over plain HTTPS. If your project is a store-bought bulb, use Home Assistant. If it's a board you wrote the firmware for, this is the path that doesn't require running a local hub."
   - q: "Which AI assistants can connect?"
-    a: "Anything that speaks MCP. Claude (Desktop, Code, and the web connector) is the reference client, and the server also works with other MCP-capable tools. nodrix exposes both a bearer-token endpoint for programmatic clients and an OAuth endpoint for the ones that authenticate interactively, so you connect whichever way your client expects."
+    a: "Anything that speaks MCP. Claude (Desktop, Code, and the web connector) is the reference client, and the server also works with other MCP-capable tools. nodrix exposes one endpoint that accepts either a sign-in, for clients that authenticate interactively, or an API token, for programmatic clients, so you connect whichever way your client expects."
   - q: "Does Claude need my hardware to be online to answer questions?"
     a: "For live state, yes — reading a sensor's current value asks your instance, which holds what the device last reported. But the history lives in your instance regardless, so Claude can analyze a week of temperature data whether or not the board is awake right now. A deep-sleeping battery sensor's last reading is always queryable."
 related:
@@ -93,7 +93,7 @@ decide otherwise:
 
 1. **The server is off by default.** Until the owner enables it, the MCP endpoint returns 404 — it
    doesn't exist as far as the internet is concerned.
-2. **Only the owner can enable it.** It lives in **Settings → More**, behind the owner role. No
+2. **Only the owner can enable it.** It lives on the **MCP server** card in **Settings**, behind the owner role. No
    member or admin can expose your hardware to an assistant.
 3. **Writes are a separate switch.** Turn the server on and it comes up **read-only** — an assistant
    can see your data but cannot touch a single variable. The management tools stay dark until you
@@ -105,19 +105,20 @@ if and when you want it — writing, as two separate acts.
 
 ## Connecting Claude
 
-The server speaks standard MCP over two endpoints on your instance: an **OAuth** endpoint at
-`/v1/mcp/oauth` for interactive clients like the Claude apps, and a **bearer-token** endpoint at
-`/v1/mcp` for token-configured clients like Claude Code and IDE plugins.
+The server speaks standard MCP at one endpoint on your instance, `/v1/mcp`. Clients either sign in
+through your instance, like the Claude apps and Claude Code, or send an API token, like most IDE
+plugins.
 
 For the Claude apps, connect it as a custom connector — the whole path is five steps:
 
-1. **Enable the server in nodrix first.** In your instance, go to **Settings → More** and turn the
-   MCP server on; until you do, the endpoint returns 404 and nothing can connect. Turn on the write
-   flag here too if you want Claude to control hardware and not just read it.
-2. **Open Claude's connector settings.** In the browser, click your profile icon → **Settings**; on
-   desktop, press `⌘⇧,` (macOS) or `Ctrl+,`. Then click **Connectors** in the sidebar.
-3. **Add a custom connector.** Click **Add** (top-right) → **Add custom connector**, paste your
-   instance's OAuth URL — `https://your-instance.workers.dev/v1/mcp/oauth` — and click **Add**.
+1. **Enable the server in nodrix first.** In your instance, open **Settings** and turn on the
+   **MCP server** card; until you do, the endpoint returns 404 and nothing can connect. Turn on
+   **Allow control writes** there too if you want Claude to control hardware and not just read it.
+2. **Open Claude's connectors.** Go to [claude.ai/plugins](https://claude.ai/plugins) and switch
+   to the **Connectors** tab.
+3. **Add a custom connector.** Click **Add** → **Add custom connector**, name it, paste your
+   instance's endpoint — `https://your-instance.workers.dev/v1/mcp` — and click **Continue**.
+   Claude detects that the server uses sign-in, so keep the defaults it picks.
 4. **Approve on your own instance.** Claude redirects you to your nodrix instance to sign in as the
    owner and approve the connection. That consent screen is where you see exactly what you're
    granting before anything is shared.
@@ -125,7 +126,10 @@ For the Claude apps, connect it as a custom connector — the whole path is five
    and more") menu in the message box. From the connector's settings you can enable or disable
    individual tools — a second place the read-only boundary is yours to draw.
 
-For **Claude Code or an IDE plugin**, point it at the bearer endpoint `/v1/mcp` instead, with an
+For **Claude Code**, install the nodrix plugin with
+`/plugin install nodrix --marketplace decoded-cipher/nodrix` and enter the same endpoint when it
+asks. The first time Claude uses it, your browser opens your instance to sign in. For an **IDE
+plugin** or anything configured with a static token, point it at the same endpoint with an
 `Authorization: Bearer <token>` header carrying a token from your instance. If a menu has moved,
 Anthropic's [custom-connectors guide](https://support.anthropic.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)
 has the canonical version of these steps.

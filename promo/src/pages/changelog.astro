@@ -7,6 +7,17 @@ import { breadcrumb, jsonLdGraph } from '../lib/seo';
 // Platform releases carry a `version`; companion releases (e.g. the library) carry a `tag`.
 const entries: { version?: string; tag?: string; date: string; title: string; postSlug?: string; items: string[] }[] = [
   {
+    version: '1.0.3',
+    date: 'November 17, 2026',
+    title: 'MCP connector fixes',
+    items: [
+      'claude.ai and ChatGPT connectors sign in and work on <code class="inline-code">/v1/mcp</code>, which now accepts both OAuth sign-ins and API tokens. <code class="inline-code">/v1/mcp/oauth</code> keeps working for existing connectors.',
+      'A Claude Code plugin: <code class="inline-code">/plugin install nodrix --marketplace decoded-cipher/nodrix</code> asks for your endpoint and handles sign-in.',
+      'Claude Code and Codex can complete sign-in, and connectors can use a published client identity instead of registering on every connect.',
+      'Every MCP tool has a title and a safety hint, so assistants ask before changing anything.',
+    ],
+  },
+  {
     version: '1.0.2',
     date: 'November 12, 2026',
     title: 'Security fixes',
